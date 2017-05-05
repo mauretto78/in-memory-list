@@ -28,7 +28,7 @@ foreach ($collection as $element){
 
 ## Sorting and Quering
 
-You can perform some queries your list:
+You can perform some queries your list. You can concatenate criteria:
 
 ```
 use InMemoryList\Application\Client;
