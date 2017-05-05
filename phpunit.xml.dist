@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ This file is part of the InMemoryList package.
+  ~
+  ~ (c) Mauro Cassani<assistenza@easy-grafica.com>
+  ~
+  ~  For the full copyright and license information, please view the LICENSE
+  ~  file that was distributed with this source code.
+  -->
+
+<phpunit bootstrap="tests/bootstrap.php"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnError="false"
+         stopOnFailure="false"
+         syntaxCheck="true"
+         beStrictAboutTestSize="true"
+         beStrictAboutTestsThatDoNotTestAnything="true">
+
+    <testsuites>
+        <testsuite name="Redis Browser Test Suite">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">src/</directory>
+        </whitelist>
+    </filter>
+
+    <php>
+        <!-- Redis -->
+        <const name="REDIS_SERVER_VERSION" value="3.2" />
+        <const name="REDIS_SERVER_HOST" value="127.0.0.1" />
+        <const name="REDIS_SERVER_PORT" value="6379" />
+    </php>
+</phpunit>

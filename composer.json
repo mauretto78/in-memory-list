@@ -1,10 +1,21 @@
 {
+    "name": "mauretto78/in-memory-list",
+    "type": "library",
+    "description": "PHP In Memery List",
+    "keywords": ["redis", "memcached", "in-memory"],
+    "homepage": "https://github.com/mauretto78/in-memory-list",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
-            "RedisBrowser\\": "src/"
+            "InMemoryList\\": "src/"
         }
     },
     "require": {
+        "php": ">=5.3.9",
+        "ramsey/uuid": "^3.6",
         "predis/predis": "^1.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~5.7"
     }
 }
