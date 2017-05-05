@@ -1,7 +1,7 @@
 {
     "name": "mauretto78/in-memory-list",
     "type": "library",
-    "description": "PHP In Memery List",
+    "description": "In Memery List",
     "keywords": ["redis", "memcached", "in-memory"],
     "homepage": "https://github.com/mauretto78/in-memory-list",
     "license": "MIT",
@@ -11,7 +11,7 @@
         }
     },
     "require": {
-        "php": ">=5.3.9",
+        "php": "^5.4 || ^7.0",
         "ramsey/uuid": "^3.6",
         "predis/predis": "^1.1"
     },
