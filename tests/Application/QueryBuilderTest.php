@@ -7,7 +7,6 @@
  *  For the full copyright and license information, please view the LICENSE
  *  file that was distributed with this source code.
  */
-
 use InMemoryList\Application\Client;
 use InMemoryList\Application\QueryBuilder;
 use PHPUnit\Framework\TestCase;
@@ -157,7 +156,7 @@ class QueryBuilderTest extends TestCase
         $this->assertEquals($firstResult->id, '10');
 
         // perform a concatenated query with order by and check that first element of array is the expected one
-        $postCollection =  $this->client->create($this->parsedPostsArray, 'post list', 'id');
+        $postCollection = $this->client->create($this->parsedPostsArray, 'post list', 'id');
         $qb10 = new QueryBuilder($postCollection);
         $qb10->orderBy('userId');
         $results = $qb10->getResults();

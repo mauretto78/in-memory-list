@@ -7,7 +7,6 @@
  *  For the full copyright and license information, please view the LICENSE
  *  file that was distributed with this source code.
  */
-
 use InMemoryList\Application\Client;
 use InMemoryList\Application\QueryBuilder;
 
@@ -23,11 +22,11 @@ $qb
     ->addCriteria('title', 'est', 'IN')
     ->orderBy('title');
 
-foreach ($qb->getResults() as $element){
+foreach ($qb->getResults() as $element) {
     $item = $client->item($element);
 
     echo '<p>';
-    echo '<strong>id</strong>: ' . $item->id . '<br>';
-    echo '<strong>title</strong>: ' . $item->title . '<br>';
+    echo '<strong>id</strong>: '.$item->id.'<br>';
+    echo '<strong>title</strong>: '.$item->title.'<br>';
     echo '</p>';
 }

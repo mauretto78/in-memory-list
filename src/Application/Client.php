@@ -7,12 +7,10 @@
  *  For the full copyright and license information, please view the LICENSE
  *  file that was distributed with this source code.
  */
-
 namespace InMemoryList\Application;
 
 use InMemoryList\Application\Exception\NotSupportedDriverException;
 use InMemoryList\Domain\Model\Contracts\ListRepository;
-use InMemoryList\Infrastructure\Domain\Model\Exception\CreateCollectionFromEmptyArrayException;
 use InMemoryList\Infrastructure\Domain\Model\ListCollectionFactory;
 use InMemoryList\Infrastructure\Persistance\ListRedisRepository;
 use Predis\Client as Redis;
@@ -80,20 +78,19 @@ class Client
 
     /**
      * @param array $elements
-     * @param null $uuid
-     * @param null $elementIdentificator
+     * @param null  $uuid
+     * @param null  $elementIdentificator
+     *
      * @return mixed|string
      */
     public function create(array $elements, $uuid = null, $elementIdentificator = null)
     {
-        try
-        {
+        try {
             $factory = new ListCollectionFactory();
             $collection = $factory->create($elements, $uuid, $elementIdentificator);
 
             return $this->repository->create($collection);
-        }
-        catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return $exception->getMessage();
         }
     }
@@ -148,6 +145,7 @@ class Client
 
     /**
      * @param $string
+     *
      * @return mixed
      */
     public function item($string)
