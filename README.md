@@ -21,6 +21,7 @@ $client = new Client();
 $collection = $client->create($array, 'simple-array');
 
 foreach ($collection as $element){
+    $item = $client->item($element);
     // ...
 }
 
@@ -80,6 +81,7 @@ $qb
     ->orderBy('title');
     
 foreach ($qb->getResults() as $element){
+    $item = $client->item($element);
     // ...
 }
 
