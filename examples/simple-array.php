@@ -29,11 +29,12 @@ $simpleArray = [
 
 $client = new Client();
 $client->flush();
-$collection = $client->create($simpleArray, 'simple-array');
+$collection = $client->create($simpleArray, 'simple-array', 'id');
 
+// loop items
+echo '<h3>Loop items</h3>';
 foreach ($collection as $element){
     $item = $client->item($element);
-
     echo '<p>';
     echo '<strong>userId</strong>: ' . $item['userId'] . '<br>';
     echo '<strong>Id</strong>: ' . $item['id'] . '<br>';
@@ -42,6 +43,16 @@ foreach ($collection as $element){
     echo '</p>';
 }
 
+// find a single element
+$item1 = $client->item($collection['1']);
+
+echo '<h3>Single item(1)</h3>';
+echo '<p>';
+echo '<strong>userId</strong>: ' . $item1['userId'] . '<br>';
+echo '<strong>Id</strong>: ' . $item1['id'] . '<br>';
+echo '<strong>title</strong>: ' . $item1['title'] . '<br>';
+echo '<strong>body</strong>: ' . $item1['body'] . '<br>';
+echo '</p>';
 
 
 

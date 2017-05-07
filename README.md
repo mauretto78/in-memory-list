@@ -8,7 +8,7 @@ This package requires [Redis](https://redis.io/).
 
 ## Basic Usage
 
-To create and store in-memory you list:
+To create and store in memory you list do the following:
 
 ```
 use InMemoryList\Application\Client;
@@ -25,6 +25,39 @@ foreach ($collection as $element){
 }
 
 ```
+
+## Assign unique IDs to your list elements
+
+You can assign an unique ID to list elemens (instead, a [uuid](https://github.com/ramsey/uuid) will be generated). Consider this array:
+
+```
+$simpleArray = [
+    [
+        "userId" => 1,
+        "id" => 1,
+        "title" => "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+        "body" =>  "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
+    ],
+    ...
+]
+```
+
+Maybe you would use `id` key as unique ID:
+
+```
+use InMemoryList\Application\Client;
+
+$client = new Client();
+$collection = $client->create($simpleArray, 'simple-array', 'id');
+```
+
+And now to retrieve a single element, you can simply do:
+
+```
+$item1 = $client->item($collection['1']);
+```
+
+Please note that id must be a string. 
 
 ## Sorting and Quering
 
