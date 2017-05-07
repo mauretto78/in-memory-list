@@ -21,7 +21,7 @@ class QueryBuilder
     /**
      * @var array
      */
-    private $query;
+    private $criteria;
 
     /**
      * @var array
@@ -74,7 +74,7 @@ class QueryBuilder
             throw new NotValidOperatorException($operator.' is not a valid operator.');
         }
 
-        $this->query[] = [
+        $this->criteria[] = [
             'key' => $key,
             'value' => $value,
             'operator' => $operator,
@@ -116,39 +116,39 @@ class QueryBuilder
         $singleQueryResults = [];
         $i = 0;
 
-        if (count($this->query)) {
-            foreach ($this->query as $criteria) {
+        if (count($this->criteria)) {
+            foreach ($this->criteria as $criterion) {
                 $singleQueryResults[] = $this->_filter(
-                    function ($element) use ($criteria) {
-                        $value = $this->_getListElementValueFromKey(unserialize($element), $criteria['key']);
+                    function ($element) use ($criterion) {
+                        $value = $this->_getListElementValueFromKey(unserialize($element), $criterion['key']);
 
-                        switch ($criteria['operator']) {
+                        switch ($criterion['operator']) {
                             case '>':
-                                return $value > $criteria['value'];
+                                return $value > $criterion['value'];
                                 break;
 
                             case '<':
-                                return $value < $criteria['value'];
+                                return $value < $criterion['value'];
                                 break;
 
                             case '<=':
-                                return $value <= $criteria['value'];
+                                return $value <= $criterion['value'];
                                 break;
 
                             case '>=':
-                                return $value >= $criteria['value'];
+                                return $value >= $criterion['value'];
                                 break;
 
                             case '!=':
-                                return $value !== $criteria['value'];
+                                return $value !== $criterion['value'];
                                 break;
 
                             case 'IN':
-                                return strpos($value, $criteria['value']) !== false;
+                                return strpos($value, $criterion['value']) !== false;
                                 break;
 
                             default:
-                                return $value === $criteria['value'];
+                                return $value === $criterion['value'];
                                 break;
                         }
 

@@ -23,23 +23,6 @@ class ClientTest extends TestCase
 
     /**
      * @test
-     * @expectedException \Predis\Connection\ConnectionException
-     * @expectedExceptionMessage Connection refused [tcp://0.0.0.0:432423423]
-     */
-    public function it_throws_ConnectionException_if_wrong_redis_credentials_are_provided()
-    {
-        $wrongCredentials = array(
-            'host' => '0.0.0.0',
-            'port' => 432423423,
-            'database' => 15,
-        );
-
-        $client = new Client('redis', $wrongCredentials);
-        $client->create($this->parsedArrayFromJson, 'fake list');
-    }
-
-    /**
-     * @test
      * @expectedException \InMemoryList\Application\Exception\NotSupportedDriverException
      * @expectedExceptionMessage not supported driver is not a supported driver.
      */
@@ -50,14 +33,31 @@ class ClientTest extends TestCase
 
     /**
      * @test
-     * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\CollectionAlreadyExistsException
-     * @expectedExceptionMessage Collection fake list already exists in memory.
      */
-    public function it_throws_CollectionAlreadyExistsException_if_attempt_to_persist_duplicate_collection()
+    public function it_throws_ConnectionException_if_wrong_redis_credentials_are_provided()
+    {
+        $wrongCredentials = array(
+            'host' => '0.0.0.0',
+            'port' => 432423423,
+            'database' => 15,
+        );
+
+        $client = new Client('redis', $wrongCredentials);
+        $collection = $client->create($this->parsedArrayFromJson, 'fake list');
+
+        $this->assertEquals($collection, 'Connection refused [tcp://0.0.0.0:432423423]');
+    }
+
+    /**
+     * @test
+     */
+    public function it_catch_CollectionAlreadyExistsException_if_attempt_to_persist_duplicate_collection()
     {
         $client = new Client();
-        $client->create($this->parsedArrayFromJson, 'fake list');
-        $client->create($this->parsedArrayFromJson, 'fake list');
+        $collection = $client->create($this->parsedArrayFromJson, 'fake list');
+        $collection2 = $client->create($this->parsedArrayFromJson, 'fake list');
+
+        $this->assertEquals($collection2, 'Collection fake list already exists in memory.');
     }
 
     /**

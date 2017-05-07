@@ -162,7 +162,7 @@ class QueryBuilderTest extends TestCase
         $qb10->orderBy('userId');
         $results = $qb10->getResults();
         $firstResult = $this->client->item($results[0]);
-        $this->assertEquals($firstResult->id, '3');
+        $this->assertEquals($firstResult->id, '9');
 
         $this->client->flush();
     }
