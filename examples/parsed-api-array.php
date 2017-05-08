@@ -8,7 +8,6 @@
  *  file that was distributed with this source code.
  */
 use InMemoryList\Application\Client;
-use InMemoryList\Application\QueryBuilder;
 
 include __DIR__.'/shared.php';
 

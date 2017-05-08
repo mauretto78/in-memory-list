@@ -28,7 +28,7 @@ class ListMemcachedRepositoryTest extends TestCase
         $memcached = new \Memcached();
         $memcached->addServers(
             [
-                ['localhost', 11211]
+                ['localhost', 11211],
             ]
         );
 

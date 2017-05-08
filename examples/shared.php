@@ -21,6 +21,5 @@ $redis_params = [
 ];
 
 $memcached_params = [
-    ['localhost', 11211]
+    ['localhost', 11211],
 ];
-

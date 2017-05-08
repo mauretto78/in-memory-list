@@ -13,7 +13,6 @@ use InMemoryList\Domain\Model\Contracts\ListRepository;
 use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Infrastructure\Persistance\Exception\CollectionAlreadyExistsException;
-use InMemoryList\Infrastructure\Helper\ListMemcachedRepositoryUuid;
 use InMemoryList\Infrastructure\Persistance\Exception\NotExistListElementException;
 
 class ListMemcachedRepository implements ListRepository
@@ -25,6 +24,7 @@ class ListMemcachedRepository implements ListRepository
 
     /**
      * ListMemcachedRepository constructor.
+     *
      * @param \Memcached $memcached
      */
     public function __construct(\Memcached $memcached)
@@ -49,7 +49,7 @@ class ListMemcachedRepository implements ListRepository
 
         /** @var ListElement $element */
         foreach ($collection->getAll() as $element) {
-            $arrayOfElements[(string)$element->getUuid()] = serialize($element);
+            $arrayOfElements[(string) $element->getUuid()] = serialize($element);
         }
 
         $this->memcached->set(
@@ -73,12 +73,13 @@ class ListMemcachedRepository implements ListRepository
     /**
      * @param $collectionUUId
      * @param $elementUUId
+     *
      * @throws NotExistListElementException
      */
     public function deleteElement($collectionUUId, $elementUUId)
     {
         $arr = $this->findByUuid($collectionUUId);
-        unset($arr[(string)$elementUUId]);
+        unset($arr[(string) $elementUUId]);
 
         $this->memcached->replace($collectionUUId, $arr);
     }
@@ -118,7 +119,7 @@ class ListMemcachedRepository implements ListRepository
             throw new NotExistListElementException('Cannot retrieve the element '.$elementUUId.' from the collection in memory.');
         }
 
-        return unserialize($this->memcached->get($collectionUUId)[(string)$elementUUId]);
+        return unserialize($this->memcached->get($collectionUUId)[(string) $elementUUId]);
     }
 
     /**
