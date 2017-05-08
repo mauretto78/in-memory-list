@@ -95,7 +95,7 @@ And now to retrieve a single element, you can simply do:
 $item1 = $client->item($collection['1']);
 ```
 
-Please note that id must be a string. 
+Please note that `id` must be a string. 
 
 ## Sorting and Quering
 
