@@ -15,46 +15,47 @@ interface ListRepository
 {
     /**
      * @param ListCollection $collection
+     * @param null           $ttl
      *
      * @return mixed
      */
-    public function create(ListCollection $collection);
+    public function create(ListCollection $collection, $ttl = null);
 
     /**
-     * @param $collectionUUId
+     * @param $collectionUuid
      *
      * @return mixed
      */
-    public function delete($collectionUUId);
+    public function delete($collectionUuid);
 
     /**
-     * @param $collectionUUId
-     * @param $elementUUId
+     * @param $collectionUuid
+     * @param $elementUuid
      */
-    public function deleteElement($collectionUUId, $elementUUId);
+    public function deleteElement($collectionUuid, $elementUuid);
 
     /**
-     * @param $collectionUUId
-     * @param $elementUUId
+     * @param $collectionUuid
+     * @param $elementUuid
      *
      * @return bool
      */
-    public function existsElement($collectionUUId, $elementUUId);
+    public function existsElement($collectionUuid, $elementUuid);
 
     /**
-     * @param $collectionUUId
+     * @param $collectionUuid
      *
      * @return mixed
      */
-    public function findByUuid($collectionUUId);
+    public function findByUuid($collectionUuid);
 
     /**
-     * @param $collectionUUId
-     * @param $elementUUId
+     * @param $collectionUuid
+     * @param $elementUuid
      *
      * @return mixed
      */
-    public function findElement($collectionUUId, $elementUUId);
+    public function findElement($collectionUuid, $elementUuid);
 
     /**
      * @return mixed

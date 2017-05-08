@@ -8,7 +8,7 @@
  *  file that was distributed with this source code.
  */
 use PHPUnit\Framework\TestCase;
-use InMemoryList\Domain\Model\ListElementUuId;
+use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Domain\Model\ListElement;
 
 class ListElementTest extends TestCase
@@ -24,7 +24,7 @@ class ListElementTest extends TestCase
             'test3' => 'Ipsum facium',
         ];
 
-        $cacheListElementUniquieId = new ListElementUuId();
+        $cacheListElementUniquieId = new ListElementUuid();
         $cacheListElement = new ListElement($cacheListElementUniquieId, $body);
 
         $this->assertInstanceOf(ListElement::class, $cacheListElement);

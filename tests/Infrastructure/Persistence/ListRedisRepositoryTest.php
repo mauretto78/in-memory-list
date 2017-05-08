@@ -9,8 +9,8 @@
  */
 use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListCollection;
-use InMemoryList\Domain\Model\ListElementUuId;
-use InMemoryList\Domain\Model\ListCollectionUuId;
+use InMemoryList\Domain\Model\ListElementUuid;
+use InMemoryList\Domain\Model\ListCollectionUuid;
 use InMemoryList\Infrastructure\Persistance\ListRedisRepository;
 use PHPUnit\Framework\TestCase;
 use Predis\Client;
@@ -34,35 +34,35 @@ class ListRedisRepositoryTest extends TestCase
      */
     public function it_should_create_query_and_delete_the_list_from_redis()
     {
-        $fakeElement1 = new ListElement($fakeUUid1 = new ListElementUuId(), [
+        $fakeElement1 = new ListElement($fakeUUid1 = new ListElementUuid(), [
             'id' => 123,
             'title' => 'Lorem Ipsum',
             'category-id' => 27,
             'category' => 'holiday',
             'rate' => 4,
         ]);
-        $fakeElement2 = new ListElement($fakeUUid2 = new ListElementUuId(), [
+        $fakeElement2 = new ListElement($fakeUUid2 = new ListElementUuid(), [
             'id' => 124,
             'title' => 'Neque porro quisquam',
             'category-id' => 28,
             'category' => 'last minute',
             'rate' => 5,
         ]);
-        $fakeElement3 = new ListElement($fakeUUid3 = new ListElementUuId(), [
+        $fakeElement3 = new ListElement($fakeUUid3 = new ListElementUuid(), [
             'id' => 125,
             'title' => 'Ipso facto',
             'category-id' => 28,
             'category' => 'last minute',
             'rate' => 1,
         ]);
-        $fakeElement4 = new ListElement($fakeUUid4 = new ListElementUuId(), [
+        $fakeElement4 = new ListElement($fakeUUid4 = new ListElementUuid(), [
             'id' => 126,
             'title' => 'Ipse dixit',
             'category-id' => 27,
             'category' => 'holiday',
             'rate' => 3,
         ]);
-        $fakeElement5 = new ListElement($fakeUUid5 = new ListElementUuId(), [
+        $fakeElement5 = new ListElement($fakeUUid5 = new ListElementUuid(), [
             'id' => 127,
             'title' => 'Dolor facius',
             'category-id' => 27,
@@ -70,7 +70,7 @@ class ListRedisRepositoryTest extends TestCase
             'rate' => 5,
         ]);
 
-        $collectionUuid = new ListCollectionUuId();
+        $collectionUuid = new ListCollectionUuid();
         $collection = new ListCollection($collectionUuid);
         $collection->addItem($fakeElement1);
         $collection->addItem($fakeElement2);
@@ -93,14 +93,14 @@ class ListRedisRepositoryTest extends TestCase
     {
         $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
 
-        $collectionUuid = new ListCollectionUuId();
+        $collectionUuid = new ListCollectionUuid();
         $collection = new ListCollection($collectionUuid);
 
         foreach ($parsedArrayFromJson as $element) {
-            $collection->addItem(new ListElement($fakeUuid1 = new ListElementUuId(), $element));
+            $collection->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
         }
 
-        $this->repo->create($collection);
+        $this->repo->create($collection, 3600);
 
         $this->assertCount(10, $this->repo->findByUuid($collection->getUuid()));
         $this->assertInstanceOf(ListElement::class, $this->repo->findElement($collection->getUuid(), $fakeUuid1->getUuid()));

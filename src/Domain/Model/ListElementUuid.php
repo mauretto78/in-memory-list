@@ -11,7 +11,7 @@ namespace InMemoryList\Domain\Model;
 
 use Ramsey\Uuid\Uuid;
 
-class ListElementUuId
+class ListElementUuid
 {
     /**
      * @var string

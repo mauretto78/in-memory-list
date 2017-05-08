@@ -88,16 +88,17 @@ class Client
      * @param array $elements
      * @param null  $uuid
      * @param null  $elementIdentificator
+     * @param null  $ttl
      *
      * @return mixed|string
      */
-    public function create(array $elements, $uuid = null, $elementIdentificator = null)
+    public function create(array $elements, $uuid = null, $elementIdentificator = null, $ttl = null)
     {
         try {
             $factory = new ListCollectionFactory();
             $collection = $factory->create($elements, $uuid, $elementIdentificator);
 
-            return $this->repository->create($collection);
+            return $this->repository->create($collection, $ttl);
         } catch (\Exception $exception) {
             return $exception->getMessage();
         }
@@ -112,35 +113,35 @@ class Client
     }
 
     /**
-     * @param $collectionUUId
-     * @param $uuid
+     * @param $collectionUuid
+     * @param $elementUuid
      *
      * @return mixed
      */
-    public function deleteElement($collectionUUId, $uuid)
+    public function deleteElement($collectionUuid, $elementUuid)
     {
-        return $this->repository->deleteElement($collectionUUId, $uuid);
+        return $this->repository->deleteElement($collectionUuid, $elementUuid);
     }
 
     /**
-     * @param $uuid
+     * @param $collectionUuid
      *
      * @return mixed
      */
-    public function findByUUid($uuid)
+    public function findByUuid($collectionUuid)
     {
-        return $this->repository->findByUuid($uuid);
+        return $this->repository->findByUuid($collectionUuid);
     }
 
     /**
      * @param $collectionUUId
-     * @param $uuid
+     * @param $elementUuid
      *
      * @return mixed
      */
-    public function findElement($collectionUUId, $uuid)
+    public function findElement($collectionUUId, $elementUuid)
     {
-        return $this->repository->findElement($collectionUUId, $uuid);
+        return $this->repository->findElement($collectionUUId, $elementUuid);
     }
 
     /**

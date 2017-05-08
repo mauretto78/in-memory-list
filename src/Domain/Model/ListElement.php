@@ -12,7 +12,7 @@ namespace InMemoryList\Domain\Model;
 class ListElement
 {
     /**
-     * @var ListElementUuId
+     * @var ListElementUuid
      */
     private $uuid;
 
@@ -29,10 +29,10 @@ class ListElement
     /**
      * IMListElement constructor.
      *
-     * @param ListElementUuId $uuid
+     * @param ListElementUuid $uuid
      * @param $body
      */
-    public function __construct(ListElementUuId $uuid, $body)
+    public function __construct(ListElementUuid $uuid, $body)
     {
         $this->_setUuid($uuid);
         $this->_setBody($body);
@@ -40,15 +40,15 @@ class ListElement
     }
 
     /**
-     * @param ListElementUuId $uuid
+     * @param ListElementUuid $uuid
      */
-    private function _setUuid(ListElementUuId $uuid)
+    private function _setUuid(ListElementUuid $uuid)
     {
         $this->uuid = $uuid;
     }
 
     /**
-     * @return ListElementUuId
+     * @return ListElementUuid
      */
     public function getUuid()
     {

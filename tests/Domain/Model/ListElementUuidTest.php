@@ -8,19 +8,19 @@
  *  file that was distributed with this source code.
  */
 use PHPUnit\Framework\TestCase;
-use InMemoryList\Domain\Model\ListElementUuId;
+use InMemoryList\Domain\Model\ListElementUuid;
 
-class ListElementUuIdTest extends TestCase
+class ListElementUuidTest extends TestCase
 {
     /**
      * @test
      */
     public function it_should_create_the_entity()
     {
-        $imListElementUUId = new ListElementUuId('12345');
+        $imListElementUUId = new ListElementUuid('12345');
         $imListElementUUIdToString = $imListElementUUId;
 
-        $this->assertInstanceOf(ListElementUuId::class, $imListElementUUId);
+        $this->assertInstanceOf(ListElementUuid::class, $imListElementUUId);
         $this->assertEquals($imListElementUUIdToString, '12345');
     }
 }

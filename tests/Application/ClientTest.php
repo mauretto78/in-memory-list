@@ -121,7 +121,7 @@ class ClientTest extends TestCase
         $element2 = $client->findElement('fake-list', '2');
 
         $this->assertInstanceOf(ListRedisRepository::class, $client->getRepository());
-        $this->assertCount(7, $client->findByUUid('fake-list'));
+        $this->assertCount(7, $client->findByUuid('fake-list'));
         $this->assertEquals('Leanne Graham', $element1->getBody()->name);
         $this->assertEquals('Ervin Howell', $element2->getBody()->name);
 
@@ -147,7 +147,7 @@ class ClientTest extends TestCase
         $element2 = $client->findElement('fake-list', '2');
 
         $this->assertInstanceOf(ListMemcachedRepository::class, $client->getRepository());
-        $this->assertCount(7, $client->findByUUid('fake-list'));
+        $this->assertCount(7, $client->findByUuid('fake-list'));
         $this->assertEquals('Leanne Graham', $element1->getBody()->name);
         $this->assertEquals('Ervin Howell', $element2->getBody()->name);
 

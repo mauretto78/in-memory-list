@@ -20,32 +20,32 @@ class ListCollection implements \Countable
     private $items;
 
     /**
-     * @var ListCollectionUuId
+     * @var ListCollectionUuid
      */
     private $uuid;
 
     /**
      * IMListElementCollection constructor.
      *
-     * @param ListCollectionUuId $uuid
+     * @param ListCollectionUuid $uuid
      * @param array              $items
      */
-    public function __construct(ListCollectionUuId $uuid, array $items = [])
+    public function __construct(ListCollectionUuid $uuid, array $items = [])
     {
         $this->_setUuid($uuid);
         $this->_setItems($items);
     }
 
     /**
-     * @param ListCollectionUuId $uuid
+     * @param ListCollectionUuid $uuid
      */
-    private function _setUuid(ListCollectionUuId $uuid)
+    private function _setUuid(ListCollectionUuid $uuid)
     {
         $this->uuid = $uuid;
     }
 
     /**
-     * @return ListCollectionUuId
+     * @return ListCollectionUuid
      */
     public function getUuid()
     {
@@ -61,11 +61,11 @@ class ListCollection implements \Countable
     }
 
     /**
-     * @param ListElementUuId $uuid
+     * @param ListElementUuid $uuid
      *
      * @return bool
      */
-    public function hasItem(ListElementUuId $uuid)
+    public function hasItem(ListElementUuid $uuid)
     {
         return isset($this->items[$uuid->getUuid()]);
     }
@@ -99,13 +99,13 @@ class ListCollection implements \Countable
     }
 
     /**
-     * @param ListElementUuId $uuid
+     * @param ListElementUuid $uuid
      *
      * @return mixed
      *
      * @throws ListElementKeyDoesNotExistException
      */
-    public function getElement(ListElementUuId $uuid)
+    public function getElement(ListElementUuid $uuid)
     {
         if (!$this->hasItem($uuid)) {
             throw new ListElementKeyDoesNotExistException('Invalid key '.$uuid->getUuid());

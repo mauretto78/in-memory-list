@@ -40,7 +40,7 @@ class ListRedisRepository implements ListRepository
      *
      * @throws CollectionAlreadyExistsException
      */
-    public function create(ListCollection $collection)
+    public function create(ListCollection $collection, $ttl = null)
     {
         if ($this->findByUuid($collection->getUuid())) {
             throw new CollectionAlreadyExistsException('Collection '.$collection->getUuid().' already exists in memory.');
@@ -53,72 +53,76 @@ class ListRedisRepository implements ListRepository
                 $element->getUuid(),
                 serialize($element)
             );
+
+            if ($ttl) {
+                $this->client->expire($collection->getUuid(), $ttl);
+            }
         }
 
         return $this->findByUuid($collection->getUuid());
     }
 
     /**
-     * @param $collectionUUId
+     * @param $collectionUuid
      *
      * @return mixed
      */
-    public function delete($collectionUUId)
+    public function delete($collectionUuid)
     {
-        $collection = $this->findByUuid($collectionUUId);
+        $collection = $this->findByUuid($collectionUuid);
 
         foreach ($collection as $element) {
             /** @var ListElement $element */
             $element = unserialize($element);
-            $this->deleteElement($collectionUUId, $element->getUuid());
+            $this->deleteElement($collectionUuid, $element->getUuid());
         }
     }
 
     /**
-     * @param $collectionUUId
-     * @param $elementUUId
+     * @param $collectionUuid
+     * @param $elementUuid
      */
-    public function deleteElement($collectionUUId, $elementUUId)
+    public function deleteElement($collectionUuid, $elementUuid)
     {
-        $this->client->hdel($collectionUUId, $elementUUId);
+        $this->client->hdel($collectionUuid, $elementUuid);
     }
 
     /**
-     * @param $collectionUUId
-     * @param $elementUUId
+     * @param $collectionUuid
+     * @param $elementUuid
      *
      * @return bool
      */
-    public function existsElement($collectionUUId, $elementUUId)
+    public function existsElement($collectionUuid, $elementUuid)
     {
-        return @isset($this->findByUuid($collectionUUId)[$elementUUId]);
+        return @isset($this->findByUuid($collectionUuid)[$elementUuid]);
     }
 
     /**
-     * @param $collectionUUId
+     * @param $collectionUuid
      *
      * @return mixed
      */
-    public function findByUuid($collectionUUId)
+    public function findByUuid($collectionUuid)
     {
-        return $this->client->hgetall($collectionUUId);
+        return $this->client->hgetall($collectionUuid);
     }
 
     /**
-     * @param $collectionUUId
-     * @param $elementUUId
+     * @param $collectionUuid
+     * @param $elementUuid
      *
      * @return mixed
      *
      * @throws NotExistListElementException
      */
-    public function findElement($collectionUUId, $elementUUId)
+    public function findElement($collectionUuid, $elementUuid)
     {
-        if (!$this->existsElement($collectionUUId, $elementUUId)) {
-            throw new NotExistListElementException('Cannot retrieve the element '.$elementUUId.' from the collection in memory.');
+        if (!$this->existsElement($collectionUuid, $elementUuid)) {
+            throw new NotExistListElementException('Cannot retrieve the element '.$elementUuid.' from the collection in memory.');
         }
 
-        return unserialize($this->findByUuid($collectionUUId)[$elementUUId]);
+        return unserialize($this->findByUuid($collectionUuid)[$elementUuid]);
     }
 
     /**

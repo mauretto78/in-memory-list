@@ -7,13 +7,13 @@
  *  For the full copyright and license information, please view the LICENSE
  *  file that was distributed with this source code.
  */
-use InMemoryList\Domain\Model\ListCollectionUuId;
+use InMemoryList\Domain\Model\ListCollectionUuid;
 use InMemoryList\Domain\Model\ListElement;
-use InMemoryList\Domain\Model\ListElementUuId;
+use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Domain\Model\ListCollection;
 use PHPUnit\Framework\TestCase;
 
-class ListElementCollectionTest extends TestCase
+class ListCollectionTest extends TestCase
 {
     /**
      * @test
@@ -21,9 +21,9 @@ class ListElementCollectionTest extends TestCase
      */
     public function it_should_return_exception_if_a_try_to_add_duplicate_element()
     {
-        $fakeElement1 = new ListElement($fakeUUid1 = new ListElementUuId(), 'lorem ipsum');
+        $fakeElement1 = new ListElement($fakeUUid1 = new ListElementUuid(), 'lorem ipsum');
 
-        $collection = new ListCollection(new ListCollectionUuId());
+        $collection = new ListCollection(new ListCollectionUuid());
         $collection->addItem($fakeElement1);
         $collection->addItem($fakeElement1);
     }
@@ -34,9 +34,9 @@ class ListElementCollectionTest extends TestCase
      */
     public function it_should_return_exception_if_try_to_delete_a_not_existing_element()
     {
-        $fakeElement1 = new ListElement($fakeUUid1 = new ListElementUuId(), 'lorem ipsum');
+        $fakeElement1 = new ListElement($fakeUUid1 = new ListElementUuid(), 'lorem ipsum');
 
-        $collection = new ListCollection(new ListCollectionUuId());
+        $collection = new ListCollection(new ListCollectionUuid());
         $collection->deleteElement($fakeElement1);
     }
 
@@ -46,9 +46,9 @@ class ListElementCollectionTest extends TestCase
      */
     public function it_should_return_exception_if_not_finds_an_element()
     {
-        $fakeElement1 = new ListElement($fakeUUid1 = new ListElementUuId(), 'lorem ipsum');
+        $fakeElement1 = new ListElement($fakeUUid1 = new ListElementUuid(), 'lorem ipsum');
 
-        $collection = new ListCollection(new ListCollectionUuId());
+        $collection = new ListCollection(new ListCollectionUuid());
         $collection->getElement($fakeElement1->getUuid());
     }
 
@@ -57,12 +57,12 @@ class ListElementCollectionTest extends TestCase
      */
     public function it_should_add_and_delete_elements_to_list()
     {
-        $fakeElement1 = new ListElement($fakeUUid1 = new ListElementUuId(), 'lorem ipsum');
-        $fakeElement2 = new ListElement($fakeUUid2 = new ListElementUuId(), 'dolor facium');
-        $fakeElement3 = new ListElement($fakeUUid3 = new ListElementUuId(), 'ipso facto');
-        $fakeElement4 = new ListElement($fakeUUid4 = new ListElementUuId(), 'ipse dixit');
+        $fakeElement1 = new ListElement($fakeUUid1 = new ListElementUuid(), 'lorem ipsum');
+        $fakeElement2 = new ListElement($fakeUUid2 = new ListElementUuid(), 'dolor facium');
+        $fakeElement3 = new ListElement($fakeUUid3 = new ListElementUuid(), 'ipso facto');
+        $fakeElement4 = new ListElement($fakeUUid4 = new ListElementUuid(), 'ipse dixit');
 
-        $collection = new ListCollection(new ListCollectionUuId());
+        $collection = new ListCollection(new ListCollectionUuid());
         $collection->addItem($fakeElement1);
         $collection->addItem($fakeElement2);
         $collection->addItem($fakeElement3);

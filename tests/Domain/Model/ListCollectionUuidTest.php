@@ -7,20 +7,20 @@
  *  For the full copyright and license information, please view the LICENSE
  *  file that was distributed with this source code.
  */
-use InMemoryList\Domain\Model\ListCollectionUuId;
+use InMemoryList\Domain\Model\ListCollectionUuid;
 use PHPUnit\Framework\TestCase;
 
-class ListElementCollectionUuIdTest extends TestCase
+class ListCollectionUuidTest extends TestCase
 {
     /**
      * @test
      */
     public function it_should_create_the_entity()
     {
-        $imListElementCollectionUUId = new ListCollectionUuId();
+        $imListElementCollectionUUId = new ListCollectionUuid();
         $imListElementCollectionUUIdToString = $imListElementCollectionUUId;
 
-        $this->assertInstanceOf(ListCollectionUuId::class, $imListElementCollectionUUId);
+        $this->assertInstanceOf(ListCollectionUuid::class, $imListElementCollectionUUId);
         $this->assertEquals($imListElementCollectionUUIdToString, $imListElementCollectionUUId->getUuid());
     }
 }

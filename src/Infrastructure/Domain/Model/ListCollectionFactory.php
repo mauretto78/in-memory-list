@@ -11,8 +11,8 @@ namespace InMemoryList\Infrastructure\Domain\Model;
 
 use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListCollection;
-use InMemoryList\Domain\Model\ListCollectionUuId;
-use InMemoryList\Domain\Model\ListElementUuId;
+use InMemoryList\Domain\Model\ListCollectionUuid;
+use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Domain\Model\Contracts\ListFactory as Factory;
 use InMemoryList\Infrastructure\Domain\Model\Exception\CreateCollectionFromEmptyArrayException;
 use InMemoryList\Infrastructure\Domain\Model\Exception\NotValidKeyElementInCollectionException;
@@ -34,12 +34,12 @@ class ListCollectionFactory implements Factory
             throw new CreateCollectionFromEmptyArrayException('Try to create a collection from an empty array.');
         }
 
-        $collectionUuid = new ListCollectionUuId($uuid);
+        $collectionUuid = new ListCollectionUuid($uuid);
         $collection = new ListCollection($collectionUuid);
 
         foreach ($elements as $element) {
             $e = ($elementId) ? (string) $this->_getValueFromKey($element, $elementId) : null;
-            $elementUuid = new ListElementUuId($e);
+            $elementUuid = new ListElementUuid($e);
             $collection->addItem(new ListElement($elementUuid, $element));
         }
 

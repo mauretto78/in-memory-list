@@ -63,6 +63,17 @@ $client = new Client('memcached', $memcached_params);
 
 Please refer to [official page or PRedis](https://github.com/nrk/predis) to get Redis connection details.
 
+## Time to live (TTL)
+
+You can specify a ttl (in seconds) for your lists:
+
+```
+// ..
+
+$client = new Client();
+$collection = $client->create($array, 'your-list-name', 'id', 3600);
+// ..
+```
 
 ## Assign unique IDs to your list elements
 
