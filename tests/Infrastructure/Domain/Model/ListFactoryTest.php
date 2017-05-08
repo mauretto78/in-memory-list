@@ -72,7 +72,7 @@ class ListFactoryTest extends TestCase
         ];
 
         $factory = new ListCollectionFactory();
-        $factory->create($simpleArray, 'fake list', 'not-existing-id');
+        $factory->create($simpleArray, 'fake-list', 'not-existing-id');
     }
 
     /**
@@ -122,7 +122,7 @@ class ListFactoryTest extends TestCase
 
         $this->assertInstanceOf(ListCollection::class, $imList);
         $this->assertEquals(5, $imList->count());
-        $this->assertEquals('fake list', $imList->getUuid());
+        $this->assertEquals('fake-list', $imList->getUuid());
     }
 
     /**
@@ -136,6 +136,6 @@ class ListFactoryTest extends TestCase
 
         $this->assertInstanceOf(ListCollection::class, $imList);
         $this->assertEquals(10, $imList->count());
-        $this->assertEquals('fake list from json object', $imList->getUuid());
+        $this->assertEquals('fake-list-from-json-object', $imList->getUuid());
     }
 }

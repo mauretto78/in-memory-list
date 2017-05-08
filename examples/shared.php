@@ -19,3 +19,8 @@ $redis_params = [
         'profile' => '3.0',
     ],
 ];
+
+$memcached_params = [
+    ['localhost', 11211]
+];
+

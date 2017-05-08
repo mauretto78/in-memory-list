@@ -54,7 +54,7 @@ class QueryBuilderTest extends TestCase
         $this->client->flush();
         $this->client->create($this->parsedUserArray, 'user list', 'id');
 
-        $qb = new QueryBuilder($this->client->findByUUid('user list'));
+        $qb = new QueryBuilder($this->client->findByUUid('user-list'));
         $qb->addCriteria('name', 'Ervin Howell', 'wrong operator');
         $this->assertCount(1, $qb->getResults());
 
@@ -71,7 +71,7 @@ class QueryBuilderTest extends TestCase
         $this->client->flush();
         $this->client->create($this->parsedUserArray, 'user list');
 
-        $qb = new QueryBuilder($this->client->findByUUid('user list'));
+        $qb = new QueryBuilder($this->client->findByUUid('user-list'));
         $qb->addCriteria('not-existing-key', 'Ervin Howell');
         $this->assertCount(1, $qb->getResults());
 
@@ -88,7 +88,7 @@ class QueryBuilderTest extends TestCase
         $this->client->flush();
         $this->client->create($this->parsedUserArray, 'user list');
 
-        $qb = new QueryBuilder($this->client->findByUUid('user list'));
+        $qb = new QueryBuilder($this->client->findByUUid('user-list'));
         $qb
             ->addCriteria('name', 'Ervin Howell')
             ->orderBy('name', 'not wrong sorting operator');
@@ -156,7 +156,7 @@ class QueryBuilderTest extends TestCase
         $this->assertEquals($firstResult->id, '10');
 
         // perform a concatenated query with order by and check that first element of array is the expected one
-        $postCollection = $this->client->create($this->parsedPostsArray, 'post list', 'id');
+        $postCollection = $this->client->create($this->parsedPostsArray, 'post-list', 'id');
         $qb10 = new QueryBuilder($postCollection);
         $qb10->orderBy('userId');
         $results = $qb10->getResults();

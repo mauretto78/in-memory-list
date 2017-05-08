@@ -4,7 +4,10 @@
 
 Grab your lists from your API or your database and store them in memory: then, you can quickly retrieve your data, sorting and performing queries on it.
 
-This package requires [Redis](https://redis.io/).
+This package requires:
+ 
+* [Redis](https://redis.io/)
+* [Memcached](http://php.net/manual/en/book.memcache.php)
 
 ## Basic Usage
 
@@ -27,6 +30,40 @@ foreach ($collection as $element){
 
 ```
 
+## Drivers
+
+Yuo can use `Redis` or `Memcached`. Please note that `Redis` is the default driver.
+ 
+```
+// Redis
+$redis_params = [
+    'params' => [
+        'scheme' => 'tcp',
+        'host' => '127.0.0.1',
+        'port' => 6379,
+    ],
+    'options' => [
+        'profile' => '3.0',
+    ],
+];
+
+$client = new Client('redis', $redis_params);
+// ..
+```
+
+```
+// Memcached
+$memcached_params = [
+    ['localhost', 11211]
+];
+
+$client = new Client('memcached', $memcached_params);
+// ..
+```
+
+Please refer to [official page or PRedis](https://github.com/nrk/predis) to get redis connection details.
+
+
 ## Assign unique IDs to your list elements
 
 You can assign an unique ID to list elemens (instead, a [uuid](https://github.com/ramsey/uuid) will be generated). Consider this array:
@@ -43,7 +80,7 @@ $simpleArray = [
 ]
 ```
 
-Maybe you would use `id` key as unique ID:
+Maybe you would use `id` key as unique ID in your list:
 
 ```
 use InMemoryList\Application\Client;
@@ -62,7 +99,7 @@ Please note that id must be a string.
 
 ## Sorting and Quering
 
-You can perform some queries your list. You can concatenate criteria:
+You can perform queries on your list. You can concatenate criteria:
 
 ```
 use InMemoryList\Application\Client;

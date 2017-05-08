@@ -12,6 +12,7 @@ namespace InMemoryList\Application;
 use InMemoryList\Application\Exception\NotSupportedDriverException;
 use InMemoryList\Domain\Model\Contracts\ListRepository;
 use InMemoryList\Infrastructure\Domain\Model\ListCollectionFactory;
+use InMemoryList\Infrastructure\Persistance\ListMemcachedRepository;
 use InMemoryList\Infrastructure\Persistance\ListRedisRepository;
 use Predis\Client as Redis;
 
@@ -46,7 +47,7 @@ class Client
      */
     private function _setDriver($driver)
     {
-        $allowedDrivers = ['redis'];
+        $allowedDrivers = ['redis', 'memcached'];
 
         if (!in_array($driver, $allowedDrivers)) {
             throw new NotSupportedDriverException($driver.' is not a supported driver.');
@@ -63,7 +64,14 @@ class Client
     {
         switch ($driver) {
             case 'redis':
-                $this->repository = new ListRedisRepository(new Redis($parameters));
+                $redis = new Redis($parameters);
+                $this->repository = new ListRedisRepository($redis);
+                break;
+
+            case 'memcached':
+                $memcached = new \Memcached();
+                $memcached->addServers($parameters);
+                $this->repository = new ListMemcachedRepository($memcached);
                 break;
         }
     }

@@ -33,7 +33,7 @@ class ListCollectionUuId
      */
     public function _setUuid($uuid = null)
     {
-        $this->uuid = $uuid ?: Uuid::uuid4()->toString();
+        $this->uuid = str_replace(' ', '-', $uuid) ?: Uuid::uuid4()->toString();
     }
 
     /**
