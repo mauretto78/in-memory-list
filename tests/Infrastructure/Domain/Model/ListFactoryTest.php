@@ -23,7 +23,7 @@ class ListFactoryTest extends TestCase
         $emptyArray = [];
 
         $factory = new ListCollectionFactory();
-        $factory->create($emptyArray, 'fake list');
+        $factory->create($emptyArray, [], 'fake list');
     }
 
     /**
@@ -72,7 +72,7 @@ class ListFactoryTest extends TestCase
         ];
 
         $factory = new ListCollectionFactory();
-        $factory->create($simpleArray, 'fake-list', 'not-existing-id');
+        $factory->create($simpleArray, [], 'fake-list', 'not-existing-id');
     }
 
     /**
@@ -118,11 +118,12 @@ class ListFactoryTest extends TestCase
             ],
         ];
         $factory = new ListCollectionFactory();
-        $imList = $factory->create($simpleArray, 'fake list');
+        $imList = $factory->create($simpleArray, [], 'fake list');
 
         $this->assertInstanceOf(ListCollection::class, $imList);
         $this->assertEquals(5, $imList->count());
         $this->assertEquals('fake-list', $imList->getUuid());
+        $this->assertNull($imList->getHeaders());
     }
 
     /**
@@ -130,12 +131,18 @@ class ListFactoryTest extends TestCase
      */
     public function it_creates_list_from_a_parsed_json()
     {
+        $headers = [
+            'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',
+            'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
+        ];
+
         $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../../examples/files/users.json'));
         $factory = new ListCollectionFactory();
-        $imList = $factory->create($parsedArrayFromJson, 'fake list from json object');
+        $imList = $factory->create($parsedArrayFromJson, $headers, 'fake list from json object');
 
         $this->assertInstanceOf(ListCollection::class, $imList);
         $this->assertEquals(10, $imList->count());
         $this->assertEquals('fake-list-from-json-object', $imList->getUuid());
+        $this->assertCount(2, $imList->getHeaders());
     }
 }

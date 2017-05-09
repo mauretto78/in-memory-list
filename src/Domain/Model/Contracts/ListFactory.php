@@ -15,9 +15,11 @@ interface ListFactory
 {
     /**
      * @param array $elements
+     * @param array $headers
      * @param null  $uuid
+     * @param null  $elementUniqueIdentificator
      *
      * @return ListCollection
      */
-    public function create(array $elements, $uuid = null);
+    public function create(array $elements, array $headers = [], $uuid = null, $elementUniqueIdentificator = null);
 }

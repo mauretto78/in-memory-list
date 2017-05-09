@@ -16,7 +16,7 @@ $apiArray = json_decode(file_get_contents($apiUrl));
 
 $client = new Client('memcached', $memcached_params);
 $client->flush();
-$collection = $client->create($apiArray, 'parsed api array', 'id');
+$collection = $client->create($apiArray, [], 'parsed api array', 'id');
 
 // loop items
 echo '<h3>Loop items</h3>';

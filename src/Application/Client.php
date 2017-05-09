@@ -87,16 +87,16 @@ class Client
     /**
      * @param array $elements
      * @param null  $uuid
-     * @param null  $elementIdentificator
+     * @param null  $elementUniqueIdentificator
      * @param null  $ttl
      *
      * @return mixed|string
      */
-    public function create(array $elements, $uuid = null, $elementIdentificator = null, $ttl = null)
+    public function create(array $elements, array $headers = [], $uuid = null, $elementUniqueIdentificator = null, $ttl = null)
     {
         try {
             $factory = new ListCollectionFactory();
-            $collection = $factory->create($elements, $uuid, $elementIdentificator);
+            $collection = $factory->create($elements, $headers, $uuid, $elementUniqueIdentificator);
 
             return $this->repository->create($collection, $ttl);
         } catch (\Exception $exception) {
@@ -150,6 +150,14 @@ class Client
     public function flush()
     {
         $this->repository->flush();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getHeaders($collectionUuid)
+    {
+        return $this->repository->getHeaders($collectionUuid);
     }
 
     /**

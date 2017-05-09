@@ -15,7 +15,7 @@ include __DIR__.'/shared.php';
 $postArray = json_decode(file_get_contents(__DIR__.'/files/posts.json'));
 $client = new Client();
 $client->flush();
-$collection = $client->create($postArray, 'post-array');
+$collection = $client->create($postArray, [], 'post-array', 'id');
 
 $qb = new QueryBuilder($collection);
 $qb
@@ -30,3 +30,12 @@ foreach ($qb->getResults() as $element) {
     echo '<strong>title</strong>: '.$item->title.'<br>';
     echo '</p>';
 }
+
+// find a single element
+$item1 = $client->item($collection['1']);
+
+echo '<h3>Single item(1)</h3>';
+echo '<p>';
+echo '<strong>id</strong>: '.$item1->id.'<br>';
+echo '<strong>title</strong>: '.$item1->title.'<br>';
+echo '</p>';

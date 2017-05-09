@@ -21,14 +21,15 @@ class ListCollectionFactory implements Factory
 {
     /**
      * @param array $elements
+     * @param array $headers
      * @param null  $uuid
-     * @param null  $elementId
+     * @param null  $elementUniqueIdentificator
      *
      * @return ListCollection
      *
      * @throws CreateCollectionFromEmptyArrayException
      */
-    public function create(array $elements, $uuid = null, $elementId = null)
+    public function create(array $elements, array $headers = [], $uuid = null, $elementUniqueIdentificator = null)
     {
         if (empty($elements)) {
             throw new CreateCollectionFromEmptyArrayException('Try to create a collection from an empty array.');
@@ -38,9 +39,13 @@ class ListCollectionFactory implements Factory
         $collection = new ListCollection($collectionUuid);
 
         foreach ($elements as $element) {
-            $e = ($elementId) ? (string) $this->_getValueFromKey($element, $elementId) : null;
+            $e = ($elementUniqueIdentificator) ? (string) $this->_getValueFromKey($element, $elementUniqueIdentificator) : null;
             $elementUuid = new ListElementUuid($e);
             $collection->addItem(new ListElement($elementUuid, $element));
+        }
+
+        if ($headers) {
+            $collection->setHeaders($headers);
         }
 
         return $collection;

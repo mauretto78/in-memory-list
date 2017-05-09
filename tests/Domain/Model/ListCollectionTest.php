@@ -57,6 +57,11 @@ class ListCollectionTest extends TestCase
      */
     public function it_should_add_and_delete_elements_to_list()
     {
+        $headers = [
+            'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',
+            'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
+        ];
+
         $fakeElement1 = new ListElement($fakeUUid1 = new ListElementUuid(), 'lorem ipsum');
         $fakeElement2 = new ListElement($fakeUUid2 = new ListElementUuid(), 'dolor facium');
         $fakeElement3 = new ListElement($fakeUUid3 = new ListElementUuid(), 'ipso facto');
@@ -68,11 +73,13 @@ class ListCollectionTest extends TestCase
         $collection->addItem($fakeElement3);
         $collection->addItem($fakeElement4);
         $collection->deleteElement($fakeElement4);
+        $collection->setHeaders($headers);
 
         $this->assertEquals(3, $collection->count());
 
         $this->assertEquals($collection->getElement($fakeElement1->getUUid())->getUuid(), $fakeUUid1);
         $this->assertEquals($collection->getElement($fakeElement2->getUUid())->getUuid(), $fakeUUid2);
         $this->assertEquals($collection->getElement($fakeElement3->getUUid())->getUuid(), $fakeUUid3);
+        $this->assertCount(2, $collection->getHeaders());
     }
 }

@@ -21,7 +21,7 @@ $array = [
 ]
 
 $client = new Client();
-$collection = $client->create($array, 'simple-array');
+$collection = $client->create($array);
 
 foreach ($collection as $element){
     $item = $client->item($element);
@@ -35,6 +35,8 @@ foreach ($collection as $element){
 Yuo can use `Redis` or `Memcached`. Please note that `Redis` is the default driver.
  
 ```
+use InMemoryList\Application\Client;
+
 // Redis
 $redis_params = [
     'params' => [
@@ -52,6 +54,8 @@ $client = new Client('redis', $redis_params);
 ```
 
 ```
+use InMemoryList\Application\Client;
+
 // Memcached
 $memcached_params = [
     ['localhost', 11211]
@@ -63,16 +67,47 @@ $client = new Client('memcached', $memcached_params);
 
 Please refer to [official page or PRedis](https://github.com/nrk/predis) to get Redis connection details.
 
-## Time to live (TTL)
+## Headers
 
-You can specify a ttl (in seconds) for your lists:
+You can set a `headers` array to you list:
 
 ```
-// ..
+use InMemoryList\Application\Client;
+
+$array = [
+    ...
+]
+
+$headers = [
+    'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',
+    'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3'
+];
 
 $client = new Client();
-$collection = $client->create($array, 'your-list-name', 'id', 3600);
-// ..
+$collection = $client->create($array, $headers, 'simple-array');
+$headers = $client->getHeaders('simple-array');
+
+// ...
+```
+
+## Set your list name
+
+Please note that you can set a name to you list:
+
+```
+use InMemoryList\Application\Client;
+
+$array = [
+    ...
+]
+
+$client = new Client();
+$collection = $client->create($array, [], 'simple-array');
+
+foreach ($collection as $element){
+    $item = $client->item($element);
+    // ...
+}
 ```
 
 ## Assign unique IDs to your list elements
@@ -97,7 +132,7 @@ Maybe you would use `id` key as unique ID in your list:
 use InMemoryList\Application\Client;
 
 $client = new Client();
-$collection = $client->create($simpleArray, 'simple-array', 'id');
+$collection = $client->create($simpleArray, [], 'simple-array', 'id');
 ```
 
 And now to retrieve a single element, you can simply do:
@@ -107,6 +142,18 @@ $item1 = $client->item($collection['1']);
 ```
 
 Please note that `id` must be a string. 
+
+## Time to live (TTL)
+
+You can specify a ttl (in seconds) for your lists:
+
+```
+use InMemoryList\Application\Client;
+
+$client = new Client();
+$collection = $client->create($array, [], 'your-list-name', 'id', 3600);
+// ..
+```
 
 ## Sorting and Quering
 

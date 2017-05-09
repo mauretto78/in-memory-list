@@ -25,6 +25,11 @@ class ListCollection implements \Countable
     private $uuid;
 
     /**
+     * @var array
+     */
+    private $headers;
+
+    /**
      * IMListElementCollection constructor.
      *
      * @param ListCollectionUuid $uuid
@@ -117,9 +122,25 @@ class ListCollection implements \Countable
     /**
      * @return array
      */
-    public function getAll()
+    public function getItems()
     {
         return $this->items;
+    }
+
+    /**
+     * @param $headers
+     */
+    public function setHeaders($headers)
+    {
+        $this->headers = $headers;
+    }
+
+    /**
+     * @return array
+     */
+    public function getHeaders()
+    {
+        return $this->headers;
     }
 
     /**

@@ -61,4 +61,11 @@ interface ListRepository
      * @return mixed
      */
     public function flush();
+
+    /**
+     * @param $collectionUuid
+     *
+     * @return mixed
+     */
+    public function getHeaders($collectionUuid);
 }

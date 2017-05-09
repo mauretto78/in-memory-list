@@ -43,7 +43,7 @@ class ClientTest extends TestCase
         );
 
         $client = new Client('redis', $wrongCredentials);
-        $collection = $client->create($this->parsedArrayFromJson, 'fake list');
+        $collection = $client->create($this->parsedArrayFromJson, [], 'fake list');
 
         $this->assertEquals($collection, 'Connection refused [tcp://0.0.0.0:432423423]');
     }
@@ -54,8 +54,8 @@ class ClientTest extends TestCase
     public function it_catch_CollectionAlreadyExistsException_if_attempt_to_persist_duplicate_collection_from_redis()
     {
         $client = new Client();
-        $collection = $client->create($this->parsedArrayFromJson, 'fake list');
-        $collection2 = $client->create($this->parsedArrayFromJson, 'fake list');
+        $collection = $client->create($this->parsedArrayFromJson, [], 'fake list');
+        $collection2 = $client->create($this->parsedArrayFromJson, [], 'fake list');
 
         $this->assertEquals($collection2, 'Collection fake-list already exists in memory.');
     }
@@ -70,8 +70,8 @@ class ClientTest extends TestCase
         ];
 
         $client = new Client('memcached', $memcached_params);
-        $collection = $client->create($this->parsedArrayFromJson, 'fake list');
-        $collection2 = $client->create($this->parsedArrayFromJson, 'fake list');
+        $collection = $client->create($this->parsedArrayFromJson, [], 'fake list');
+        $collection2 = $client->create($this->parsedArrayFromJson, [], 'fake list');
 
         $this->assertEquals($collection2, 'Collection fake-list already exists in memory.');
     }
@@ -85,7 +85,7 @@ class ClientTest extends TestCase
     {
         $client = new Client();
         $client->flush();
-        $client->create($this->parsedArrayFromJson, 'fake-list', 'id');
+        $client->create($this->parsedArrayFromJson, [], 'fake-list', 'id');
         $client->findElement('fake list', '132131312');
     }
 
@@ -102,7 +102,7 @@ class ClientTest extends TestCase
 
         $client = new Client('memcached', $memcached_params);
         $client->flush();
-        $client->create($this->parsedArrayFromJson, 'fake-list', 'id');
+        $client->create($this->parsedArrayFromJson, [], 'fake-list', 'id');
         $client->findElement('fake list', '132131312');
     }
 
@@ -111,9 +111,14 @@ class ClientTest extends TestCase
      */
     public function it_should_store_delete_and_retrieve_correctly_list_elements()
     {
+        $headers = [
+            'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',
+            'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
+        ];
+
         $client = new Client();
         $client->flush();
-        $client->create($this->parsedArrayFromJson, 'fake list', 'id');
+        $client->create($this->parsedArrayFromJson, $headers, 'fake list', 'id');
         $client->deleteElement('fake-list', '7');
         $client->deleteElement('fake-list', '8');
         $client->deleteElement('fake-list', '9');
@@ -124,6 +129,7 @@ class ClientTest extends TestCase
         $this->assertCount(7, $client->findByUuid('fake-list'));
         $this->assertEquals('Leanne Graham', $element1->getBody()->name);
         $this->assertEquals('Ervin Howell', $element2->getBody()->name);
+        $this->assertEquals($client->getHeaders('fake-list'), $headers);
 
         $client->delete('fake list');
     }
@@ -137,9 +143,14 @@ class ClientTest extends TestCase
             ['localhost', 11211],
         ];
 
+        $headers = [
+            'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',
+            'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
+        ];
+
         $client = new Client('memcached', $memcached_params);
         $client->flush();
-        $client->create($this->parsedArrayFromJson, 'fake list', 'id');
+        $client->create($this->parsedArrayFromJson, $headers, 'fake list', 'id');
         $client->deleteElement('fake-list', '7');
         $client->deleteElement('fake-list', '8');
         $client->deleteElement('fake-list', '9');
@@ -150,6 +161,7 @@ class ClientTest extends TestCase
         $this->assertCount(7, $client->findByUuid('fake-list'));
         $this->assertEquals('Leanne Graham', $element1->getBody()->name);
         $this->assertEquals('Ervin Howell', $element2->getBody()->name);
+        $this->assertEquals($client->getHeaders('fake-list'), $headers);
 
         $client->delete('fake-list');
     }

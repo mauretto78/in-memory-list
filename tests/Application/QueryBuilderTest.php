@@ -52,7 +52,7 @@ class QueryBuilderTest extends TestCase
     public function it_throws_NotValidOperatorQueryBuilderException_if_an_invalid_operator_is_provided()
     {
         $this->client->flush();
-        $this->client->create($this->parsedUserArray, 'user list', 'id');
+        $this->client->create($this->parsedUserArray, [], 'user list', 'id');
 
         $qb = new QueryBuilder($this->client->findByUUid('user-list'));
         $qb->addCriteria('name', 'Ervin Howell', 'wrong operator');
@@ -69,7 +69,7 @@ class QueryBuilderTest extends TestCase
     public function it_throws_NotValidKeyElementInCollectionException_if_a_not_valid_element_key_is_provided()
     {
         $this->client->flush();
-        $this->client->create($this->parsedUserArray, 'user list');
+        $this->client->create($this->parsedUserArray, [], 'user list');
 
         $qb = new QueryBuilder($this->client->findByUUid('user-list'));
         $qb->addCriteria('not-existing-key', 'Ervin Howell');
@@ -86,7 +86,7 @@ class QueryBuilderTest extends TestCase
     public function it_throws_NotValidSortingOperatorException_if_an_invalid_sorting_operator_is_provided()
     {
         $this->client->flush();
-        $this->client->create($this->parsedUserArray, 'user list');
+        $this->client->create($this->parsedUserArray, [], 'user list');
 
         $qb = new QueryBuilder($this->client->findByUUid('user-list'));
         $qb
@@ -103,7 +103,7 @@ class QueryBuilderTest extends TestCase
     public function it_should_query_sorting_and_retrieve_data_from_in_memory_collection()
     {
         $this->client->flush();
-        $userCollection = $this->client->create($this->parsedUserArray, 'user list', 'id');
+        $userCollection = $this->client->create($this->parsedUserArray, [], 'user list', 'id');
 
         // perform a simple query
         $qb = new QueryBuilder($userCollection);
@@ -156,12 +156,12 @@ class QueryBuilderTest extends TestCase
         $this->assertEquals($firstResult->id, '10');
 
         // perform a concatenated query with order by and check that first element of array is the expected one
-        $postCollection = $this->client->create($this->parsedPostsArray, 'post-list', 'id');
+        $postCollection = $this->client->create($this->parsedPostsArray, [], 'post-list', 'id');
         $qb10 = new QueryBuilder($postCollection);
         $qb10->orderBy('userId');
         $results = $qb10->getResults();
         $firstResult = $this->client->item($results[0]);
-        $this->assertEquals($firstResult->id, '9');
+        $this->assertEquals($firstResult->id, '10');
 
         $this->client->flush();
     }

@@ -26,9 +26,19 @@ $simpleArray = json_encode([
     ],
 ]);
 
+$headers = [
+    'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',
+    'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
+];
+
 $client = new Client();
 $client->flush();
-$collection = $client->create(json_decode($simpleArray));
+$collection = $client->create(json_decode($simpleArray), $headers, 'simple-array', 'id');
+$headers = $client->getHeaders('simple-array');
+
+// display headers
+echo '<h3>Headers</h3>';
+var_dump($headers);
 
 // loop items
 echo '<h3>Loop items</h3>';
@@ -42,3 +52,14 @@ foreach ($collection as $element) {
     echo '<strong>body</strong>: '.$item->body.'<br>';
     echo '</p>';
 }
+
+// find a single element
+$item1 = $client->item($collection['1']);
+
+echo '<h3>Single item(1)</h3>';
+echo '<p>';
+echo '<strong>userId</strong>: '.$item1->userId.'<br>';
+echo '<strong>Id</strong>: '.$item1->id.'<br>';
+echo '<strong>title</strong>: '.$item1->title.'<br>';
+echo '<strong>body</strong>: '.$item1->body.'<br>';
+echo '</p>';

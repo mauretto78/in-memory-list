@@ -15,7 +15,7 @@ include __DIR__.'/shared.php';
 $userArray = json_decode(file_get_contents(__DIR__.'/files/users.json'));
 $client = new Client();
 $client->flush();
-$collection = $client->create($userArray, 'user-array');
+$collection = $client->create($userArray, [], 'user-array');
 
 $qb = new QueryBuilder($collection);
 $qb->orderBy('id', 'DESC');

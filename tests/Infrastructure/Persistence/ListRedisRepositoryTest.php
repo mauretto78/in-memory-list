@@ -91,19 +91,25 @@ class ListRedisRepositoryTest extends TestCase
      */
     public function it_should_create_query_and_delete_a_parsed_json_list_from_redis()
     {
+        $headers = [
+            'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',
+            'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
+        ];
+
         $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
 
         $collectionUuid = new ListCollectionUuid();
         $collection = new ListCollection($collectionUuid);
-
         foreach ($parsedArrayFromJson as $element) {
             $collection->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
         }
+        $collection->setHeaders($headers);
 
         $this->repo->create($collection, 3600);
 
         $this->assertCount(10, $this->repo->findByUuid($collection->getUuid()));
         $this->assertInstanceOf(ListElement::class, $this->repo->findElement($collection->getUuid(), $fakeUuid1->getUuid()));
+        $this->assertEquals($this->repo->getHeaders($collection->getUuid()), $headers);
 
         $this->repo->delete($collectionUuid);
     }

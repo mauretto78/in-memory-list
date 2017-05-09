@@ -47,7 +47,7 @@ class ListRedisRepository implements ListRepository
         }
 
         /** @var ListElement $element */
-        foreach ($collection->getAll() as $element) {
+        foreach ($collection->getItems() as $element) {
             $this->client->hset(
                 $collection->getUuid(),
                 $element->getUuid(),
@@ -56,6 +56,16 @@ class ListRedisRepository implements ListRepository
 
             if ($ttl) {
                 $this->client->expire($collection->getUuid(), $ttl);
+            }
+        }
+
+        if ($collection->getHeaders()) {
+            foreach ($collection->getHeaders() as $key => $header) {
+                $this->client->hset(
+                    $collection->getUuid().'::headers',
+                    $key,
+                    $header
+                );
             }
         }
 
@@ -131,5 +141,15 @@ class ListRedisRepository implements ListRepository
     public function flush()
     {
         $this->client->flushall();
+    }
+
+    /**
+     * @param $collectionUuid
+     *
+     * @return array
+     */
+    public function getHeaders($collectionUuid)
+    {
+        return $this->client->hgetall($collectionUuid.'::headers');
     }
 }

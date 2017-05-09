@@ -48,7 +48,7 @@ class ListMemcachedRepository implements ListRepository
         $arrayOfElements = [];
 
         /** @var ListElement $element */
-        foreach ($collection->getAll() as $element) {
+        foreach ($collection->getItems() as $element) {
             $arrayOfElements[(string) $element->getUuid()] = serialize($element);
         }
 
@@ -57,6 +57,13 @@ class ListMemcachedRepository implements ListRepository
             $arrayOfElements,
             $ttl
         );
+
+        if ($collection->getHeaders()) {
+            $this->memcached->set(
+                $collection->getUuid().'::headers',
+                $collection->getHeaders()
+            );
+        }
 
         return $this->findByUuid($collection->getUuid());
     }
@@ -129,5 +136,15 @@ class ListMemcachedRepository implements ListRepository
     public function flush()
     {
         $this->memcached->flush();
+    }
+
+    /**
+     * @param $collectionUuid
+     *
+     * @return mixed
+     */
+    public function getHeaders($collectionUuid)
+    {
+        return $this->memcached->get($collectionUuid.'::headers');
     }
 }
