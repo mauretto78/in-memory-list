@@ -1,10 +1,20 @@
 {
     "name": "mauretto78/in-memory-list",
     "type": "library",
-    "description": "In Memery List",
-    "keywords": ["redis", "memcached", "in-memory"],
+    "description": "In Memory List",
+    "keywords": ["redis", "memcached", "cache", "list", "in-memory"],
     "homepage": "https://github.com/mauretto78/in-memory-list",
     "license": "MIT",
+    "support": {
+        "issues": "https://github.com/mauretto78/in-memory-list/issues"
+    },
+    "authors": [
+        {
+            "name": "Mauro Cassani",
+            "email": "assistenza@easy-grafica.com",
+            "homepage": "https://github.com/mauretto78"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "InMemoryList\\": "src/"
