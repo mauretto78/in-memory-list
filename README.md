@@ -15,7 +15,8 @@ This package uses:
 
 To create and store in memory you list do the following:
 
-```
+
+```php
 use InMemoryList\Application\Client;
 
 $array = [
@@ -36,7 +37,7 @@ foreach ($collection as $element){
 
 Yuo can use `Redis` or `Memcached`. Please note that `Redis` is the default driver.
  
-```
+```php
 use InMemoryList\Application\Client;
 
 // Redis
@@ -55,7 +56,7 @@ $client = new Client('redis', $redis_params);
 // ..
 ```
 
-```
+```php
 use InMemoryList\Application\Client;
 
 // Memcached
@@ -73,7 +74,7 @@ Please refer to [official page](https://github.com/nrk/predis) for more details 
 
 You can set a `headers` array to you list.
 
-```
+```php
 use InMemoryList\Application\Client;
 
 $array = [
@@ -96,7 +97,7 @@ $headers = $client->getHeaders('simple-array');
 
 Please note that you can set a unique ID for your list. If the ID is already taken, an Exception will be thrown.
 
-```
+```php
 use InMemoryList\Application\Client;
 
 $array = [
@@ -111,7 +112,7 @@ $collection = $client->create($array, [], 'simple-array');
 
 And now you can retrive the list:
 
-```
+```php
 //..
 $simpleArray = $client->findByUuid('simple-array');
 
@@ -125,7 +126,7 @@ Please note that the unique ID **must be a string**.
 
 You can assign an unique ID to list elemens (instead, a [uuid](https://github.com/ramsey/uuid) will be generated). Consider this array:
 
-```
+```php
 $simpleArray = [
     [
         "userId" => 1,
@@ -139,7 +140,7 @@ $simpleArray = [
 
 Maybe you would use `id` key as unique ID in your list:
 
-```
+```php
 use InMemoryList\Application\Client;
 
 $client = new Client();
@@ -148,7 +149,7 @@ $collection = $client->create($simpleArray, [], 'simple-array', 'id');
 
 And now to retrieve a single element, you can simply do:
 
-```
+```php
 $item1 = $client->item($collection['1']);
 ```
 
@@ -158,7 +159,7 @@ Please note that the unique ID **must be a string**.
 
 You can specify a ttl (in seconds) for your lists:
 
-```
+```php
 use InMemoryList\Application\Client;
 
 $client = new Client();
@@ -170,7 +171,7 @@ $collection = $client->create($array, [], 'your-list-name', 'id', 3600);
 
 You can perform queries on your list. You can concatenate criteria:
 
-```
+```php
 use InMemoryList\Application\Client;
 use InMemoryList\Application\QueryBuilder;
 
@@ -207,7 +208,7 @@ You can use the following operators to perform your queries:
 
 You can specify limit/offset on your query results:
 
-```
+```php
 use InMemoryList\Application\Client;
 use InMemoryList\Application\QueryBuilder;
 
