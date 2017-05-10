@@ -190,7 +190,7 @@ class QueryBuilderTest extends TestCase
 
         // perform a ARRAY query
         $qb8 = new QueryBuilder($userCollection);
-        $qb8->addCriteria('name', ' Leanne Graham,  Ervin Howell,  Clementine Bauch', 'ARRAY');
+        $qb8->addCriteria('name', ['Leanne Graham', 'Ervin Howell', 'Clementine Bauch'], 'ARRAY');
         $this->assertCount(3, $qb8->getResults());
 
         // perform a concatenated query

@@ -176,10 +176,7 @@ class QueryBuilder
                                 break;
 
                             case 'ARRAY':
-                                $array = explode(',', $criterion['value']);
-                                $array = array_map('trim', $array);
-
-                                return in_array($value, $array);
+                                return in_array($value, $criterion['value']);
                                 break;
 
                             case 'CONTAINS':
