@@ -27,8 +27,7 @@ $simpleArray = json_encode([
 ]);
 
 $client = new Client();
-$client->flush();
-$collection = $client->create(json_decode($simpleArray));
+$collection = $client->findByUuid('simple-list') ?:  $client->create($apiArray, [], 'simple-list');
 
 // loop items
 echo '<h3>Loop items</h3>';

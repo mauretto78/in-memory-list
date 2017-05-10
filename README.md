@@ -1,10 +1,12 @@
 # In-memory List
 
-**In-memory List** allows you to create and save your lists.
+**In-memory List** easily allows you to create and save your lists in memory.
 
-Grab your lists from your API or your database and store them in memory: then, you can quickly retrieve your data, sorting and performing queries on it.
+If you are looking for a caching system for your lists this library is suitable for you.
 
-This package requires:
+Grab your lists from your API, your database or whatever you want and store them in memory: then, you can quickly retrieve your lists from cache, sorting and performing queries on them.
+
+This package uses:
  
 * [Redis](https://redis.io/)
 * [Memcached](http://php.net/manual/en/book.memcache.php)
@@ -65,11 +67,11 @@ $client = new Client('memcached', $memcached_params);
 // ..
 ```
 
-Please refer to [official page or PRedis](https://github.com/nrk/predis) to get Redis connection details.
+Please refer to [official page](https://github.com/nrk/predis) for more details on PRedis connection.
 
 ## Headers
 
-You can set a `headers` array to you list:
+You can set a `headers` array to you list.
 
 ```
 use InMemoryList\Application\Client;
@@ -90,9 +92,9 @@ $headers = $client->getHeaders('simple-array');
 // ...
 ```
 
-## Set your list name
+## Assign an unique ID to your list
 
-Please note that you can set a name to you list:
+Please note that you can set a unique ID for your list. If the ID is already taken, an Exception will be thrown.
 
 ```
 use InMemoryList\Application\Client;
@@ -104,11 +106,20 @@ $array = [
 $client = new Client();
 $collection = $client->create($array, [], 'simple-array');
 
-foreach ($collection as $element){
-    $item = $client->item($element);
-    // ...
-}
+// ..
 ```
+
+And now you can retrive the list:
+
+```
+//..
+$simpleArray = $client->findByUuid('simple-array');
+
+//..
+
+```
+
+Please note that the unique ID **must be a string**. 
 
 ## Assign unique IDs to your list elements
 
@@ -141,7 +152,7 @@ And now to retrieve a single element, you can simply do:
 $item1 = $client->item($collection['1']);
 ```
 
-Please note that `id` must be a string. 
+Please note that the unique ID **must be a string**. 
 
 ## Time to live (TTL)
 

@@ -32,8 +32,7 @@ $headers = [
 ];
 
 $client = new Client();
-$client->flush();
-$collection = $client->create(json_decode($simpleArray), $headers, 'simple-array', 'id');
+$collection = $client->findByUuid('simple-list') ?:  $client->create($apiArray, $headers, 'simple-list');
 $headers = $client->getHeaders('simple-array');
 
 // display headers
