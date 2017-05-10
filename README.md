@@ -183,7 +183,7 @@ $client = new Client();
 $collection = $client->create($array, 'simple-array');
 $qb = new QueryBuilder($collection);
 $qb
-    ->addCriteria('title', '...', 'IN')
+    ->addCriteria('title', '...', 'CONTAINS')
     ->addCriteria('rate', '3', '>')
     ->orderBy('title');
     
@@ -196,13 +196,14 @@ foreach ($qb->getResults() as $element){
 
 You can use the following operators to perform your queries:
 
-* '='
+* '=' (default operator)
 * '>'
 * '<'
 * '<='
 * '>='
 * '!='
-* 'IN'
+* 'ARRAY'
+* 'CONTAINS'
 
 ## Limit and Offset
 
@@ -220,7 +221,7 @@ $client = new Client();
 $collection = $client->create($array, 'simple-array');
 $qb = new QueryBuilder($collection);
 $qb
-    ->addCriteria('title', '...', 'IN')
+    ->addCriteria('title', [...], 'ARRAY')
     ->addCriteria('rate', '3', '>')
     ->orderBy('title')
     ->limit(0, 10);

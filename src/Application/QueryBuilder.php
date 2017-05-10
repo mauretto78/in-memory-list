@@ -72,7 +72,7 @@ class QueryBuilder
      */
     public function addCriteria($key, $value, $operator = '=')
     {
-        $allowedOperators = ['=', '>', '<', '<=', '>=', '!=', 'IN'];
+        $allowedOperators = ['=', '>', '<', '<=', '>=', '!=', 'ARRAY', 'CONTAINS'];
 
         if (!in_array($operator, $allowedOperators)) {
             throw new NotValidOperatorException($operator.' is not a valid operator.');
@@ -175,7 +175,14 @@ class QueryBuilder
                                 return $value !== $criterion['value'];
                                 break;
 
-                            case 'IN':
+                            case 'ARRAY':
+                                $array = explode(',', $criterion['value']);
+                                $array = array_map('trim', $array);
+
+                                return in_array($value, $array);
+                                break;
+
+                            case 'CONTAINS':
                                 return strpos($value, $criterion['value']) !== false;
                                 break;
 

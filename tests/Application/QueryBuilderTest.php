@@ -183,36 +183,41 @@ class QueryBuilderTest extends TestCase
         $qb6->addCriteria('name', 'Ervin Howell', '!=');
         $this->assertCount(9, $qb6->getResults());
 
-        // perform a IN query
+        // perform a CONTAINS query
         $qb7 = new QueryBuilder($userCollection);
-        $qb7->addCriteria('name', 'Clement', 'IN');
+        $qb7->addCriteria('name', 'Clement', 'CONTAINS');
         $this->assertCount(2, $qb7->getResults());
 
-        // perform a concatenated query
+        // perform a ARRAY query
         $qb8 = new QueryBuilder($userCollection);
-        $qb8
-            ->addCriteria('name', 'Clement', 'IN')
+        $qb8->addCriteria('name', ' Leanne Graham,  Ervin Howell,  Clementine Bauch', 'ARRAY');
+        $this->assertCount(3, $qb8->getResults());
+
+        // perform a concatenated query
+        $qb9 = new QueryBuilder($userCollection);
+        $qb9
+            ->addCriteria('name', 'Clement', 'CONTAINS')
             ->addCriteria('id', '6', '>=')
         ;
-        $this->assertCount(1, $qb8->getResults());
+        $this->assertCount(1, $qb9->getResults());
 
         // perform a concatenated query with order by and check that first element of array is the expected one
-        $qb9 = new QueryBuilder($userCollection);
-        $qb9->orderBy('id', 'DESC');
-        $results = $qb9->getResults();
+        $qb10 = new QueryBuilder($userCollection);
+        $qb10->orderBy('id', 'DESC');
+        $results = $qb10->getResults();
         $firstResult = $this->client->item($results[0]);
         $this->assertEquals($firstResult->id, '10');
 
         // perform a concatenated query with order by and check that first element of array is the expected one
         $postCollection = $this->client->create($this->parsedPostsArray, [], 'post-list', 'id');
-        $qb10 = new QueryBuilder($postCollection);
-        $qb10->orderBy('userId');
-        $results = $qb10->getResults();
+        $qb11 = new QueryBuilder($postCollection);
+        $qb11->orderBy('userId');
+        $results = $qb11->getResults();
 
         // perform a concatenated query with limit
-        $qb11 = new QueryBuilder($userCollection);
-        $qb11->limit(0, 5);
-        $this->assertCount(5, $qb11->getResults());
+        $qb12 = new QueryBuilder($userCollection);
+        $qb12->limit(0, 5);
+        $this->assertCount(5, $qb12->getResults());
 
         $this->client->flush();
     }
