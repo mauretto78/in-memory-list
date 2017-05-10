@@ -99,6 +99,54 @@ class QueryBuilderTest extends TestCase
 
     /**
      * @test
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage string must be an integer.
+     */
+    public function it_throws_InvalidArgumentException_if_an_invalid_offset_is_provided()
+    {
+        $this->client->flush();
+        $this->client->create($this->parsedUserArray, [], 'user list', 'id');
+
+        $qb = new QueryBuilder($this->client->findByUUid('user-list'));
+        $qb->limit(123, 'string');
+
+        $this->client->flush();
+    }
+
+    /**
+     * @test
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage string must be an integer.
+     */
+    public function it_throws_InvalidArgumentException_if_an_invalid_length_is_provided()
+    {
+        $this->client->flush();
+        $this->client->create($this->parsedUserArray, [], 'user list', 'id');
+
+        $qb = new QueryBuilder($this->client->findByUUid('user-list'));
+        $qb->limit('string', 13);
+
+        $this->client->flush();
+    }
+
+    /**
+     * @test
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage 432 must be an < than 13.
+     */
+    public function it_throws_InvalidArgumentException_if_an_offset_is_grater_than_length_is_provided()
+    {
+        $this->client->flush();
+        $this->client->create($this->parsedUserArray, [], 'user list', 'id');
+
+        $qb = new QueryBuilder($this->client->findByUUid('user-list'));
+        $qb->limit(432, 13);
+
+        $this->client->flush();
+    }
+
+    /**
+     * @test
      */
     public function it_should_query_sorting_and_retrieve_data_from_in_memory_collection()
     {
@@ -160,8 +208,11 @@ class QueryBuilderTest extends TestCase
         $qb10 = new QueryBuilder($postCollection);
         $qb10->orderBy('userId');
         $results = $qb10->getResults();
-        $firstResult = $this->client->item($results[0]);
-        $this->assertEquals($firstResult->id, '10');
+
+        // perform a concatenated query with limit
+        $qb11 = new QueryBuilder($userCollection);
+        $qb11->limit(0, 5);
+        $this->assertCount(5, $qb11->getResults());
 
         $this->client->flush();
     }

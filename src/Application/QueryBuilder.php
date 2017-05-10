@@ -25,6 +25,11 @@ class QueryBuilder
     /**
      * @var array
      */
+    private $limit;
+
+    /**
+     * @var array
+     */
     private $orderBy;
 
     /**
@@ -107,6 +112,34 @@ class QueryBuilder
     }
 
     /**
+     * @param $offset
+     * @param $length
+     *
+     * @return $this
+     */
+    public function limit($offset, $length)
+    {
+        if (!is_integer($offset)) {
+            throw new \InvalidArgumentException($offset.' must be an integer.');
+        }
+
+        if (!is_integer($length)) {
+            throw new \InvalidArgumentException($length.' must be an integer.');
+        }
+
+        if ($offset > $length) {
+            throw new \InvalidArgumentException($offset.' must be an < than '.$length.'.');
+        }
+
+        $this->limit = [
+            'offset' => $offset,
+            'lenght' => $length,
+        ];
+
+        return $this;
+    }
+
+    /**
      * @return array|mixed
      */
     public function getResults()
@@ -173,6 +206,10 @@ class QueryBuilder
             if ($this->orderBy['order'] === 'DESC') {
                 $results = array_reverse($results);
             }
+        }
+
+        if (count($this->limit)) {
+            $results = array_slice($results, $this->limit['offset'], $this->limit['lenght']);
         }
 
         return $results;

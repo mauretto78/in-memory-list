@@ -152,4 +152,14 @@ class ListRedisRepository implements ListRepository
     {
         return $this->client->hgetall($collectionUuid.'::headers');
     }
+
+    /**
+     * @param $collectionUuid
+     *
+     * @return int
+     */
+    public function ttl($collectionUuid)
+    {
+        return $this->client->ttl($collectionUuid);
+    }
 }

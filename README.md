@@ -192,6 +192,7 @@ foreach ($qb->getResults() as $element){
 }
 
 ```
+
 You can use the following operators to perform your queries:
 
 * '='
@@ -201,6 +202,34 @@ You can use the following operators to perform your queries:
 * '>='
 * '!='
 * 'IN'
+
+## Limit and Offset
+
+You can specify limit/offset on your query results:
+
+```
+use InMemoryList\Application\Client;
+use InMemoryList\Application\QueryBuilder;
+
+$array = [
+    ...
+]
+
+$client = new Client();
+$collection = $client->create($array, 'simple-array');
+$qb = new QueryBuilder($collection);
+$qb
+    ->addCriteria('title', '...', 'IN')
+    ->addCriteria('rate', '3', '>')
+    ->orderBy('title')
+    ->limit(0, 10);
+    
+foreach ($qb->getResults() as $element){
+    $item = $client->item($element);
+    // ...
+}
+
+```
 
 ## Built With
 
