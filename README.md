@@ -35,7 +35,7 @@ foreach ($collection as $element){
 
 ## Drivers
 
-Yuo can use `Redis` or `Memcached`. Please note that `Redis` is the default driver.
+You can use `Redis` or `Memcached`. Please note that `Redis` is the default driver.
  
 ```php
 use InMemoryList\Application\Client;
@@ -95,7 +95,7 @@ $headers = $client->getHeaders('simple-array');
 
 ## Assign an unique ID to your list
 
-Please note that you can set a unique ID for your list. If the ID is already taken, an Exception will be thrown.
+Please note that you can set an unique ID for your list. If the ID is already taken, an Exception will be thrown.
 
 ```php
 use InMemoryList\Application\Client;
