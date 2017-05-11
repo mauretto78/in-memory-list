@@ -33,6 +33,14 @@ class ListMemcachedRepository implements ListRepository
     }
 
     /**
+     * @return array
+     */
+    public function all()
+    {
+        return $this->memcached->getAllKeys(); // Need a version of Memcached =< 1.4.23 see http://stackoverflow.com/questions/42504252/php-gets-all-the-keys-of-memcached-always-return-false
+    }
+
+    /**
      * @param ListCollection $collection
      *
      * @return mixed
@@ -146,5 +154,13 @@ class ListMemcachedRepository implements ListRepository
     public function getHeaders($collectionUuid)
     {
         return $this->memcached->get($collectionUuid.'::headers');
+    }
+
+    /**
+     * @return array
+     */
+    public function stats()
+    {
+        return $this->memcached->getStats();
     }
 }

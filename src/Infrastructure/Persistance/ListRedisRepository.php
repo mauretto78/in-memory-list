@@ -34,6 +34,14 @@ class ListRedisRepository implements ListRepository
     }
 
     /**
+     * @return array
+     */
+    public function all()
+    {
+        return $this->client->keys('*');
+    }
+
+    /**
      * @param ListCollection $collection
      *
      * @return mixed
@@ -154,12 +162,10 @@ class ListRedisRepository implements ListRepository
     }
 
     /**
-     * @param $collectionUuid
-     *
-     * @return int
+     * @return array
      */
-    public function ttl($collectionUuid)
+    public function stats()
     {
-        return $this->client->ttl($collectionUuid);
+        return $this->client->info();
     }
 }

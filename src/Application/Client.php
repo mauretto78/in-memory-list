@@ -155,9 +155,25 @@ class Client
     /**
      * @return mixed
      */
+    public function getAll()
+    {
+        return $this->repository->all();
+    }
+
+    /**
+     * @return mixed
+     */
     public function getHeaders($collectionUuid)
     {
         return $this->repository->getHeaders($collectionUuid);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStats()
+    {
+        return $this->repository->stats();
     }
 
     /**

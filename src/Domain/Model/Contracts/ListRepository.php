@@ -14,6 +14,11 @@ use InMemoryList\Domain\Model\ListCollection;
 interface ListRepository
 {
     /**
+     * @return mixed
+     */
+    public function all();
+
+    /**
      * @param ListCollection $collection
      * @param null           $ttl
      *
@@ -68,4 +73,9 @@ interface ListRepository
      * @return mixed
      */
     public function getHeaders($collectionUuid);
+
+    /**
+     * @return mixed
+     */
+    public function stats();
 }

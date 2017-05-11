@@ -79,11 +79,9 @@ class ListRedisRepositoryTest extends TestCase
         $collection->addItem($fakeElement5);
 
         $this->repo->create($collection);
-        $ttl = $this->repo->ttl($collection->getUuid());
 
         $this->assertCount(5, $this->repo->findByUuid($collection->getUuid()));
         $this->assertInstanceOf(ListElement::class, $this->repo->findElement($collection->getUuid(), $fakeUUid1->getUuid()));
-        $this->assertEquals($ttl, -1);
 
         $this->repo->delete($collectionUuid);
     }
@@ -108,12 +106,12 @@ class ListRedisRepositoryTest extends TestCase
         $collection->setHeaders($headers);
 
         $this->repo->create($collection, 3600);
-        $ttl = $this->repo->ttl($collection->getUuid());
 
         $this->assertCount(10, $this->repo->findByUuid($collection->getUuid()));
         $this->assertInstanceOf(ListElement::class, $this->repo->findElement($collection->getUuid(), $fakeUuid1->getUuid()));
         $this->assertEquals($this->repo->getHeaders($collection->getUuid()), $headers);
-        $this->assertEquals($ttl, 3600);
+        $this->assertCount(2, $this->repo->all());
+        $this->assertGreaterThan(0, $this->repo->stats());
 
         $this->repo->delete($collectionUuid);
     }
