@@ -7,8 +7,8 @@
  *  For the full copyright and license information, please view the LICENSE
  *  file that was distributed with this source code.
  */
-namespace InMemoryList\Infrastructure\Domain\Model\Exception;
+namespace InMemoryList\Application\Exception;
 
-class NotValidKeyElementInCollectionException extends \Exception
+class NotValidListElementInListException extends \Exception
 {
 }

@@ -15,7 +15,7 @@ class ListFactoryTest extends TestCase
 {
     /**
      * @test
-     * @expectedException \InMemoryList\Infrastructure\Domain\Model\Exception\CreateCollectionFromEmptyArrayException
+     * @expectedException \InMemoryList\Infrastructure\Domain\Model\Exception\CreateListFromEmptyArrayException
      * @expectedExceptionMessage Try to create a collection from an empty array.
      */
     public function it_throws_CreateCollectionFromEmptyArrayException_if_empty_array_is_provided()
@@ -28,7 +28,7 @@ class ListFactoryTest extends TestCase
 
     /**
      * @test
-     * @expectedException \InMemoryList\Infrastructure\Domain\Model\Exception\NotValidKeyElementInCollectionException
+     * @expectedException \InMemoryList\Infrastructure\Domain\Model\Exception\NotValidKeyElementInListException
      * @expectedExceptionMessage not-existing-id is not a valid key.
      */
     public function gdfgdfdgfgfd()

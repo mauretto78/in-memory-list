@@ -78,4 +78,19 @@ interface ListRepository
      * @return mixed
      */
     public function stats();
+
+    /**
+     * @param $collectionUuid
+     *
+     * @return mixed
+     */
+    public function ttl($collectionUuid);
+
+    /**
+     * @param $collectionUuid
+     * @param null $ttl
+     *
+     * @return mixed
+     */
+    public function updateTtl($collectionUuid, $ttl = null);
 }

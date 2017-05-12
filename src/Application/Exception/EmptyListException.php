@@ -9,6 +9,6 @@
  */
 namespace InMemoryList\Application\Exception;
 
-class EmptyCollectionException extends \Exception
+class EmptyListException extends \Exception
 {
 }

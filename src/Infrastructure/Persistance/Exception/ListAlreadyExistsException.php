@@ -9,6 +9,6 @@
  */
 namespace InMemoryList\Infrastructure\Persistance\Exception;
 
-class NotExistListElementException extends \Exception
+class ListAlreadyExistsException extends \Exception
 {
 }

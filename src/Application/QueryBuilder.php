@@ -9,8 +9,8 @@
  */
 namespace InMemoryList\Application;
 
-use InMemoryList\Application\Exception\EmptyCollectionException;
-use InMemoryList\Application\Exception\NotValidKeyElementInCollectionException;
+use InMemoryList\Application\Exception\EmptyListException;
+use InMemoryList\Application\Exception\NotValidKeyElementInListException;
 use InMemoryList\Application\Exception\NotValidOperatorException;
 use InMemoryList\Application\Exception\NotValidSortingOperatorException;
 use InMemoryList\Domain\Model\ListElement;
@@ -50,12 +50,12 @@ class QueryBuilder
     /**
      * @param $collection
      *
-     * @throws EmptyCollectionException
+     * @throws EmptyListException
      */
     public function _setCollection($collection)
     {
         if (empty($collection)) {
-            throw new EmptyCollectionException('Empty collection provided.');
+            throw new EmptyListException('Empty collection provided.');
         }
 
         $this->collection = $collection;
@@ -225,12 +225,12 @@ class QueryBuilder
      *
      * @return mixed
      *
-     * @throws NotValidKeyElementInCollectionException
+     * @throws NotValidKeyElementInListException
      */
     private function _getListElementValueFromKey(ListElement $element, $key)
     {
         if ((is_object($element->getBody()) and !isset($element->getBody()->{$key})) or (is_array($element->getBody()) and !isset($element->getBody()[$key]))) {
-            throw new NotValidKeyElementInCollectionException($key.' is not a valid key.');
+            throw new NotValidKeyElementInListException($key.' is not a valid key.');
         }
 
         return is_object($element->getBody()) ? $element->getBody()->{$key} : $element->getBody()[$key];

@@ -177,6 +177,16 @@ class Client
     }
 
     /**
+     * @param $key
+     *
+     * @return mixed
+     */
+    public function getTtl($key)
+    {
+        return $this->repository->ttl($key);
+    }
+
+    /**
      * @param $string
      *
      * @return mixed
@@ -184,5 +194,16 @@ class Client
     public function item($string)
     {
         return unserialize($string)->getBody();
+    }
+
+    /**
+     * @param $collectionUuid
+     * @param bool $ttl
+     *
+     * @return mixed
+     */
+    public function updateTtl($collectionUuid, $ttl = false)
+    {
+        return $this->repository->updateTtl($collectionUuid, $ttl);
     }
 }

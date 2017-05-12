@@ -12,8 +12,9 @@ namespace InMemoryList\Infrastructure\Persistance;
 use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\Contracts\ListRepository;
-use InMemoryList\Infrastructure\Persistance\Exception\CollectionAlreadyExistsException;
-use InMemoryList\Infrastructure\Persistance\Exception\NotExistListElementException;
+use InMemoryList\Infrastructure\Persistance\Exception\ListAlreadyExistsException;
+use InMemoryList\Infrastructure\Persistance\Exception\ListDoesNotExistsException;
+use InMemoryList\Infrastructure\Persistance\Exception\ListElementDoesNotExistsException;
 use Predis\Client;
 
 class ListRedisRepository implements ListRepository
@@ -46,12 +47,12 @@ class ListRedisRepository implements ListRepository
      *
      * @return mixed
      *
-     * @throws CollectionAlreadyExistsException
+     * @throws ListAlreadyExistsException
      */
     public function create(ListCollection $collection, $ttl = null)
     {
         if ($this->findByUuid($collection->getUuid())) {
-            throw new CollectionAlreadyExistsException('Collection '.$collection->getUuid().' already exists in memory.');
+            throw new ListAlreadyExistsException('List '.$collection->getUuid().' already exists in memory.');
         }
 
         /** @var ListElement $element */
@@ -132,12 +133,12 @@ class ListRedisRepository implements ListRepository
      *
      * @return mixed
      *
-     * @throws NotExistListElementException
+     * @throws ListElementDoesNotExistsException
      */
     public function findElement($collectionUuid, $elementUuid)
     {
         if (!$this->existsElement($collectionUuid, $elementUuid)) {
-            throw new NotExistListElementException('Cannot retrieve the element '.$elementUuid.' from the collection in memory.');
+            throw new ListElementDoesNotExistsException('Cannot retrieve the element '.$elementUuid.' from the collection in memory.');
         }
 
         return unserialize($this->findByUuid($collectionUuid)[$elementUuid]);
@@ -167,5 +168,34 @@ class ListRedisRepository implements ListRepository
     public function stats()
     {
         return $this->client->info();
+    }
+
+    /**
+     * @param $collectionUuid
+     *
+     * @return int
+     */
+    public function ttl($collectionUuid)
+    {
+        return $this->client->ttl($collectionUuid);
+    }
+
+    /**
+     * @param $collectionUuid
+     * @param null $ttl
+     *
+     * @return mixed
+     *
+     * @throws ListDoesNotExistsException
+     */
+    public function updateTtl($collectionUuid, $ttl = null)
+    {
+        if (!$this->findByUuid($collectionUuid)) {
+            throw new ListDoesNotExistsException('List '.$collectionUuid.' does not exists in memory.');
+        }
+
+        $this->client->expire($collectionUuid, $ttl);
+
+        return $this->findByUuid($collectionUuid);
     }
 }

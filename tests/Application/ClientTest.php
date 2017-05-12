@@ -57,7 +57,7 @@ class ClientTest extends TestCase
         $collection = $client->create($this->parsedArrayFromJson, [], 'fake list');
         $collection2 = $client->create($this->parsedArrayFromJson, [], 'fake list');
 
-        $this->assertEquals($collection2, 'Collection fake-list already exists in memory.');
+        $this->assertEquals($collection2, 'List fake-list already exists in memory.');
     }
 
     /**
@@ -73,12 +73,12 @@ class ClientTest extends TestCase
         $collection = $client->create($this->parsedArrayFromJson, [], 'fake list');
         $collection2 = $client->create($this->parsedArrayFromJson, [], 'fake list');
 
-        $this->assertEquals($collection2, 'Collection fake-list already exists in memory.');
+        $this->assertEquals($collection2, 'List fake-list already exists in memory.');
     }
 
     /**
      * @test
-     * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\NotExistListElementException
+     * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\ListElementDoesNotExistsException
      * @expectedExceptionMessage Cannot retrieve the element 132131312 from the collection in memory.
      */
     public function it_throws_NotExistListElementException_if_attempt_to_find_a_not_existing_element_in_collection_from_redis()
@@ -91,7 +91,7 @@ class ClientTest extends TestCase
 
     /**
      * @test
-     * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\NotExistListElementException
+     * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\ListElementDoesNotExistsException
      * @expectedExceptionMessage Cannot retrieve the element 132131312 from the collection in memory.
      */
     public function it_throws_NotExistListElementException_if_attempt_to_find_a_not_existing_element_in_collection_from_memcached()
@@ -118,7 +118,7 @@ class ClientTest extends TestCase
 
         $client = new Client();
         $client->flush();
-        $client->create($this->parsedArrayFromJson, $headers, 'fake list', 'id');
+        $client->create($this->parsedArrayFromJson, $headers, 'fake list', 'id', 3600);
         $client->deleteElement('fake-list', '7');
         $client->deleteElement('fake-list', '8');
         $client->deleteElement('fake-list', '9');
@@ -127,9 +127,14 @@ class ClientTest extends TestCase
 
         $this->assertInstanceOf(ListRedisRepository::class, $client->getRepository());
         $this->assertCount(7, $client->findByUuid('fake-list'));
+        $this->assertCount(2, $client->getAll());
         $this->assertEquals('Leanne Graham', $element1->getBody()->name);
         $this->assertEquals('Ervin Howell', $element2->getBody()->name);
         $this->assertEquals($client->getHeaders('fake-list'), $headers);
+        $this->assertArrayHasKey('Server', $client->getStats());
+
+        $client->updateTtl('fake-list', 7200);
+        $this->assertEquals(7200, $client->getTtl('fake-list'));
 
         $client->delete('fake list');
     }

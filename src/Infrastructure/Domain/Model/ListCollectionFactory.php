@@ -14,8 +14,8 @@ use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\ListCollectionUuid;
 use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Domain\Model\Contracts\ListFactory as Factory;
-use InMemoryList\Infrastructure\Domain\Model\Exception\CreateCollectionFromEmptyArrayException;
-use InMemoryList\Infrastructure\Domain\Model\Exception\NotValidKeyElementInCollectionException;
+use InMemoryList\Infrastructure\Domain\Model\Exception\CreateListFromEmptyArrayException;
+use InMemoryList\Infrastructure\Domain\Model\Exception\NotValidKeyElementInListException;
 
 class ListCollectionFactory implements Factory
 {
@@ -27,12 +27,12 @@ class ListCollectionFactory implements Factory
      *
      * @return ListCollection
      *
-     * @throws CreateCollectionFromEmptyArrayException
+     * @throws CreateListFromEmptyArrayException
      */
     public function create(array $elements, array $headers = [], $uuid = null, $elementUniqueIdentificator = null)
     {
         if (empty($elements)) {
-            throw new CreateCollectionFromEmptyArrayException('Try to create a collection from an empty array.');
+            throw new CreateListFromEmptyArrayException('Try to create a collection from an empty array.');
         }
 
         $collectionUuid = new ListCollectionUuid($uuid);
@@ -57,12 +57,12 @@ class ListCollectionFactory implements Factory
      *
      * @return mixed
      *
-     * @throws NotValidKeyElementInCollectionException
+     * @throws NotValidKeyElementInListException
      */
     private function _getValueFromKey($element, $key)
     {
         if ((is_object($element) and !isset($element->{$key})) or (is_array($element) and !isset($element[$key]))) {
-            throw new NotValidKeyElementInCollectionException($key.' is not a valid key.');
+            throw new NotValidKeyElementInListException($key.' is not a valid key.');
         }
 
         return is_object($element) ? $element->{$key} : $element[$key];

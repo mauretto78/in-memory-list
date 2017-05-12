@@ -37,7 +37,7 @@ class QueryBuilderTest extends TestCase
 
     /**
      * @test
-     * @expectedException \InMemoryList\Application\Exception\EmptyCollectionException
+     * @expectedException \InMemoryList\Application\Exception\EmptyListException
      */
     public function it_throws_EmptyCollectionException_if_an_empty_collection_is_provided()
     {
@@ -63,7 +63,7 @@ class QueryBuilderTest extends TestCase
 
     /**
      * @test
-     * @expectedException \InMemoryList\Application\Exception\NotValidKeyElementInCollectionException
+     * @expectedException \InMemoryList\Application\Exception\NotValidKeyElementInListException
      * @expectedExceptionMessage not-existing-key is not a valid key.
      */
     public function it_throws_NotValidKeyElementInCollectionException_if_a_not_valid_element_key_is_provided()
