@@ -76,6 +76,10 @@ class ListRedisRepository implements ListRepository
                     $header
                 );
             }
+
+            if ($ttl) {
+                $this->client->expire($collection->getUuid().'::headers', $ttl);
+            }
         }
 
         return $this->findByUuid($collection->getUuid());

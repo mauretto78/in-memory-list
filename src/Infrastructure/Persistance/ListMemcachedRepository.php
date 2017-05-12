@@ -70,7 +70,8 @@ class ListMemcachedRepository implements ListRepository
         if ($collection->getHeaders()) {
             $this->memcached->set(
                 $collection->getUuid().'::headers',
-                $collection->getHeaders()
+                $collection->getHeaders(),
+                $ttl
             );
         }
 
