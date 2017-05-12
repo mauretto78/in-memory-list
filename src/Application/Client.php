@@ -177,13 +177,13 @@ class Client
     }
 
     /**
-     * @param $key
+     * @param $collectionUuid
      *
      * @return mixed
      */
-    public function getTtl($key)
+    public function getTtl($collectionUuid)
     {
-        return $this->repository->ttl($key);
+        return $this->repository->ttl($collectionUuid);
     }
 
     /**
