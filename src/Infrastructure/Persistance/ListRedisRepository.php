@@ -51,7 +51,7 @@ class ListRedisRepository implements ListRepository
      */
     public function create(ListCollection $collection, $ttl = null)
     {
-        if ($this->findByUuid($collection->getUuid())) {
+        if ($this->findListByUuid($collection->getUuid())) {
             throw new ListAlreadyExistsException('List '.$collection->getUuid().' already exists in memory.');
         }
 
@@ -84,7 +84,7 @@ class ListRedisRepository implements ListRepository
             }
         }
 
-        return $this->findByUuid($collection->getUuid());
+        return $this->findListByUuid($collection->getUuid());
     }
 
     /**
@@ -94,7 +94,9 @@ class ListRedisRepository implements ListRepository
      */
     public function delete($listUuid)
     {
-        $collection = $this->findByUuid($listUuid);
+        $collection = $this->findListByUuid($listUuid);
+
+
 
         foreach ($collection as $elementUuid) {
             $element = explode(self::HASH_SEPARATOR, $elementUuid);
@@ -127,16 +129,16 @@ class ListRedisRepository implements ListRepository
      *
      * @return mixed
      */
-    public function findByUuid($listUuid)
+    public function findListByUuid($listUuid)
     {
-        $a = [];
-        $list = $this->client->keys($listUuid.self::HASH_SEPARATOR.'*');;
+        $listReconstructedArray = [];
+        $list = $this->client->keys($listUuid.self::HASH_SEPARATOR.'*');
 
         foreach ($list as $elementUuid){
-            $a[$elementUuid] = $this->findElement($listUuid, $elementUuid);
+            $listReconstructedArray[$elementUuid] = $this->findElementByCompleteCollectionElementUuid($elementUuid);
         }
 
-        return $a;
+        return $listReconstructedArray;
     }
 
     /**
@@ -230,7 +232,7 @@ class ListRedisRepository implements ListRepository
      */
     public function updateTtl($listUuid, $ttl = null)
     {
-        $collection = $this->findByUuid($listUuid);
+        $collection = $this->findListByUuid($listUuid);
 
         if (!$collection) {
             throw new ListDoesNotExistsException('List '.$listUuid.' does not exists in memory.');

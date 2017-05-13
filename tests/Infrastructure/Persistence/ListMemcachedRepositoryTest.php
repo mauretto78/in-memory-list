@@ -109,7 +109,7 @@ class ListMemcachedRepositoryTest extends TestCase
         $element5 = $this->repo->findElement($collectionUuid, $element5Uuid);
         $creationDateOfElement5 = $this->repo->findCreationDateOfElement($collectionUuid, $element5Uuid);
 
-        $this->assertCount(4, $this->repo->findByUuid($collectionUuid));
+        $this->assertCount(4, $this->repo->findListByUuid($collectionUuid));
         $this->assertEquals(127, $element5['id']);
         $this->assertEquals('Dolor facius', $element5['title']);
         $this->assertEquals(27, $element5['category-id']);
@@ -141,7 +141,7 @@ class ListMemcachedRepositoryTest extends TestCase
         $collection->setHeaders($headers);
         $this->repo->create($collection);
 
-        $this->assertCount(10, $this->repo->findByUuid($collection->getUuid()));
+        $this->assertCount(10, $this->repo->findListByUuid($collection->getUuid()));
         $this->assertEquals($this->repo->getHeaders($collection->getUuid()), $headers);
         $this->assertGreaterThan(0, $this->repo->stats());
 

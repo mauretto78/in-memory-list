@@ -83,7 +83,7 @@ class ListRedisRepositoryTest extends TestCase
         $element5 = $this->repo->findElement($collectionUuid, $element5Uuid);
         $creationDateOfElement5 = $this->repo->findCreationDateOfElement($collectionUuid, $element5Uuid);
 
-        $this->assertCount(5, $this->repo->findByUuid($collection->getUuid()));
+        $this->assertCount(5, $this->repo->findListByUuid($collection->getUuid()));
         $this->assertEquals(127, $element5['id']);
         $this->assertEquals('Dolor facius', $element5['title']);
         $this->assertEquals(27, $element5['category-id']);
@@ -132,40 +132,40 @@ class ListRedisRepositoryTest extends TestCase
         $this->repo->updateTtl('not existing hash', 7200);
     }
 
-    /**
-     * @test
-     */
-    public function it_should_create_query_and_delete_a_parsed_json_list_from_redis()
-    {
-        $this->repo->flush();
-
-        $headers = [
-            'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',
-            'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
-        ];
-
-        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
-
-        $collectionUuid = new ListCollectionUuid();
-        $collection = new ListCollection($collectionUuid);
-        foreach ($parsedArrayFromJson as $element) {
-            $collection->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
-        }
-        $collection->setHeaders($headers);
-
-        $this->repo->create($collection, 3600);
-
-        $this->assertCount(10, $this->repo->findByUuid($collection->getUuid()));
-        $this->assertEquals($this->repo->getHeaders($collectionUuid), $headers);
-        $this->assertCount(11, $this->repo->all());
-        $this->assertGreaterThan(0, $this->repo->stats());
-
-        $this->repo->updateTtl($collectionUuid, 7200);
-
-        foreach ($this->repo->findByUuid($collectionUuid) as $elementUuid){
-            $this->assertEquals(7200, $this->repo->ttl($elementUuid));
-        }
-
-        $this->repo->delete($collectionUuid);
-    }
+//    /**
+//     * @test
+//     */
+//    public function it_should_create_query_and_delete_a_parsed_json_list_from_redis()
+//    {
+//        $this->repo->flush();
+//
+//        $headers = [
+//            'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',
+//            'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
+//        ];
+//
+//        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
+//
+//        $collectionUuid = new ListCollectionUuid();
+//        $collection = new ListCollection($collectionUuid);
+//        foreach ($parsedArrayFromJson as $element) {
+//            $collection->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
+//        }
+//        $collection->setHeaders($headers);
+//
+//        $this->repo->create($collection, 3600);
+//
+//        $this->assertCount(10, $this->repo->findListByUuid($collection->getUuid()));
+//        $this->assertEquals($this->repo->getHeaders($collectionUuid), $headers);
+//        $this->assertCount(11, $this->repo->all());
+//        $this->assertGreaterThan(0, $this->repo->stats());
+//
+//        $this->repo->updateTtl($collectionUuid, 7200);
+//
+//        foreach ($this->repo->findListByUuid($collectionUuid) as $elementUuid){
+//            $this->assertEquals(7200, $this->repo->ttl($elementUuid));
+//        }
+//
+//        $this->repo->delete($collectionUuid);
+//    }
 }

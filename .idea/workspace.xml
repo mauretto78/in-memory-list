@@ -2,14 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7677820a-ec36-484a-9ad3-4a8e42cfce09" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Application/Client.php" afterPath="$PROJECT_DIR$/src/Application/Client.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Model/Contracts/ListRepository.php" afterPath="$PROJECT_DIR$/src/Domain/Model/Contracts/ListRepository.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Infrastructure/Domain/Model/ListCollectionFactory.php" afterPath="$PROJECT_DIR$/src/Infrastructure/Domain/Model/ListCollectionFactory.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Infrastructure/Persistance/ListMemcachedRepository.php" afterPath="$PROJECT_DIR$/src/Infrastructure/Persistance/ListMemcachedRepository.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Infrastructure/Persistance/ListRedisRepository.php" afterPath="$PROJECT_DIR$/src/Infrastructure/Persistance/ListRedisRepository.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/Application/QueryBuilderTest.php" afterPath="$PROJECT_DIR$/tests/Application/QueryBuilderTest.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/Infrastructure/Persistence/ListMemcachedRepositoryTest.php" afterPath="$PROJECT_DIR$/tests/Infrastructure/Persistence/ListMemcachedRepositoryTest.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/Infrastructure/Persistence/ListRedisRepositoryTest.php" afterPath="$PROJECT_DIR$/tests/Infrastructure/Persistence/ListRedisRepositoryTest.php" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -21,42 +19,28 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="QueryBuilder.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Application/QueryBuilder.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-693">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ListMemcachedRepositoryTest.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/Infrastructure/Persistence/ListMemcachedRepositoryTest.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="367">
-              <caret line="118" column="0" lean-forward="true" selection-start-line="118" selection-start-column="0" selection-end-line="118" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ListRedisRepository.php" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ListRedisRepository.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Infrastructure/Persistance/ListRedisRepository.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="357">
-              <caret line="135" column="61" lean-forward="false" selection-start-line="135" selection-start-column="61" selection-end-line="135" selection-end-column="61" />
+            <state relative-caret-position="273">
+              <caret line="98" column="0" lean-forward="false" selection-start-line="98" selection-start-column="0" selection-end-line="98" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="QueryBuilderTest.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/Application/QueryBuilderTest.php">
+      <file leaf-file-name="ListRedisRepositoryTest.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/tests/Infrastructure/Persistence/ListRedisRepositoryTest.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="294">
-              <caret line="73" column="31" lean-forward="true" selection-start-line="73" selection-start-column="31" selection-end-line="73" selection-end-column="31" />
-              <folding />
+            <state relative-caret-position="356">
+              <caret line="169" column="7" lean-forward="true" selection-start-line="134" selection-start-column="6" selection-end-line="169" selection-end-column="7" />
+              <folding>
+                <marker date="1494703787049" expanded="true" signature="5037:5060" ph=" @test ..." />
+                <marker date="1494703787049" expanded="true" signature="5150:6431" ph="{...}" />
+                <marker date="1494703787049" expanded="true" signature="5216:5355" ph="..." />
+                <marker date="1494703787049" expanded="true" signature="5645:5755" ph="..." />
+                <marker date="1494703787049" expanded="true" signature="6287:6371" ph="..." />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -64,18 +48,8 @@
       <file leaf-file-name="Client.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Application/Client.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="127" column="6" lean-forward="true" selection-start-line="127" selection-start-column="6" selection-end-line="127" selection-end-column="6" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ClientTest.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/Application/ClientTest.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-831">
-              <caret line="138" column="46" lean-forward="false" selection-start-line="138" selection-start-column="46" selection-end-line="138" selection-end-column="46" />
+            <state relative-caret-position="51">
+              <caret line="136" column="23" lean-forward="true" selection-start-line="136" selection-start-column="23" selection-end-line="136" selection-end-column="23" />
               <folding />
             </state>
           </provider>
@@ -92,6 +66,7 @@
       <find>$collectionUuid</find>
       <find>ech</find>
       <find>echo</find>
+      <find>it_should_create_query_and_delete_the_list_from_redis</find>
     </findStrings>
     <replaceStrings>
       <replace>esc_sql</replace>
@@ -115,14 +90,14 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/tests/Infrastructure/Persistence/ListRedisRepositoryTest.php" />
         <option value="$PROJECT_DIR$/src/Domain/Model/Contracts/ListRepository.php" />
         <option value="$PROJECT_DIR$/tests/Application/ClientTest.php" />
         <option value="$PROJECT_DIR$/src/Infrastructure/Persistance/ListMemcachedRepository.php" />
-        <option value="$PROJECT_DIR$/src/Application/Client.php" />
         <option value="$PROJECT_DIR$/tests/Infrastructure/Persistence/ListMemcachedRepositoryTest.php" />
         <option value="$PROJECT_DIR$/tests/Application/QueryBuilderTest.php" />
+        <option value="$PROJECT_DIR$/src/Application/Client.php" />
         <option value="$PROJECT_DIR$/src/Infrastructure/Persistance/ListRedisRepository.php" />
+        <option value="$PROJECT_DIR$/tests/Infrastructure/Persistence/ListRedisRepositoryTest.php" />
       </list>
     </option>
   </component>
@@ -163,6 +138,60 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="in-memory-list" />
+              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="in-memory-list" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="in-memory-list" />
+              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tests" />
+              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="in-memory-list" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="in-memory-list" />
+              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tests" />
+              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Infrastructure" />
+              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Persistence" />
+              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="in-memory-list" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="in-memory-list" />
+              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tests" />
+              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Infrastructure" />
               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
             </PATH_ELEMENT>
           </PATH>
@@ -343,12 +372,12 @@
       <workItem from="1494668857829" duration="2377000" />
       <workItem from="1494687408195" duration="2926000" />
       <workItem from="1494695578923" duration="1539000" />
-      <workItem from="1494702217883" duration="978000" />
+      <workItem from="1494702217883" duration="1568000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="7820000" />
+    <option name="totallyTimeSpent" value="8410000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="64" y="-11" width="1857" height="1092" extended-state="6" />
@@ -381,7 +410,14 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="3" />
+      <breakpoints>
+        <line-breakpoint enabled="true" type="php">
+          <url>file://$PROJECT_DIR$/tests/Infrastructure/Persistence/ListRedisRepositoryTest.php</url>
+          <line>93</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+      </breakpoints>
+      <option name="time" value="4" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -446,14 +482,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="199">
           <caret line="31" column="3" lean-forward="false" selection-start-line="31" selection-start-column="3" selection-end-line="31" selection-end-column="3" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/Infrastructure/Persistence/ListRedisRepositoryTest.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="42">
-          <caret line="96" column="4" lean-forward="false" selection-start-line="96" selection-start-column="4" selection-end-line="113" selection-end-column="5" />
           <folding />
         </state>
       </provider>
@@ -534,15 +562,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Application/Client.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="127" column="6" lean-forward="true" selection-start-line="127" selection-start-column="6" selection-end-line="127" selection-end-column="6" />
+        <state relative-caret-position="51">
+          <caret line="136" column="23" lean-forward="true" selection-start-line="136" selection-start-column="23" selection-end-line="136" selection-end-column="23" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/tests/Infrastructure/Persistence/ListMemcachedRepositoryTest.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="367">
+        <state relative-caret-position="338">
           <caret line="118" column="0" lean-forward="true" selection-start-line="118" selection-start-column="0" selection-end-line="118" selection-end-column="0" />
           <folding />
         </state>
@@ -550,9 +578,23 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Infrastructure/Persistance/ListRedisRepository.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="135" column="61" lean-forward="false" selection-start-line="135" selection-start-column="61" selection-end-line="135" selection-end-column="61" />
+        <state relative-caret-position="273">
+          <caret line="98" column="0" lean-forward="false" selection-start-line="98" selection-start-column="0" selection-end-line="98" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/Infrastructure/Persistence/ListRedisRepositoryTest.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="356">
+          <caret line="169" column="7" lean-forward="true" selection-start-line="134" selection-start-column="6" selection-end-line="169" selection-end-column="7" />
+          <folding>
+            <marker date="1494703787049" expanded="true" signature="5037:5060" ph=" @test ..." />
+            <marker date="1494703787049" expanded="true" signature="5150:6431" ph="{...}" />
+            <marker date="1494703787049" expanded="true" signature="5216:5355" ph="..." />
+            <marker date="1494703787049" expanded="true" signature="5645:5755" ph="..." />
+            <marker date="1494703787049" expanded="true" signature="6287:6371" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>

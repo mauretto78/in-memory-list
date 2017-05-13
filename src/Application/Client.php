@@ -128,9 +128,9 @@ class Client
      *
      * @return mixed
      */
-    public function findByUuid($listUuid)
+    public function findListByUuid($listUuid)
     {
-        return $this->repository->findByUuid($listUuid);
+        return $this->repository->findListByUuid($listUuid);
     }
 
     /**

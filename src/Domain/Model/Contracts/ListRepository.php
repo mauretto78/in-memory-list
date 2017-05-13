@@ -55,7 +55,7 @@ interface ListRepository
      *
      * @return mixed
      */
-    public function findByUuid($listUuid);
+    public function findListByUuid($listUuid);
 
     /**
      * @param $listUuid
