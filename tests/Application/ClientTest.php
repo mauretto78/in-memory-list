@@ -86,6 +86,9 @@ class ClientTest extends TestCase
         $client = new Client();
         $client->flush();
         $client->create($this->parsedArrayFromJson, [], 'fake-list', 'id');
+
+        var_dump($client->findElement('fake list', '132131312'));
+
         $client->findElement('fake list', '132131312');
     }
 
@@ -127,14 +130,24 @@ class ClientTest extends TestCase
 
         $this->assertInstanceOf(ListRedisRepository::class, $client->getRepository());
         $this->assertCount(7, $client->findByUuid('fake-list'));
-        $this->assertCount(2, $client->getAll());
-        $this->assertEquals('Leanne Graham', $element1->getBody()->name);
-        $this->assertEquals('Ervin Howell', $element2->getBody()->name);
+        $this->assertCount(8, $client->getAll());
+        $this->assertEquals('Leanne Graham', $element1->name);
+        $this->assertEquals('Ervin Howell', $element2->name);
         $this->assertEquals($client->getHeaders('fake-list'), $headers);
         $this->assertArrayHasKey('Server', $client->getStats());
 
         $client->updateTtl('fake-list', 7200);
-        $this->assertEquals(7200, $client->getTtl('fake-list'));
+        foreach ($client->findByUuid('fake-list') as $elementUuid){
+            $item = $client->item($elementUuid);
+
+            $elementAsArray = get_object_vars($item);
+            $this->assertEquals(7200, $client->getTtl($elementUuid));
+            $this->assertInstanceOf(stdClass::class, $item);
+            $this->assertArrayHasKey('id',$elementAsArray);
+            $this->assertArrayHasKey('name',$elementAsArray);
+            $this->assertArrayHasKey('username',$elementAsArray);
+            $this->assertArrayHasKey('email',$elementAsArray);
+        }
 
         $client->delete('fake list');
     }
@@ -164,9 +177,22 @@ class ClientTest extends TestCase
 
         $this->assertInstanceOf(ListMemcachedRepository::class, $client->getRepository());
         $this->assertCount(7, $client->findByUuid('fake-list'));
-        $this->assertEquals('Leanne Graham', $element1->getBody()->name);
-        $this->assertEquals('Ervin Howell', $element2->getBody()->name);
+
+        $this->assertEquals('Leanne Graham', $element1->name);
+        $this->assertEquals('Ervin Howell', $element2->name);
+
         $this->assertEquals($client->getHeaders('fake-list'), $headers);
+
+        foreach ($client->findByUuid('fake-list') as $elementUuid){
+            $item = $client->item($elementUuid);
+
+            $elementAsArray = get_object_vars($item);
+            $this->assertInstanceOf(stdClass::class, $item);
+            $this->assertArrayHasKey('id',$elementAsArray);
+            $this->assertArrayHasKey('name',$elementAsArray);
+            $this->assertArrayHasKey('username',$elementAsArray);
+            $this->assertArrayHasKey('email',$elementAsArray);
+        }
 
         $client->delete('fake-list');
     }

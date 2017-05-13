@@ -13,6 +13,9 @@ use InMemoryList\Domain\Model\ListCollection;
 
 interface ListRepository
 {
+    const HASH_SEPARATOR = '@';
+    const HEADERS_SEPARATOR = '#';
+
     /**
      * @return mixed
      */
@@ -61,6 +64,19 @@ interface ListRepository
      * @return mixed
      */
     public function findElement($collectionUuid, $elementUuid);
+
+    /**
+     * @param $collectionUuid
+     * @param $elementUuid
+     * @return mixed
+     */
+    public function findCreationDateOfElement($collectionUuid, $elementUuid);
+
+    /**
+     * @param $completeCollectionElementUuid
+     * @return mixed
+     */
+    public function findElementByCompleteCollectionElementUuid($completeCollectionElementUuid);
 
     /**
      * @return mixed

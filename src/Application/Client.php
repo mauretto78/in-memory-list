@@ -186,14 +186,10 @@ class Client
         return $this->repository->ttl($collectionUuid);
     }
 
-    /**
-     * @param $string
-     *
-     * @return mixed
-     */
-    public function item($string)
+
+    public function item($completeCollectionElementUuid)
     {
-        return unserialize($string)->getBody();
+        return $this->repository->findElementByCompleteCollectionElementUuid($completeCollectionElementUuid);
     }
 
     /**

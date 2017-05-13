@@ -37,6 +37,25 @@ class ListMemcachedRepositoryTest extends TestCase
 
     /**
      * @test
+     * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\ListElementDoesNotExistsException
+     * @expectedExceptionMessage Cannot retrieve the element not-existing-element from the collection in memory.
+     */
+    public function it_throws_ListElementDoesNotExistsException_if_attempt_to_call_findCreationDateOfElement_on_an_invalid_hash()
+    {
+        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
+
+        $collectionUuid = new ListCollectionUuid();
+        $collection = new ListCollection($collectionUuid);
+        foreach ($parsedArrayFromJson as $element) {
+            $collection->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
+        }
+
+        $this->repo->create($collection, 3600);
+        $this->repo->findCreationDateOfElement($collectionUuid, 'not-existing-element');
+    }
+
+    /**
+     * @test
      */
     public function it_should_create_query_and_delete_the_list_from_memcached()
     {
@@ -85,10 +104,22 @@ class ListMemcachedRepositoryTest extends TestCase
         $collection->addItem($fakeElement5);
 
         $this->repo->create($collection);
-        $this->repo->deleteElement($collection->getUuid(), $fakeElement5->getUuid());
+        $this->repo->deleteElement($collectionUuid, $fakeElement3->getUuid());
+        $element5Uuid = $fakeUUid5->getUuid();
+        $element5 = $this->repo->findElement($collectionUuid, $element5Uuid);
+        $creationDateOfElement5 = $this->repo->findCreationDateOfElement($collectionUuid, $element5Uuid);
 
-        $this->assertCount(4, $this->repo->findByUuid($collection->getUuid()));
-        $this->assertInstanceOf(ListElement::class, $this->repo->findElement($collection->getUuid(), $fakeUUid1->getUuid()));
+        echo count($this->repo->findByUuid($collectionUuid));
+
+        $this->assertCount(4, $this->repo->findByUuid($collectionUuid));
+        $this->assertEquals(127, $element5['id']);
+        $this->assertEquals('Dolor facius', $element5['title']);
+        $this->assertEquals(27, $element5['category-id']);
+        $this->assertEquals('holiday', $element5['category']);
+        $this->assertEquals(5, $element5['rate']);
+        $this->assertInstanceOf(\DateTimeImmutable::class, $creationDateOfElement5);
+
+        $this->repo->updateTtl($collectionUuid, 7200);
 
         $this->repo->delete($collectionUuid);
     }
@@ -111,15 +142,11 @@ class ListMemcachedRepositoryTest extends TestCase
             $collection->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
         }
         $collection->setHeaders($headers);
-
         $this->repo->create($collection);
 
         $this->assertCount(10, $this->repo->findByUuid($collection->getUuid()));
-        $this->assertInstanceOf(ListElement::class, $this->repo->findElement($collection->getUuid(), $fakeUuid1->getUuid()));
         $this->assertEquals($this->repo->getHeaders($collection->getUuid()), $headers);
         $this->assertGreaterThan(0, $this->repo->stats());
-
-        //var_dump($this->repo->all());
 
         $this->repo->delete($collectionUuid);
     }

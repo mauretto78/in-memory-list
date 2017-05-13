@@ -79,7 +79,9 @@ class ListRedisRepositoryTest extends TestCase
         $collection->addItem($fakeElement5);
 
         $this->repo->create($collection);
-        $element5 = $this->repo->findElement($collection->getUuid(), $fakeUUid5->getUuid());
+        $element5Uuid = $fakeUUid5->getUuid();
+        $element5 = $this->repo->findElement($collectionUuid, $element5Uuid);
+        $creationDateOfElement5 = $this->repo->findCreationDateOfElement($collectionUuid, $element5Uuid);
 
         $this->assertCount(5, $this->repo->findByUuid($collection->getUuid()));
         $this->assertEquals(127, $element5['id']);
@@ -87,8 +89,28 @@ class ListRedisRepositoryTest extends TestCase
         $this->assertEquals(27, $element5['category-id']);
         $this->assertEquals('holiday', $element5['category']);
         $this->assertEquals(5, $element5['rate']);
+        $this->assertInstanceOf(\DateTimeImmutable::class, $creationDateOfElement5);
 
         $this->repo->delete($collectionUuid);
+    }
+
+    /**
+     * @test
+     * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\ListElementDoesNotExistsException
+     * @expectedExceptionMessage Cannot retrieve the element not-existing-element from the collection in memory.
+     */
+    public function it_throws_ListElementDoesNotExistsException_if_attempt_to_call_findCreationDateOfElement_on_an_invalid_hash()
+    {
+        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
+
+        $collectionUuid = new ListCollectionUuid();
+        $collection = new ListCollection($collectionUuid);
+        foreach ($parsedArrayFromJson as $element) {
+            $collection->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
+        }
+
+        $this->repo->create($collection, 3600);
+        $this->repo->findCreationDateOfElement($collectionUuid, 'not-existing-element');
     }
 
     /**
@@ -133,7 +155,7 @@ class ListRedisRepositoryTest extends TestCase
 
         $this->repo->create($collection, 3600);
 
-        $this->assertCount(11, $this->repo->findByUuid($collection->getUuid()));
+        $this->assertCount(10, $this->repo->findByUuid($collection->getUuid()));
         $this->assertEquals($this->repo->getHeaders($collectionUuid), $headers);
         $this->assertCount(11, $this->repo->all());
         $this->assertGreaterThan(0, $this->repo->stats());
