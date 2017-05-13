@@ -124,6 +124,19 @@ class ListRedisRepository implements ListRepository
 
     /**
      * @param $listUuid
+     * @return bool
+     */
+    public function existsList($listUuid)
+    {
+        if(count($this->client->keys($listUuid.self::HASH_SEPARATOR.'*'))){
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $listUuid
      *
      * @return mixed
      */

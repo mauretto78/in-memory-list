@@ -125,6 +125,15 @@ class Client
 
     /**
      * @param $listUuid
+     * @return bool
+     */
+    public function existsList($listUuid)
+    {
+        return $this->repository->existsList($listUuid);
+    }
+
+    /**
+     * @param $listUuid
      *
      * @return mixed
      */

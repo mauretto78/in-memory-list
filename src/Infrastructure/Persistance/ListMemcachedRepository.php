@@ -133,6 +133,19 @@ class ListMemcachedRepository implements ListRepository
 
     /**
      * @param $listUuid
+     * @return bool
+     */
+    public function existsList($listUuid)
+    {
+        if(count($this->memcached->get($listUuid))){
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $listUuid
      *
      * @return mixed
      */

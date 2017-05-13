@@ -11,6 +11,7 @@ use InMemoryList\Application\Client;
 
 include __DIR__.'/../shared.php';
 
+$start = microtime(true);
 $apiUrl = 'https://jsonplaceholder.typicode.com/albums';
 $apiArray = json_decode(file_get_contents($apiUrl));
 
@@ -19,8 +20,6 @@ $client->flush();
 $list = $client->findListByUuid('albums-list') ?:  $client->create($apiArray, [], 'albums-list', 'id');
 
 // loop items
-$start = microtime(true);
-
 echo '<h3>Loop items</h3>';
 foreach ($list as $element) {
     echo '<p>';

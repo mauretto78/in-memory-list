@@ -52,6 +52,12 @@ interface ListRepository
 
     /**
      * @param $listUuid
+     * @return bool
+     */
+    public function existsList($listUuid);
+
+    /**
+     * @param $listUuid
      *
      * @return mixed
      */
