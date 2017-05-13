@@ -114,7 +114,7 @@ And now you can retrive the list:
 
 ```php
 //..
-$simpleArray = $client->findByUuid('simple-array');
+$simpleArray = $client->findListByUuid('simple-array');
 
 //..
 

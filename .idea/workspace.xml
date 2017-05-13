@@ -4,24 +4,6 @@
     <list default="true" id="a3183fb5-d610-45fe-89c2-111bc1c20d66" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/examples/memcached/albums.php" afterPath="$PROJECT_DIR$/examples/memcached/albums.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/examples/memcached/comments.php" afterPath="$PROJECT_DIR$/examples/memcached/comments.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/examples/memcached/photos.php" afterPath="$PROJECT_DIR$/examples/memcached/photos.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/examples/redis/albums.php" afterPath="$PROJECT_DIR$/examples/redis/albums.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/examples/redis/comments.php" afterPath="$PROJECT_DIR$/examples/redis/comments.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/examples/redis/photos.php" afterPath="$PROJECT_DIR$/examples/redis/photos.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/examples/simple-array-with-headers.php" afterPath="$PROJECT_DIR$/examples/simple-array-with-headers.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/examples/simple-array.php" afterPath="$PROJECT_DIR$/examples/simple-array.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Application/Client.php" afterPath="$PROJECT_DIR$/src/Application/Client.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Application/QueryBuilder.php" afterPath="$PROJECT_DIR$/src/Application/QueryBuilder.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Model/Contracts/ListRepository.php" afterPath="$PROJECT_DIR$/src/Domain/Model/Contracts/ListRepository.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Infrastructure/Domain/Model/ListCollectionFactory.php" afterPath="$PROJECT_DIR$/src/Infrastructure/Domain/Model/ListCollectionFactory.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Infrastructure/Persistance/ListMemcachedRepository.php" afterPath="$PROJECT_DIR$/src/Infrastructure/Persistance/ListMemcachedRepository.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Infrastructure/Persistance/ListRedisRepository.php" afterPath="$PROJECT_DIR$/src/Infrastructure/Persistance/ListRedisRepository.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/Application/ClientTest.php" afterPath="$PROJECT_DIR$/tests/Application/ClientTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/Domain/Model/ListCollectionTest.php" afterPath="$PROJECT_DIR$/tests/Domain/Model/ListCollectionTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/Infrastructure/Persistence/ListMemcachedRepositoryTest.php" afterPath="$PROJECT_DIR$/tests/Infrastructure/Persistence/ListMemcachedRepositoryTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/Infrastructure/Persistence/ListRedisRepositoryTest.php" afterPath="$PROJECT_DIR$/tests/Infrastructure/Persistence/ListRedisRepositoryTest.php" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -37,8 +19,8 @@
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="253">
-                <caret line="153" column="3" lean-forward="false" selection-start-line="153" selection-start-column="3" selection-end-line="153" selection-end-column="3" />
+              <first_editor relative-caret-position="107">
+                <caret line="116" column="36" lean-forward="false" selection-start-line="116" selection-start-column="32" selection-end-line="116" selection-end-column="36" />
                 <folding />
               </first_editor>
               <second_editor />
@@ -49,8 +31,8 @@
       <file leaf-file-name="simple-array.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/examples/simple-array.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="445">
-              <caret line="32" column="27" lean-forward="true" selection-start-line="32" selection-start-column="27" selection-end-line="32" selection-end-column="27" />
+            <state relative-caret-position="219">
+              <caret line="29" column="31" lean-forward="false" selection-start-line="29" selection-start-column="17" selection-end-line="29" selection-end-column="31" />
               <folding />
             </state>
           </provider>
@@ -83,6 +65,7 @@
       <find>unserialize</find>
       <find>var_dump</find>
       <find>$collection</find>
+      <find>byUu</find>
     </findStrings>
     <replaceStrings>
       <replace>esc_sql</replace>
@@ -310,7 +293,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="13890000" />
+    <option name="totallyTimeSpent" value="14127000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1280" height="800" extended-state="0" />
@@ -324,7 +307,7 @@
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24973376" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39204547" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.39204547" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -765,14 +748,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/examples/simple-array.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="445">
-          <caret line="32" column="27" lean-forward="true" selection-start-line="32" selection-start-column="27" selection-end-line="32" selection-end-column="27" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/examples/redis/albums.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="414">
@@ -781,11 +756,19 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/examples/simple-array.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="219">
+          <caret line="29" column="31" lean-forward="false" selection-start-line="29" selection-start-column="17" selection-end-line="29" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="253">
-            <caret line="153" column="3" lean-forward="false" selection-start-line="153" selection-start-column="3" selection-end-line="153" selection-end-column="3" />
+          <first_editor relative-caret-position="107">
+            <caret line="116" column="36" lean-forward="false" selection-start-line="116" selection-start-column="32" selection-end-line="116" selection-end-column="36" />
             <folding />
           </first_editor>
           <second_editor />
