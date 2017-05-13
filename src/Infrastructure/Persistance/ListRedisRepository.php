@@ -94,11 +94,9 @@ class ListRedisRepository implements ListRepository
      */
     public function delete($listUuid)
     {
-        $collection = $this->findListByUuid($listUuid);
+        $list = $this->client->keys($listUuid.self::HASH_SEPARATOR.'*');
 
-
-
-        foreach ($collection as $elementUuid) {
+        foreach ($list as $elementUuid){
             $element = explode(self::HASH_SEPARATOR, $elementUuid);
             $this->deleteElement($listUuid, $element[1]);
         }
@@ -232,13 +230,13 @@ class ListRedisRepository implements ListRepository
      */
     public function updateTtl($listUuid, $ttl = null)
     {
-        $collection = $this->findListByUuid($listUuid);
+        $list = $this->client->keys($listUuid.self::HASH_SEPARATOR.'*');
 
-        if (!$collection) {
+        if (!$list) {
             throw new ListDoesNotExistsException('List '.$listUuid.' does not exists in memory.');
         }
 
-        foreach ($collection as $elementUuid) {
+        foreach ($list as $elementUuid){
             $this->client->expire($elementUuid, $ttl);
         }
     }

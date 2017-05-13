@@ -90,12 +90,11 @@ class ListMemcachedRepository implements ListRepository
 
     /**
      * @param $listUuid
-     *
      * @return mixed
      */
     public function delete($listUuid)
     {
-        foreach ($this->findListByUuid($listUuid) as $elementUuid){
+        foreach ($this->memcached->get($listUuid) as $elementUuid){
             $this->memcached->delete($elementUuid);
         }
 
@@ -105,16 +104,15 @@ class ListMemcachedRepository implements ListRepository
     /**
      * @param $listUuid
      * @param $elementUuid
-     *
-     * @throws ListElementDoesNotExistsException
+     * @return mixed
      */
     public function deleteElement($listUuid, $elementUuid)
     {
         $key = $listUuid.self::HASH_SEPARATOR.$elementUuid;
-        $collection = $this->findListByUuid($listUuid);
-        unset($collection[(string)$elementUuid]);
+        $list = $this->memcached->get($listUuid);
+        unset($list[(string)$elementUuid]);
 
-        $this->memcached->replace($listUuid, $collection);
+        $this->memcached->replace($listUuid, $list);
         $this->memcached->delete($key);
     }
 
@@ -138,7 +136,17 @@ class ListMemcachedRepository implements ListRepository
      */
     public function findListByUuid($listUuid)
     {
-        return $this->memcached->get($listUuid);
+        if ($list = $this->memcached->get($listUuid)){
+            $listReconstructedArray = [];
+
+            foreach ($list as $elementUuid){
+                $listReconstructedArray[$elementUuid] = $this->findElementByCompleteCollectionElementUuid($elementUuid);
+            }
+
+            return $listReconstructedArray;
+        }
+
+        return false;
     }
 
     /**
@@ -208,8 +216,6 @@ class ListMemcachedRepository implements ListRepository
         return $this->memcached->get($listUuid.self::HEADERS_SEPARATOR.'headers');
     }
 
-
-
     /**
      * @return array
      */
@@ -241,7 +247,7 @@ class ListMemcachedRepository implements ListRepository
             throw new ListDoesNotExistsException('List '.$listUuid.' does not exists in memory.');
         }
 
-        foreach ($this->findListByUuid($listUuid) as $elementUuid){
+        foreach ($this->memcached->get($listUuid) as $elementUuid){
             $this->memcached->touch($elementUuid, $ttl);
         }
         $this->memcached->touch($listUuid, $ttl);
