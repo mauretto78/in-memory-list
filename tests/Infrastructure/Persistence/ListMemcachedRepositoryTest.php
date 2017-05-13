@@ -109,8 +109,6 @@ class ListMemcachedRepositoryTest extends TestCase
         $element5 = $this->repo->findElement($collectionUuid, $element5Uuid);
         $creationDateOfElement5 = $this->repo->findCreationDateOfElement($collectionUuid, $element5Uuid);
 
-        echo count($this->repo->findByUuid($collectionUuid));
-
         $this->assertCount(4, $this->repo->findByUuid($collectionUuid));
         $this->assertEquals(127, $element5['id']);
         $this->assertEquals('Dolor facius', $element5['title']);
@@ -120,7 +118,6 @@ class ListMemcachedRepositoryTest extends TestCase
         $this->assertInstanceOf(\DateTimeImmutable::class, $creationDateOfElement5);
 
         $this->repo->updateTtl($collectionUuid, 7200);
-
         $this->repo->delete($collectionUuid);
     }
 

@@ -35,8 +35,8 @@ class ListCollectionFactory implements Factory
             throw new CreateListFromEmptyArrayException('Try to create a collection from an empty array.');
         }
 
-        $collectionUuid = new ListCollectionUuid($uuid);
-        $collection = new ListCollection($collectionUuid);
+        $listUuid = new ListCollectionUuid($uuid);
+        $collection = new ListCollection($listUuid);
 
         foreach ($elements as $element) {
             $e = ($elementUniqueIdentificator) ? (string) $this->_getValueFromKey($element, $elementUniqueIdentificator) : null;

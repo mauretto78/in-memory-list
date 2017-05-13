@@ -30,47 +30,47 @@ interface ListRepository
     public function create(ListCollection $collection, $ttl = null);
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      *
      * @return mixed
      */
-    public function delete($collectionUuid);
+    public function delete($listUuid);
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      * @param $elementUuid
      */
-    public function deleteElement($collectionUuid, $elementUuid);
+    public function deleteElement($listUuid, $elementUuid);
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      * @param $elementUuid
      *
      * @return bool
      */
-    public function existsElement($collectionUuid, $elementUuid);
+    public function existsElement($listUuid, $elementUuid);
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      *
      * @return mixed
      */
-    public function findByUuid($collectionUuid);
+    public function findByUuid($listUuid);
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      * @param $elementUuid
      *
      * @return mixed
      */
-    public function findElement($collectionUuid, $elementUuid);
+    public function findElement($listUuid, $elementUuid);
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      * @param $elementUuid
      * @return mixed
      */
-    public function findCreationDateOfElement($collectionUuid, $elementUuid);
+    public function findCreationDateOfElement($listUuid, $elementUuid);
 
     /**
      * @param $completeCollectionElementUuid
@@ -84,11 +84,11 @@ interface ListRepository
     public function flush();
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      *
      * @return mixed
      */
-    public function getHeaders($collectionUuid);
+    public function getHeaders($listUuid);
 
     /**
      * @return mixed
@@ -103,10 +103,10 @@ interface ListRepository
     public function ttl($key);
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      * @param null $ttl
      *
      * @return mixed
      */
-    public function updateTtl($collectionUuid, $ttl = null);
+    public function updateTtl($listUuid, $ttl = null);
 }
