@@ -80,11 +80,11 @@ interface ListRepository
     public function stats();
 
     /**
-     * @param $collectionUuid
+     * @param $key
      *
      * @return mixed
      */
-    public function ttl($collectionUuid);
+    public function ttl($key);
 
     /**
      * @param $collectionUuid
