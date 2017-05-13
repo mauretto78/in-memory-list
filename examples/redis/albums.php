@@ -16,19 +16,17 @@ $apiArray = json_decode(file_get_contents($apiUrl));
 
 $client = new Client('redis', $redis_params);
 $client->flush();
-$collection = $client->findByUuid('albums-list') ?:  $client->create($apiArray, [], 'albums-list', 'id');
+$list = $client->findListByUuid('albums-list') ?:  $client->create($apiArray, [], 'albums-list', 'id');
 
 // loop items
 $start = microtime(true);
 
 echo '<h3>Loop items</h3>';
-foreach ($collection as $element) {
-    $item = $client->item($element);
-
+foreach ($list as $element) {
     echo '<p>';
-    echo '<strong>userId</strong>: '.$item->userId.'<br>';
-    echo '<strong>Id</strong>: '.$item->id.'<br>';
-    echo '<strong>title</strong>: '.$item->title.'<br>';
+    echo '<strong>userId</strong>: '.$element->userId.'<br>';
+    echo '<strong>Id</strong>: '.$element->id.'<br>';
+    echo '<strong>title</strong>: '.$element->title.'<br>';
     echo '</p>';
 }
 

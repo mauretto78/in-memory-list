@@ -35,30 +35,30 @@ class QueryBuilder
     /**
      * @var array
      */
-    private $collection;
+    private $list;
 
     /**
      * IMListElementCollectionQueryBuilder constructor.
      *
-     * @param $collection
+     * @param $list
      */
-    public function __construct($collection)
+    public function __construct($list)
     {
-        $this->_setCollection($collection);
+        $this->_setCollection($list);
     }
 
     /**
-     * @param $collection
+     * @param $list
      *
      * @throws EmptyListException
      */
-    public function _setCollection($collection)
+    public function _setCollection($list)
     {
-        if (empty($collection)) {
+        if (empty($list)) {
             throw new EmptyListException('Empty collection provided.');
         }
 
-        $this->collection = $collection;
+        $this->collection = $list;
     }
 
     /**

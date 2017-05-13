@@ -36,19 +36,19 @@ class ListCollectionFactory implements Factory
         }
 
         $listUuid = new ListCollectionUuid($uuid);
-        $collection = new ListCollection($listUuid);
+        $list = new ListCollection($listUuid);
 
         foreach ($elements as $element) {
             $e = ($elementUniqueIdentificator) ? (string) $this->_getValueFromKey($element, $elementUniqueIdentificator) : null;
             $elementUuid = new ListElementUuid($e);
-            $collection->addItem(new ListElement($elementUuid, $element));
+            $list->addItem(new ListElement($elementUuid, $element));
         }
 
         if ($headers) {
-            $collection->setHeaders($headers);
+            $list->setHeaders($headers);
         }
 
-        return $collection;
+        return $list;
     }
 
     /**

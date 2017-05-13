@@ -44,14 +44,14 @@ class ListMemcachedRepositoryTest extends TestCase
     {
         $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
 
-        $collectionUuid = new ListCollectionUuid();
-        $collection = new ListCollection($collectionUuid);
+        $listUuid = new ListCollectionUuid();
+        $list = new ListCollection($listUuid);
         foreach ($parsedArrayFromJson as $element) {
-            $collection->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
+            $list->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
         }
 
-        $this->repo->create($collection, 3600);
-        $this->repo->findCreationDateOfElement($collectionUuid, 'not-existing-element');
+        $this->repo->create($list, 3600);
+        $this->repo->findCreationDateOfElement($listUuid, 'not-existing-element');
     }
 
     /**
@@ -95,21 +95,21 @@ class ListMemcachedRepositoryTest extends TestCase
             'rate' => 5,
         ]);
 
-        $collectionUuid = new ListCollectionUuid();
-        $collection = new ListCollection($collectionUuid);
-        $collection->addItem($fakeElement1);
-        $collection->addItem($fakeElement2);
-        $collection->addItem($fakeElement3);
-        $collection->addItem($fakeElement4);
-        $collection->addItem($fakeElement5);
+        $listUuid = new ListCollectionUuid();
+        $list = new ListCollection($listUuid);
+        $list->addItem($fakeElement1);
+        $list->addItem($fakeElement2);
+        $list->addItem($fakeElement3);
+        $list->addItem($fakeElement4);
+        $list->addItem($fakeElement5);
 
-        $this->repo->create($collection);
-        $this->repo->deleteElement($collectionUuid, $fakeElement3->getUuid());
+        $this->repo->create($list);
+        $this->repo->deleteElement($listUuid, $fakeElement3->getUuid());
         $element5Uuid = $fakeUUid5->getUuid();
-        $element5 = $this->repo->findElement($collectionUuid, $element5Uuid);
-        $creationDateOfElement5 = $this->repo->findCreationDateOfElement($collectionUuid, $element5Uuid);
+        $element5 = $this->repo->findElement($listUuid, $element5Uuid);
+        $creationDateOfElement5 = $this->repo->findCreationDateOfElement($listUuid, $element5Uuid);
 
-        $this->assertCount(4, $this->repo->findListByUuid($collectionUuid));
+        $this->assertCount(4, $this->repo->findListByUuid($listUuid));
         $this->assertEquals(127, $element5['id']);
         $this->assertEquals('Dolor facius', $element5['title']);
         $this->assertEquals(27, $element5['category-id']);
@@ -117,8 +117,8 @@ class ListMemcachedRepositoryTest extends TestCase
         $this->assertEquals(5, $element5['rate']);
         $this->assertInstanceOf(\DateTimeImmutable::class, $creationDateOfElement5);
 
-        $this->repo->updateTtl($collectionUuid, 7200);
-        $this->repo->delete($collectionUuid);
+        $this->repo->updateTtl($listUuid, 7200);
+        $this->repo->delete($listUuid);
     }
 
     /**
@@ -133,19 +133,19 @@ class ListMemcachedRepositoryTest extends TestCase
 
         $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
 
-        $collectionUuid = new ListCollectionUuid();
-        $collection = new ListCollection($collectionUuid);
+        $listUuid = new ListCollectionUuid();
+        $list = new ListCollection($listUuid);
         foreach ($parsedArrayFromJson as $element) {
-            $collection->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
+            $list->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
         }
-        $collection->setHeaders($headers);
-        $this->repo->create($collection);
+        $list->setHeaders($headers);
+        $this->repo->create($list);
 
-        $this->assertCount(10, $this->repo->findListByUuid($collection->getUuid()));
-        $this->assertEquals($this->repo->getHeaders($collection->getUuid()), $headers);
+        $this->assertCount(10, $this->repo->findListByUuid($list->getUuid()));
+        $this->assertEquals($this->repo->getHeaders($list->getUuid()), $headers);
         $this->assertGreaterThan(0, $this->repo->stats());
 
-        $this->repo->delete($collectionUuid);
+        $this->repo->delete($listUuid);
     }
 
     /**
@@ -157,13 +157,13 @@ class ListMemcachedRepositoryTest extends TestCase
     {
         $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
 
-        $collectionUuid = new ListCollectionUuid();
-        $collection = new ListCollection($collectionUuid);
+        $listUuid = new ListCollectionUuid();
+        $list = new ListCollection($listUuid);
         foreach ($parsedArrayFromJson as $element) {
-            $collection->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
+            $list->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
         }
 
-        $this->repo->create($collection, 3600);
+        $this->repo->create($list, 3600);
         $this->repo->updateTtl('not existing hash', 7200);
     }
 }

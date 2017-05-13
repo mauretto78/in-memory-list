@@ -43,9 +43,9 @@ class ClientTest extends TestCase
         );
 
         $client = new Client('redis', $wrongCredentials);
-        $collection = $client->create($this->parsedArrayFromJson, [], 'fake list');
+        $list = $client->create($this->parsedArrayFromJson, [], 'fake list');
 
-        $this->assertEquals($collection, 'Connection refused [tcp://0.0.0.0:432423423]');
+        $this->assertEquals($list, 'Connection refused [tcp://0.0.0.0:432423423]');
     }
 
     /**
@@ -54,10 +54,10 @@ class ClientTest extends TestCase
     public function it_catch_CollectionAlreadyExistsException_if_attempt_to_persist_duplicate_collection_from_redis()
     {
         $client = new Client();
-        $collection = $client->create($this->parsedArrayFromJson, [], 'fake list');
-        $collection2 = $client->create($this->parsedArrayFromJson, [], 'fake list');
+        $list = $client->create($this->parsedArrayFromJson, [], 'fake list');
+        $list2 = $client->create($this->parsedArrayFromJson, [], 'fake list');
 
-        $this->assertEquals($collection2, 'List fake-list already exists in memory.');
+        $this->assertEquals($list2, 'List fake-list already exists in memory.');
     }
 
     /**
@@ -70,10 +70,10 @@ class ClientTest extends TestCase
         ];
 
         $client = new Client('memcached', $memcached_params);
-        $collection = $client->create($this->parsedArrayFromJson, [], 'fake list');
-        $collection2 = $client->create($this->parsedArrayFromJson, [], 'fake list');
+        $list = $client->create($this->parsedArrayFromJson, [], 'fake list');
+        $list2 = $client->create($this->parsedArrayFromJson, [], 'fake list');
 
-        $this->assertEquals($collection2, 'List fake-list already exists in memory.');
+        $this->assertEquals($list2, 'List fake-list already exists in memory.');
     }
 
     /**
@@ -142,15 +142,15 @@ class ClientTest extends TestCase
         $this->assertEquals(7200, $client->getTtl('fake-list@2'));
         $this->assertEquals(7200, $client->getTtl('fake-list@3'));
 
-        foreach ($client->findListByUuid('fake-list') as $elementUuid => $element){
+        foreach ($client->findListByUuid('fake-list') as $elementUuid => $element) {
             $item = $client->item($elementUuid);
             $elementAsArray = get_object_vars($item);
 
             $this->assertInstanceOf(stdClass::class, $item);
-            $this->assertArrayHasKey('id',$elementAsArray);
-            $this->assertArrayHasKey('name',$elementAsArray);
-            $this->assertArrayHasKey('username',$elementAsArray);
-            $this->assertArrayHasKey('email',$elementAsArray);
+            $this->assertArrayHasKey('id', $elementAsArray);
+            $this->assertArrayHasKey('name', $elementAsArray);
+            $this->assertArrayHasKey('username', $elementAsArray);
+            $this->assertArrayHasKey('email', $elementAsArray);
         }
 
         $client->delete('fake list');
@@ -187,14 +187,14 @@ class ClientTest extends TestCase
 
         $this->assertEquals($client->getHeaders('fake-list'), $headers);
 
-        foreach ($client->findListByUuid('fake-list') as $elementUuid => $element){
+        foreach ($client->findListByUuid('fake-list') as $elementUuid => $element) {
             $elementAsArray = get_object_vars($element);
 
             $this->assertInstanceOf(stdClass::class, $element);
-            $this->assertArrayHasKey('id',$elementAsArray);
-            $this->assertArrayHasKey('name',$elementAsArray);
-            $this->assertArrayHasKey('username',$elementAsArray);
-            $this->assertArrayHasKey('email',$elementAsArray);
+            $this->assertArrayHasKey('id', $elementAsArray);
+            $this->assertArrayHasKey('name', $elementAsArray);
+            $this->assertArrayHasKey('username', $elementAsArray);
+            $this->assertArrayHasKey('email', $elementAsArray);
         }
 
         $client->delete('fake-list');

@@ -96,9 +96,9 @@ class Client
     {
         try {
             $factory = new ListCollectionFactory();
-            $collection = $factory->create($elements, $headers, $uuid, $elementUniqueIdentificator);
+            $list = $factory->create($elements, $headers, $uuid, $elementUniqueIdentificator);
 
-            return $this->repository->create($collection, $ttl);
+            return $this->repository->create($list, $ttl);
         } catch (\Exception $exception) {
             return $exception->getMessage();
         }
@@ -185,7 +185,6 @@ class Client
     {
         return $this->repository->ttl($listUuid);
     }
-
 
     public function item($completeCollectionElementUuid)
     {
