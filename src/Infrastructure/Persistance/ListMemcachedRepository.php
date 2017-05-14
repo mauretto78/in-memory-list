@@ -69,7 +69,7 @@ class ListMemcachedRepository implements ListRepository
 
         if ($collection->getHeaders()) {
             $this->memcached->set(
-                $collection->getUuid().'::headers',
+                $collection->getUuid().self::HEADERS_SEPARATOR.'headers',
                 $collection->getHeaders(),
                 $ttl
             );
@@ -155,7 +155,7 @@ class ListMemcachedRepository implements ListRepository
      */
     public function getHeaders($collectionUuid)
     {
-        return $this->memcached->get($collectionUuid.'::headers');
+        return $this->memcached->get($collectionUuid.self::HEADERS_SEPARATOR.'headers');
     }
 
     /**
