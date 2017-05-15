@@ -133,6 +133,17 @@ class ClientTest extends TestCase
         $this->assertEquals($client->getHeaders('fake-list'), $headers);
         $this->assertArrayHasKey('Server', $client->getStats());
 
+        $client->updateElement('fake-list','2', [
+            'name'=> 'Mauro Cassani',
+            'username'=> 'mauretto78',
+            'email'=> 'mauretto1978@yahoo.it',
+        ]);
+
+        $element2 = $client->findElement('fake-list', '2');
+        $this->assertEquals('Mauro Cassani', $element2->getBody()->name);
+        $this->assertEquals('mauretto78', $element2->getBody()->username);
+        $this->assertEquals('mauretto1978@yahoo.it', $element2->getBody()->email);
+
         $client->updateTtl('fake-list', 7200);
         $this->assertEquals(7200, $client->getTtl('fake-list'));
 
@@ -167,6 +178,17 @@ class ClientTest extends TestCase
         $this->assertEquals('Leanne Graham', $element1->getBody()->name);
         $this->assertEquals('Ervin Howell', $element2->getBody()->name);
         $this->assertEquals($client->getHeaders('fake-list'), $headers);
+
+        $client->updateElement('fake-list','2', [
+            'name'=> 'Mauro Cassani',
+            'username'=> 'mauretto78',
+            'email'=> 'mauretto1978@yahoo.it',
+        ]);
+
+        $element2 = $client->findElement('fake-list', '2');
+        $this->assertEquals('Mauro Cassani', $element2->getBody()->name);
+        $this->assertEquals('mauretto78', $element2->getBody()->username);
+        $this->assertEquals('mauretto1978@yahoo.it', $element2->getBody()->email);
 
         $client->delete('fake-list');
     }

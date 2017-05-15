@@ -42,11 +42,9 @@ use InMemoryList\Application\Client;
 
 // Redis
 $redis_params = [
-    'params' => [
-        'scheme' => 'tcp',
-        'host' => '127.0.0.1',
-        'port' => 6379,
-    ],
+    'scheme' => 'tcp',
+    'host' => '127.0.0.1',
+    'port' => 6379,
     'options' => [
         'profile' => '3.0',
     ],
@@ -203,7 +201,7 @@ You can use the following operators to perform your queries:
 * '>='
 * '!='
 * 'ARRAY'
-* 'CONTAINS'
+* 'CONTAINS' (case insensitive)
 
 ## Limit and Offset
 

@@ -92,6 +92,14 @@ interface ListRepository
 
     /**
      * @param $collectionUuid
+     * @param $elementUuid
+     * @param array $data
+     * @return mixed
+     */
+    public function updateElement($collectionUuid, $elementUuid, array $data = []);
+
+    /**
+     * @param $collectionUuid
      * @param null $ttl
      *
      * @return mixed

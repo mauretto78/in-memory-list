@@ -198,6 +198,17 @@ class Client
 
     /**
      * @param $collectionUuid
+     * @param $elementUuid
+     * @param array $data
+     * @return mixed
+     */
+    public function updateElement($collectionUuid, $elementUuid, array $data = [])
+    {
+        return $this->repository->updateElement($collectionUuid, $elementUuid, $data);
+    }
+
+    /**
+     * @param $collectionUuid
      * @param bool $ttl
      *
      * @return mixed

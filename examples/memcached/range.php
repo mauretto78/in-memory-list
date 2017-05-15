@@ -43,7 +43,4 @@ foreach ($collection as $element) {
     echo '</p>';
 }
 
-
 echo ' ELAPSED TIME: '.$time_elapsed_secs = microtime(true) - $start;
-
-

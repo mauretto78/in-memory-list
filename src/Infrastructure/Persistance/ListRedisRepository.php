@@ -12,6 +12,7 @@ namespace InMemoryList\Infrastructure\Persistance;
 use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\Contracts\ListRepository;
+use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Infrastructure\Persistance\Exception\ListAlreadyExistsException;
 use InMemoryList\Infrastructure\Persistance\Exception\ListDoesNotExistsException;
 use InMemoryList\Infrastructure\Persistance\Exception\ListElementDoesNotExistsException;
@@ -182,6 +183,22 @@ class ListRedisRepository implements ListRepository
     public function ttl($collectionUuid)
     {
         return $this->client->ttl($collectionUuid);
+    }
+
+    public function updateElement($collectionUuid, $elementUuid, array $data = [])
+    {
+        $element = $this->findElement($collectionUuid, $elementUuid);
+        $objMerged = (object)array_merge((array)$element->getBody(), (array)$data);
+        $updatedElement = new ListElement(
+            new ListElementUuid($elementUuid),
+            $objMerged
+        );
+
+        $this->client->hset(
+            $collectionUuid,
+            $elementUuid,
+            serialize($updatedElement)
+        );
     }
 
     /**

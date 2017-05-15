@@ -12,6 +12,7 @@ namespace InMemoryList\Infrastructure\Persistance;
 use InMemoryList\Domain\Model\Contracts\ListRepository;
 use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\ListElement;
+use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Infrastructure\Persistance\Exception\ListAlreadyExistsException;
 use InMemoryList\Infrastructure\Persistance\Exception\ListDoesNotExistsException;
 use InMemoryList\Infrastructure\Persistance\Exception\ListElementDoesNotExistsException;
@@ -173,6 +174,30 @@ class ListMemcachedRepository implements ListRepository
      */
     public function ttl($collectionUuid)
     {
+    }
+
+    /**
+     * @param $collectionUuid
+     * @param $elementUuid
+     * @param array $data
+     *
+     * @return mixed
+     */
+    public function updateElement($collectionUuid, $elementUuid, array $data = [])
+    {
+        $element = $this->findElement($collectionUuid, $elementUuid);
+        $objMerged = (object)array_merge((array)$element->getBody(), (array)$data);
+        $arrayOfElements = $this->memcached->get($collectionUuid);
+        $updatedElement = new ListElement(
+            new ListElementUuid($elementUuid),
+            $objMerged
+        );
+        $arrayOfElements[(string) $elementUuid] = serialize($updatedElement);
+
+        $this->memcached->replace(
+            $collectionUuid,
+            $arrayOfElements
+        );
     }
 
     /**
