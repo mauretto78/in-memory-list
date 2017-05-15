@@ -12,12 +12,24 @@ use InMemoryList\Application\Client;
 include __DIR__.'/../shared.php';
 
 $start = microtime(true);
-$apiUrl = 'https://jsonplaceholder.typicode.com/albums';
-$apiArray = json_decode(file_get_contents($apiUrl));
+
+$from = (isset($_GET['from'])) ?: 1;
+$to = (isset($_GET['to'])) ?: 10000;
+$range = range($from, $to);
+$array = [];
+
+foreach ($range as $number){
+    $array[] = [
+        'id' => $number,
+        'name' => 'Name '. $number,
+        'email' => 'Email' . $number,
+    ];
+}
+
+$apiArray = json_encode($array);
 
 $client = new Client('redis', $redis_params);
-$client->flush();
-$collection = $client->findByUuid('albums-list') ?:  $client->create($apiArray, [], 'albums-list', 'id');
+$collection = $client->findByUuid('range-list') ?:  $client->create(json_decode($apiArray), [], 'range-list', 'id');
 
 // loop items
 echo '<h3>Loop items</h3>';
@@ -25,10 +37,13 @@ foreach ($collection as $element) {
     $item = $client->item($element);
 
     echo '<p>';
-    echo '<strong>userId</strong>: '.$item->userId.'<br>';
-    echo '<strong>Id</strong>: '.$item->id.'<br>';
-    echo '<strong>title</strong>: '.$item->title.'<br>';
+    echo '<strong>id</strong>: '.$item->id.'<br>';
+    echo '<strong>name</strong>: '.$item->name.'<br>';
+    echo '<strong>email</strong>: '.$item->email.'<br>';
     echo '</p>';
 }
 
+
 echo ' ELAPSED TIME: '.$time_elapsed_secs = microtime(true) - $start;
+
+

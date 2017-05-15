@@ -71,14 +71,14 @@ class ListRedisRepository implements ListRepository
         if ($collection->getHeaders()) {
             foreach ($collection->getHeaders() as $key => $header) {
                 $this->client->hset(
-                    $collection->getUuid().'::headers',
+                    $collection->getUuid().self::HEADERS_SEPARATOR.'headers',
                     $key,
                     $header
                 );
             }
 
             if ($ttl) {
-                $this->client->expire($collection->getUuid().'::headers', $ttl);
+                $this->client->expire($collection->getUuid().self::HEADERS_SEPARATOR.'headers', $ttl);
             }
         }
 
@@ -163,7 +163,7 @@ class ListRedisRepository implements ListRepository
      */
     public function getHeaders($collectionUuid)
     {
-        return $this->client->hgetall($collectionUuid.'::headers');
+        return $this->client->hgetall($collectionUuid.self::HEADERS_SEPARATOR.'headers');
     }
 
     /**

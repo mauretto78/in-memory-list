@@ -13,6 +13,10 @@ use InMemoryList\Domain\Model\ListCollection;
 
 interface ListRepository
 {
+    const HASH_SEPARATOR = '@';
+    const HEADERS_SEPARATOR = '#';
+
+
     /**
      * @return mixed
      */
