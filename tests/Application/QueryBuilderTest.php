@@ -185,7 +185,7 @@ class QueryBuilderTest extends TestCase
 
         // perform a CONTAINS query
         $qb7 = new QueryBuilder($userCollection);
-        $qb7->addCriteria('name', 'Clement', 'CONTAINS');
+        $qb7->addCriteria('name', 'clement', 'CONTAINS');
         $this->assertCount(2, $qb7->getResults());
 
         // perform a ARRAY query

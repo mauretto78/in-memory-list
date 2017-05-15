@@ -180,7 +180,7 @@ class QueryBuilder
                                 break;
 
                             case 'CONTAINS':
-                                return strpos($value, $criterion['value']) !== false;
+                                return stripos($value, $criterion['value']) !== false;
                                 break;
 
                             default:
