@@ -35,30 +35,30 @@ class QueryBuilder
     /**
      * @var array
      */
-    private $collection;
+    private $list;
 
     /**
      * IMListElementCollectionQueryBuilder constructor.
      *
-     * @param $collection
+     * @param $list
      */
-    public function __construct($collection)
+    public function __construct($list)
     {
-        $this->_setCollection($collection);
+        $this->_setCollection($list);
     }
 
     /**
-     * @param $collection
+     * @param $list
      *
      * @throws EmptyListException
      */
-    public function _setCollection($collection)
+    public function _setCollection($list)
     {
-        if (empty($collection)) {
+        if (empty($list)) {
             throw new EmptyListException('Empty collection provided.');
         }
 
-        $this->collection = $collection;
+        $this->collection = $list;
     }
 
     /**
@@ -152,7 +152,7 @@ class QueryBuilder
             foreach ($this->criteria as $criterion) {
                 $singleQueryResults[] = $this->_filter(
                     function ($element) use ($criterion) {
-                        $value = $this->_getListElementValueFromKey(unserialize($element), $criterion['key']);
+                        $value = $this->_getListElementValueFromKey($element, $criterion['key']);
 
                         switch ($criterion['operator']) {
                             case '>':
@@ -227,13 +227,13 @@ class QueryBuilder
      *
      * @throws NotValidKeyElementInListException
      */
-    private function _getListElementValueFromKey(ListElement $element, $key)
+    private function _getListElementValueFromKey($element, $key)
     {
-        if ((is_object($element->getBody()) and !isset($element->getBody()->{$key})) or (is_array($element->getBody()) and !isset($element->getBody()[$key]))) {
+        if ((is_object($element) and !isset($element->{$key})) or (is_array($element) and !isset($element[$key]))) {
             throw new NotValidKeyElementInListException($key.' is not a valid key.');
         }
 
-        return is_object($element->getBody()) ? $element->getBody()->{$key} : $element->getBody()[$key];
+        return is_object($element) ? $element->{$key} : $element[$key];
     }
 
     /**
@@ -244,8 +244,8 @@ class QueryBuilder
      */
     private function _compareStrings($a, $b)
     {
-        $valueA = $this->_getListElementValueFromKey(unserialize($a), $this->orderBy['key']);
-        $valueB = $this->_getListElementValueFromKey(unserialize($b), $this->orderBy['key']);
+        $valueA = $this->_getListElementValueFromKey($a, $this->orderBy['key']);
+        $valueB = $this->_getListElementValueFromKey($b, $this->orderBy['key']);
 
         if ($valueA === $valueB) {
             return 0;

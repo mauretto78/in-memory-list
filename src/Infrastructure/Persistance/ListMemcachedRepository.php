@@ -42,23 +42,23 @@ class ListMemcachedRepository implements ListRepository
     }
 
     /**
-     * @param ListCollection $collection
+     * @param ListCollection $list
      *
      * @return mixed
      *
      * @throws ListAlreadyExistsException
      */
-    public function create(ListCollection $collection, $ttl = null)
+    public function create(ListCollection $list, $ttl = null)
     {
-        if ($this->findListByUuid($collection->getUuid())) {
-            throw new ListAlreadyExistsException('List '.$collection->getUuid().' already exists in memory.');
+        if ($this->findListByUuid($list->getUuid())) {
+            throw new ListAlreadyExistsException('List '.$list->getUuid().' already exists in memory.');
         }
 
         $arrayOfElements = [];
 
         /** @var ListElement $element */
-        foreach ($collection->getItems() as $element) {
-            $key = $collection->getUuid().self::HASH_SEPARATOR.$element->getUuid();
+        foreach ($list->getItems() as $element) {
+            $key = $list->getUuid().self::HASH_SEPARATOR.$element->getUuid();
             $arrayOfElements[(string) $element->getUuid()] = $key;
 
             $this->memcached->set(
@@ -72,20 +72,20 @@ class ListMemcachedRepository implements ListRepository
         }
 
         $this->memcached->set(
-            $collection->getUuid(),
+            $list->getUuid(),
             $arrayOfElements,
             $ttl
         );
 
-        if ($collection->getHeaders()) {
+        if ($list->getHeaders()) {
             $this->memcached->set(
-                $collection->getUuid().self::HEADERS_SEPARATOR.'headers',
-                $collection->getHeaders(),
+                $list->getUuid().self::HEADERS_SEPARATOR.'headers',
+                $list->getHeaders(),
                 $ttl
             );
         }
 
-        return $this->findListByUuid($collection->getUuid());
+        return $this->findListByUuid($list->getUuid());
     }
 
     /**
@@ -95,7 +95,7 @@ class ListMemcachedRepository implements ListRepository
      */
     public function delete($listUuid)
     {
-        foreach ($this->findListByUuid($listUuid) as $elementUuid){
+        foreach ($this->memcached->get($listUuid) as $elementUuid) {
             $this->memcached->delete($elementUuid);
         }
 
@@ -106,15 +106,15 @@ class ListMemcachedRepository implements ListRepository
      * @param $listUuid
      * @param $elementUuid
      *
-     * @throws ListElementDoesNotExistsException
+     * @return mixed
      */
     public function deleteElement($listUuid, $elementUuid)
     {
         $key = $listUuid.self::HASH_SEPARATOR.$elementUuid;
-        $collection = $this->findListByUuid($listUuid);
-        unset($collection[(string)$elementUuid]);
+        $list = $this->memcached->get($listUuid);
+        unset($list[(string) $elementUuid]);
 
-        $this->memcached->replace($listUuid, $collection);
+        $this->memcached->replace($listUuid, $list);
         $this->memcached->delete($key);
     }
 
@@ -133,12 +133,35 @@ class ListMemcachedRepository implements ListRepository
 
     /**
      * @param $listUuid
+     * @return bool
+     */
+    public function existsList($listUuid)
+    {
+        if(count($this->memcached->get($listUuid))){
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $listUuid
      *
      * @return mixed
      */
     public function findListByUuid($listUuid)
     {
-        return $this->memcached->get($listUuid);
+        if ($list = $this->memcached->get($listUuid)) {
+            $listReconstructedArray = [];
+
+            foreach ($list as $elementUuid) {
+                $listReconstructedArray[$elementUuid] = $this->findElementByCompleteCollectionElementUuid($elementUuid);
+            }
+
+            return $listReconstructedArray;
+        }
+
+        return false;
     }
 
     /**
@@ -163,7 +186,9 @@ class ListMemcachedRepository implements ListRepository
     /**
      * @param $listUuid
      * @param $elementUuid
+     *
      * @return mixed
+     *
      * @throws ListElementDoesNotExistsException
      */
     public function findCreationDateOfElement($listUuid, $elementUuid)
@@ -179,6 +204,7 @@ class ListMemcachedRepository implements ListRepository
 
     /**
      * @param $completeCollectionElementUuid
+     *
      * @return mixed
      */
     public function findElementByCompleteCollectionElementUuid($completeCollectionElementUuid)
@@ -207,8 +233,6 @@ class ListMemcachedRepository implements ListRepository
     {
         return $this->memcached->get($listUuid.self::HEADERS_SEPARATOR.'headers');
     }
-
-
 
     /**
      * @return array
@@ -241,7 +265,7 @@ class ListMemcachedRepository implements ListRepository
             throw new ListDoesNotExistsException('List '.$listUuid.' does not exists in memory.');
         }
 
-        foreach ($this->findListByUuid($listUuid) as $elementUuid){
+        foreach ($this->memcached->get($listUuid) as $elementUuid) {
             $this->memcached->touch($elementUuid, $ttl);
         }
         $this->memcached->touch($listUuid, $ttl);

@@ -23,9 +23,9 @@ class ListCollectionTest extends TestCase
     {
         $fakeElement1 = new ListElement($fakeUUid1 = new ListElementUuid(), 'lorem ipsum');
 
-        $collection = new ListCollection(new ListCollectionUuid());
-        $collection->addItem($fakeElement1);
-        $collection->addItem($fakeElement1);
+        $list = new ListCollection(new ListCollectionUuid());
+        $list->addItem($fakeElement1);
+        $list->addItem($fakeElement1);
     }
 
     /**
@@ -36,8 +36,8 @@ class ListCollectionTest extends TestCase
     {
         $fakeElement1 = new ListElement($fakeUUid1 = new ListElementUuid(), 'lorem ipsum');
 
-        $collection = new ListCollection(new ListCollectionUuid());
-        $collection->deleteElement($fakeElement1);
+        $list = new ListCollection(new ListCollectionUuid());
+        $list->deleteElement($fakeElement1);
     }
 
     /**
@@ -48,8 +48,8 @@ class ListCollectionTest extends TestCase
     {
         $fakeElement1 = new ListElement($fakeUUid1 = new ListElementUuid(), 'lorem ipsum');
 
-        $collection = new ListCollection(new ListCollectionUuid());
-        $collection->getElement($fakeElement1->getUuid());
+        $list = new ListCollection(new ListCollectionUuid());
+        $list->getElement($fakeElement1->getUuid());
     }
 
     /**
@@ -67,19 +67,19 @@ class ListCollectionTest extends TestCase
         $fakeElement3 = new ListElement($fakeUUid3 = new ListElementUuid(), 'ipso facto');
         $fakeElement4 = new ListElement($fakeUUid4 = new ListElementUuid(), 'ipse dixit');
 
-        $collection = new ListCollection(new ListCollectionUuid());
-        $collection->addItem($fakeElement1);
-        $collection->addItem($fakeElement2);
-        $collection->addItem($fakeElement3);
-        $collection->addItem($fakeElement4);
-        $collection->deleteElement($fakeElement4);
-        $collection->setHeaders($headers);
+        $list = new ListCollection(new ListCollectionUuid());
+        $list->addItem($fakeElement1);
+        $list->addItem($fakeElement2);
+        $list->addItem($fakeElement3);
+        $list->addItem($fakeElement4);
+        $list->deleteElement($fakeElement4);
+        $list->setHeaders($headers);
 
-        $this->assertEquals(3, $collection->count());
+        $this->assertEquals(3, $list->count());
 
-        $this->assertEquals($collection->getElement($fakeElement1->getUUid())->getUuid(), $fakeUUid1);
-        $this->assertEquals($collection->getElement($fakeElement2->getUUid())->getUuid(), $fakeUUid2);
-        $this->assertEquals($collection->getElement($fakeElement3->getUUid())->getUuid(), $fakeUUid3);
-        $this->assertCount(2, $collection->getHeaders());
+        $this->assertEquals($list->getElement($fakeElement1->getUUid())->getUuid(), $fakeUUid1);
+        $this->assertEquals($list->getElement($fakeElement2->getUUid())->getUuid(), $fakeUUid2);
+        $this->assertEquals($list->getElement($fakeElement3->getUUid())->getUuid(), $fakeUUid3);
+        $this->assertCount(2, $list->getHeaders());
     }
 }

@@ -24,10 +24,10 @@ $array = [
 ]
 
 $client = new Client();
-$collection = $client->create($array);
+$list = $client->create($array);
 
-foreach ($collection as $element){
-    $item = $client->item($element);
+foreach ($list as $element){
+    echo $element->id;
     // ...
 }
 
@@ -87,7 +87,7 @@ $headers = [
 ];
 
 $client = new Client();
-$collection = $client->create($array, $headers, 'simple-array');
+$list = $client->create($array, $headers, 'simple-array');
 $headers = $client->getHeaders('simple-array');
 
 // ...
@@ -105,7 +105,7 @@ $array = [
 ]
 
 $client = new Client();
-$collection = $client->create($array, [], 'simple-array');
+$list = $client->create($array, [], 'simple-array');
 
 // ..
 ```
@@ -114,7 +114,7 @@ And now you can retrive the list:
 
 ```php
 //..
-$simpleArray = $client->findByUuid('simple-array');
+$simpleArray = $client->findListByUuid('simple-array');
 
 //..
 
@@ -144,16 +144,14 @@ Maybe you would use `id` key as unique ID in your list:
 use InMemoryList\Application\Client;
 
 $client = new Client();
-$collection = $client->create($simpleArray, [], 'simple-array', 'id');
+$list = $client->create($simpleArray, [], 'simple-array', 'id');
 ```
 
 And now to retrieve a single element, you can simply do:
 
 ```php
-$item1 = $client->item($collection['1']);
+$item1 = $client->findElement('simple-array', 1));
 ```
-
-Please note that the unique ID **must be a string**. 
 
 ## Time to live (TTL)
 
@@ -163,7 +161,7 @@ You can specify a ttl (in seconds) for your lists:
 use InMemoryList\Application\Client;
 
 $client = new Client();
-$collection = $client->create($array, [], 'your-list-name', 'id', 3600);
+$list = $client->create($array, [], 'your-list-name', 'id', 3600);
 // ..
 ```
 
@@ -180,15 +178,14 @@ $array = [
 ]
 
 $client = new Client();
-$collection = $client->create($array, 'simple-array');
-$qb = new QueryBuilder($collection);
+$list = $client->create($array, 'simple-array');
+$qb = new QueryBuilder($list);
 $qb
     ->addCriteria('title', '...', 'CONTAINS')
     ->addCriteria('rate', '3', '>')
     ->orderBy('title');
     
 foreach ($qb->getResults() as $element){
-    $item = $client->item($element);
     // ...
 }
 
@@ -218,8 +215,8 @@ $array = [
 ]
 
 $client = new Client();
-$collection = $client->create($array, 'simple-array');
-$qb = new QueryBuilder($collection);
+$list = $client->create($array, 'simple-array');
+$qb = new QueryBuilder($list);
 $qb
     ->addCriteria('title', [...], 'ARRAY')
     ->addCriteria('rate', '3', '>')
@@ -227,7 +224,6 @@ $qb
     ->limit(0, 10);
     
 foreach ($qb->getResults() as $element){
-    $item = $client->item($element);
     // ...
 }
 

@@ -11,25 +11,22 @@ use InMemoryList\Application\Client;
 
 include __DIR__.'/../shared.php';
 
+$start = microtime(true);
 $apiUrl = 'https://jsonplaceholder.typicode.com/photos';
 $apiArray = json_decode(file_get_contents($apiUrl));
 
 $client = new Client('memcached', $memcached_params);
-$collection = $client->findByUuid('photos-list') ?:  $client->create($apiArray, [], 'photos-list', 'id');
+$list = $client->existsList('photos-list') ? $client->findListByUuid('photos-list') :  $client->create($apiArray, [], 'photos-list', 'id');
 
 // loop items
-$start = microtime(true);
-
 echo '<h3>Loop items</h3>';
-foreach ($collection as $element) {
-    $item = $client->item($element);
-
+foreach ($list as $element) {
     echo '<p>';
-    echo '<strong>albumId</strong>: '.$item->albumId.'<br>';
-    echo '<strong>id</strong>: '.$item->id.'<br>';
-    echo '<strong>title</strong>: '.$item->title.'<br>';
-    echo '<strong>url</strong>: '.$item->url.'<br>';
-    echo '<strong>thumbnailUrl</strong>: '.$item->thumbnailUrl.'<br>';
+    echo '<strong>albumId</strong>: '.$element->albumId.'<br>';
+    echo '<strong>id</strong>: '.$element->id.'<br>';
+    echo '<strong>title</strong>: '.$element->title.'<br>';
+    echo '<strong>url</strong>: '.$element->url.'<br>';
+    echo '<strong>thumbnailUrl</strong>: '.$element->thumbnailUrl.'<br>';
     echo '</p>';
 }
 

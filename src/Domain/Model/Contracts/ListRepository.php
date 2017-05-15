@@ -22,12 +22,12 @@ interface ListRepository
     public function all();
 
     /**
-     * @param ListCollection $collection
+     * @param ListCollection $list
      * @param null           $ttl
      *
      * @return mixed
      */
-    public function create(ListCollection $collection, $ttl = null);
+    public function create(ListCollection $list, $ttl = null);
 
     /**
      * @param $listUuid
@@ -52,6 +52,12 @@ interface ListRepository
 
     /**
      * @param $listUuid
+     * @return bool
+     */
+    public function existsList($listUuid);
+
+    /**
+     * @param $listUuid
      *
      * @return mixed
      */
@@ -68,12 +74,14 @@ interface ListRepository
     /**
      * @param $listUuid
      * @param $elementUuid
+     *
      * @return mixed
      */
     public function findCreationDateOfElement($listUuid, $elementUuid);
 
     /**
      * @param $completeCollectionElementUuid
+     *
      * @return mixed
      */
     public function findElementByCompleteCollectionElementUuid($completeCollectionElementUuid);
