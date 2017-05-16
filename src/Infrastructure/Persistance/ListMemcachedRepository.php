@@ -186,7 +186,7 @@ class ListMemcachedRepository implements ListRepository
     public function updateElement($listUuid, $elementUuid, array $data = [])
     {
         $element = $this->findElement($listUuid, $elementUuid);
-        $objMerged = (object)array_merge((array)$element, (array)$data);
+        $objMerged = (object) array_merge((array) $element, (array) $data);
         $arrayOfElements = $this->memcached->get($listUuid);
         $updatedElement = new ListElement(
             new ListElementUuid($elementUuid),

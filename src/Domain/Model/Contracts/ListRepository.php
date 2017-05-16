@@ -16,7 +16,6 @@ interface ListRepository
     const HASH_SEPARATOR = '@';
     const HEADERS_SEPARATOR = '#';
 
-
     /**
      * @return mixed
      */
@@ -94,6 +93,7 @@ interface ListRepository
      * @param $listUuid
      * @param $elementUuid
      * @param array $data
+     *
      * @return mixed
      */
     public function updateElement($listUuid, $elementUuid, array $data = []);

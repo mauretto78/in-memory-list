@@ -133,10 +133,10 @@ class ClientTest extends TestCase
         $this->assertEquals($client->getHeaders('fake-list'), $headers);
         $this->assertArrayHasKey('Server', $client->getStats());
 
-        $client->updateElement('fake-list','2', [
-            'name'=> 'Mauro Cassani',
-            'username'=> 'mauretto78',
-            'email'=> 'mauretto1978@yahoo.it',
+        $client->updateElement('fake-list', '2', [
+            'name' => 'Mauro Cassani',
+            'username' => 'mauretto78',
+            'email' => 'mauretto1978@yahoo.it',
         ]);
 
         $element2 = unserialize($client->findElement('fake-list', '2'));
@@ -180,10 +180,10 @@ class ClientTest extends TestCase
         $this->assertEquals('Ervin Howell', $element2->name);
         $this->assertEquals($client->getHeaders('fake-list'), $headers);
 
-        $client->updateElement('fake-list','2', [
-            'name'=> 'Mauro Cassani',
-            'username'=> 'mauretto78',
-            'email'=> 'mauretto1978@yahoo.it',
+        $client->updateElement('fake-list', '2', [
+            'name' => 'Mauro Cassani',
+            'username' => 'mauretto78',
+            'email' => 'mauretto1978@yahoo.it',
         ]);
 
         $element2 = unserialize($client->findElement('fake-list', '2'));

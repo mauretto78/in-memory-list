@@ -112,7 +112,7 @@ And now you can retrive the list:
 
 ```php
 //..
-$simpleArray = $client->findByUuid('simple-array');
+$simpleArray = $client->findListByUuid('simple-array');
 
 //..
 
@@ -152,6 +152,23 @@ $item1 = $client->item($collection['1']);
 ```
 
 Please note that the unique ID **must be a string**. 
+
+## Update an element
+
+To update an element in you list, you can simply do this:
+
+```php
+// ..
+$client->updateElement(
+    $listUuid, 
+    $elementUuid, 
+    [
+        'id' => 4325,
+        'title' => 'New Title',
+        // ..
+    ]
+);
+```
 
 ## Time to live (TTL)
 

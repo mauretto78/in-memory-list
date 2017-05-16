@@ -13,7 +13,6 @@ use InMemoryList\Application\Exception\EmptyListException;
 use InMemoryList\Application\Exception\NotValidKeyElementInListException;
 use InMemoryList\Application\Exception\NotValidOperatorException;
 use InMemoryList\Application\Exception\NotValidSortingOperatorException;
-use InMemoryList\Domain\Model\ListElement;
 
 class QueryBuilder
 {

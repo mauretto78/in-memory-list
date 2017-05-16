@@ -18,11 +18,11 @@ $to = (isset($_GET['to'])) ?: 5000;
 $range = range($from, $to);
 $array = [];
 
-foreach ($range as $number){
+foreach ($range as $number) {
     $array[] = [
         'id' => $number,
-        'name' => 'Name '. $number,
-        'email' => 'Email' . $number,
+        'name' => 'Name '.$number,
+        'email' => 'Email'.$number,
     ];
 }
 

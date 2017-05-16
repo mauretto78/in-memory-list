@@ -186,7 +186,7 @@ class ListRedisRepository implements ListRepository
     public function updateElement($listUuid, $elementUuid, array $data = [])
     {
         $element = $this->findElement($listUuid, $elementUuid);
-        $objMerged = (object)array_merge((array)$element, (array)$data);
+        $objMerged = (object) array_merge((array) $element, (array) $data);
         $updatedElement = new ListElement(
             new ListElementUuid($elementUuid),
             $objMerged
