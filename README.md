@@ -284,7 +284,7 @@ foreach ($collection as $element) {
 echo ' ELAPSED TIME: '.$time_elapsed_secs = microtime(true) - $start;
 ```
 
-A list with `n` elements is persisted. It was measured separately the time for displaying a simple var_dump and the whole list.
+A list with `n` elements is persisted. It was measured separately the time for displaying a simple `var_dump($collection)` and the whole list.
 
 Here are the results obtained:
 
