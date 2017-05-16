@@ -57,12 +57,10 @@ class ListRedisRepository implements ListRepository
 
         /** @var ListElement $element */
         foreach ($list->getItems() as $element) {
-            $this->client->hmset(
+            $this->client->hset(
                 $list->getUuid().self::HASH_SEPARATOR.$element->getUuid(),
-                [
-                    'body' => serialize($element->getBody()),
-                    'created_at' => serialize($element->getCreatedAt()),
-                ]
+                'element',
+                serialize($element)
             );
 
             if ($ttl) {
@@ -92,13 +90,12 @@ class ListRedisRepository implements ListRepository
      *
      * @return mixed
      */
-    public function delete($listUuid)
+    public function deleteList($listUuid)
     {
         $list = $this->client->keys($listUuid.self::HASH_SEPARATOR.'*');
 
         foreach ($list as $elementUuid) {
-            $element = explode(self::HASH_SEPARATOR, $elementUuid);
-            $this->deleteElement($listUuid, $element[1]);
+            $this->client->del([$elementUuid]);
         }
     }
 
@@ -142,14 +139,7 @@ class ListRedisRepository implements ListRepository
      */
     public function findListByUuid($listUuid)
     {
-        $listReconstructedArray = [];
-        $list = $this->client->keys($listUuid.self::HASH_SEPARATOR.'*');
-
-        foreach ($list as $elementUuid) {
-            $listReconstructedArray[$elementUuid] = $this->findElementByCompleteCollectionElementUuid($elementUuid);
-        }
-
-        return $listReconstructedArray;
+        return $this->client->keys($listUuid.self::HASH_SEPARATOR.'*');
     }
 
     /**
@@ -166,38 +156,17 @@ class ListRedisRepository implements ListRepository
             throw new ListElementDoesNotExistsException('Cannot retrieve the element '.$elementUuid.' from the collection in memory.');
         }
 
-        return unserialize($this->client->hget($listUuid.self::HASH_SEPARATOR.$elementUuid, 'body'));
+        return $this->findElementByCompleteCollectionElementUuid($listUuid.self::HASH_SEPARATOR.$elementUuid);
     }
 
     /**
-     * @param $listUuid
-     * @param $elementUuid
-     *
-     * @return mixed
-     *
-     * @throws ListElementDoesNotExistsException
-     */
-    public function findCreationDateOfElement($listUuid, $elementUuid)
-    {
-        if (!$this->existsElement($listUuid, $elementUuid)) {
-            throw new ListElementDoesNotExistsException('Cannot retrieve the element '.$elementUuid.' from the collection in memory.');
-        }
-
-        return unserialize($this->client->hget($listUuid.self::HASH_SEPARATOR.$elementUuid, 'created_at'));
-    }
-
-    /**
-     * @param $completeCollectionElementUuid
+     * @param $completeListElementUuid
      *
      * @return mixed
      */
-    public function findElementByCompleteCollectionElementUuid($completeCollectionElementUuid)
+    public function findElementByCompleteCollectionElementUuid($completeListElementUuid)
     {
-        $completeCollectionElementUuidArray = explode(self::HASH_SEPARATOR, $completeCollectionElementUuid);
-        $listUuid = $completeCollectionElementUuidArray[0];
-        $elementUuid = $completeCollectionElementUuidArray[1];
-
-        return $this->findElement($listUuid, $elementUuid);
+        return $this->client->hgetall($completeListElementUuid)['element'];
     }
 
     /**

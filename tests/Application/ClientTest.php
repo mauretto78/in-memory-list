@@ -78,39 +78,6 @@ class ClientTest extends TestCase
 
     /**
      * @test
-     * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\ListElementDoesNotExistsException
-     * @expectedExceptionMessage Cannot retrieve the element 132131312 from the collection in memory.
-     */
-    public function it_throws_NotExistListElementException_if_attempt_to_find_a_not_existing_element_in_collection_from_redis()
-    {
-        $client = new Client();
-        $client->flush();
-        $client->create($this->parsedArrayFromJson, [], 'fake-list', 'id');
-
-        var_dump($client->findElement('fake list', '132131312'));
-
-        $client->findElement('fake list', '132131312');
-    }
-
-    /**
-     * @test
-     * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\ListElementDoesNotExistsException
-     * @expectedExceptionMessage Cannot retrieve the element 132131312 from the collection in memory.
-     */
-    public function it_throws_NotExistListElementException_if_attempt_to_find_a_not_existing_element_in_collection_from_memcached()
-    {
-        $memcached_params = [
-            ['localhost', 11211],
-        ];
-
-        $client = new Client('memcached', $memcached_params);
-        $client->flush();
-        $client->create($this->parsedArrayFromJson, [], 'fake-list', 'id');
-        $client->findElement('fake list', '132131312');
-    }
-
-    /**
-     * @test
      */
     public function it_should_store_delete_and_retrieve_correctly_list_elements()
     {
@@ -126,24 +93,21 @@ class ClientTest extends TestCase
         $client->deleteElement('fake-list', '8');
         $client->deleteElement('fake-list', '9');
         $client->deleteElement('fake-list', '9432432423423');
-        $element1 = $client->findElement('fake-list', '1');
-        $element2 = $client->findElement('fake-list', '2');
 
         $this->assertInstanceOf(ListRedisRepository::class, $client->getRepository());
+        $this->assertTrue($client->existsList('fake-list'));
         $this->assertCount(7, $client->findListByUuid('fake-list'));
         $this->assertCount(8, $client->getAll());
-        $this->assertEquals('Leanne Graham', $element1->name);
-        $this->assertEquals('Ervin Howell', $element2->name);
         $this->assertEquals($client->getHeaders('fake-list'), $headers);
         $this->assertArrayHasKey('Server', $client->getStats());
 
         $client->updateTtl('fake-list', 7200);
-        $this->assertEquals(7200, $client->getTtl('fake-list@1'));
-        $this->assertEquals(7200, $client->getTtl('fake-list@2'));
-        $this->assertEquals(7200, $client->getTtl('fake-list@3'));
+        $this->assertEquals(7200, $client->getTtl('fake-list:1'));
+        $this->assertEquals(7200, $client->getTtl('fake-list:2'));
+        $this->assertEquals(7200, $client->getTtl('fake-list:3'));
 
-        foreach ($client->findListByUuid('fake-list') as $elementUuid => $element) {
-            $item = $client->item($elementUuid);
+        foreach ($client->findListByUuid('fake-list') as $element) {
+            $item = $client->getItem($element);
             $elementAsArray = get_object_vars($item);
 
             $this->assertInstanceOf(stdClass::class, $item);
@@ -153,12 +117,10 @@ class ClientTest extends TestCase
             $this->assertArrayHasKey('email', $elementAsArray);
         }
 
-        $client->delete('fake list');
+        $client->deleteList('fake list');
     }
 
-    /**
-     * @test
-     */
+
     public function it_should_store_delete_and_retrieve_from_memcached_correctly_list_elements()
     {
         $memcached_params = [
@@ -176,8 +138,8 @@ class ClientTest extends TestCase
         $client->deleteElement('fake-list', '7');
         $client->deleteElement('fake-list', '8');
         $client->deleteElement('fake-list', '9');
-        $element1 = $client->findElement('fake-list', '1');
-        $element2 = $client->findElement('fake-list', '2');
+        $element1 = $client->getItem('fake-list:1');
+        $element2 = $client->getItem('fake-list:2');
 
         $this->assertInstanceOf(ListMemcachedRepository::class, $client->getRepository());
         $this->assertCount(7, $client->findListByUuid('fake-list'));
@@ -197,6 +159,6 @@ class ClientTest extends TestCase
             $this->assertArrayHasKey('email', $elementAsArray);
         }
 
-        $client->delete('fake-list');
+        $client->deleteList('fake-list');
     }
 }

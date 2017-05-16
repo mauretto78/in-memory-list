@@ -107,9 +107,9 @@ class Client
     /**
      * @param $uuid
      */
-    public function delete($uuid)
+    public function deleteList($uuid)
     {
-        $this->repository->delete($uuid);
+        $this->repository->deleteList($uuid);
     }
 
     /**
@@ -143,17 +143,6 @@ class Client
     }
 
     /**
-     * @param $listUuid
-     * @param $elementUuid
-     *
-     * @return mixed
-     */
-    public function findElement($listUuid, $elementUuid)
-    {
-        return $this->repository->findElement($listUuid, $elementUuid);
-    }
-
-    /**
      * @return mixed
      */
     public function flush()
@@ -178,6 +167,17 @@ class Client
     }
 
     /**
+     * @param $completeListElementUuid
+     * @return mixed
+     */
+    public function getItem($completeListElementUuid)
+    {
+        $listElement = $this->repository->findElementByCompleteCollectionElementUuid($completeListElementUuid);
+
+        return unserialize($listElement)->getBody();
+    }
+
+    /**
      * @return mixed
      */
     public function getStats()
@@ -193,11 +193,6 @@ class Client
     public function getTtl($listUuid)
     {
         return $this->repository->ttl($listUuid);
-    }
-
-    public function item($completeCollectionElementUuid)
-    {
-        return $this->repository->findElementByCompleteCollectionElementUuid($completeCollectionElementUuid);
     }
 
     /**

@@ -63,10 +63,7 @@ class ListMemcachedRepository implements ListRepository
 
             $this->memcached->set(
                 $key,
-                [
-                    'body' => serialize($element->getBody()),
-                    'created_at' => serialize($element->getCreatedAt()),
-                ],
+                serialize($element),
                 $ttl
             );
         }
@@ -93,7 +90,7 @@ class ListMemcachedRepository implements ListRepository
      *
      * @return mixed
      */
-    public function delete($listUuid)
+    public function deleteList($listUuid)
     {
         foreach ($this->memcached->get($listUuid) as $elementUuid) {
             $this->memcached->delete($elementUuid);
@@ -151,17 +148,7 @@ class ListMemcachedRepository implements ListRepository
      */
     public function findListByUuid($listUuid)
     {
-        if ($list = $this->memcached->get($listUuid)) {
-            $listReconstructedArray = [];
-
-            foreach ($list as $elementUuid) {
-                $listReconstructedArray[$elementUuid] = $this->findElementByCompleteCollectionElementUuid($elementUuid);
-            }
-
-            return $listReconstructedArray;
-        }
-
-        return false;
+        return $this->memcached->get($listUuid);
     }
 
     /**
@@ -180,40 +167,17 @@ class ListMemcachedRepository implements ListRepository
 
         $key = $listUuid.self::HASH_SEPARATOR.$elementUuid;
 
-        return unserialize($this->memcached->get($key)['body']);
+        return $this->findElementByCompleteCollectionElementUuid($key);
     }
 
     /**
-     * @param $listUuid
-     * @param $elementUuid
-     *
-     * @return mixed
-     *
-     * @throws ListElementDoesNotExistsException
-     */
-    public function findCreationDateOfElement($listUuid, $elementUuid)
-    {
-        if (!$this->existsElement($listUuid, $elementUuid)) {
-            throw new ListElementDoesNotExistsException('Cannot retrieve the element '.$elementUuid.' from the collection in memory.');
-        }
-
-        $key = $listUuid.self::HASH_SEPARATOR.$elementUuid;
-
-        return unserialize($this->memcached->get($key)['created_at']);
-    }
-
-    /**
-     * @param $completeCollectionElementUuid
+     * @param $completeListElementUuid
      *
      * @return mixed
      */
-    public function findElementByCompleteCollectionElementUuid($completeCollectionElementUuid)
+    public function findElementByCompleteCollectionElementUuid($completeListElementUuid)
     {
-        $completeCollectionElementUuidArray = explode(self::HASH_SEPARATOR, $completeCollectionElementUuid);
-        $listUuid = $completeCollectionElementUuidArray[0];
-        $elementUuid = $completeCollectionElementUuidArray[1];
-
-        return $this->findElement($listUuid, $elementUuid);
+        return $this->memcached->get($completeListElementUuid);
     }
 
     /**

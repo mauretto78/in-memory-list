@@ -31,6 +31,29 @@ class ListRedisRepositoryTest extends TestCase
 
     /**
      * @test
+     * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\ListElementDoesNotExistsException
+     * @expectedExceptionMessage  Cannot retrieve the element Not existing element from the collection in memory.
+     */
+    public function fsdfsdfds()
+    {
+        $fakeElement1 = new ListElement($fakeUUid1 = new ListElementUuid(), [
+            'id' => 123,
+            'title' => 'Lorem Ipsum',
+            'category-id' => 27,
+            'category' => 'holiday',
+            'rate' => 4,
+        ]);
+
+        $listUuid = new ListCollectionUuid();
+        $list = new ListCollection($listUuid);
+        $list->addItem($fakeElement1);
+
+        $this->repo->create($list);
+        $element5 = $this->repo->findElement($listUuid, 'Not existing element');
+    }
+
+    /**
+     * @test
      */
     public function it_should_create_query_and_delete_the_list_from_redis()
     {
@@ -81,36 +104,18 @@ class ListRedisRepositoryTest extends TestCase
         $this->repo->create($list);
         $element5Uuid = $fakeUUid5->getUuid();
         $element5 = $this->repo->findElement($listUuid, $element5Uuid);
-        $creationDateOfElement5 = $this->repo->findCreationDateOfElement($listUuid, $element5Uuid);
+        $item = unserialize($element5)->getBody();
 
         $this->assertCount(5, $this->repo->findListByUuid($list->getUuid()));
-        $this->assertEquals(127, $element5['id']);
-        $this->assertEquals('Dolor facius', $element5['title']);
-        $this->assertEquals(27, $element5['category-id']);
-        $this->assertEquals('holiday', $element5['category']);
-        $this->assertEquals(5, $element5['rate']);
-        $this->assertInstanceOf(\DateTimeImmutable::class, $creationDateOfElement5);
+        $this->assertTrue($this->repo->existsList($listUuid));
+        $this->assertFalse($this->repo->existsList('not-existing-list'));
+        $this->assertEquals(127, $item['id']);
+        $this->assertEquals('Dolor facius', $item['title']);
+        $this->assertEquals(27, $item['category-id']);
+        $this->assertEquals('holiday', $item['category']);
+        $this->assertEquals(5, $item['rate']);
 
-        $this->repo->delete($listUuid);
-    }
-
-    /**
-     * @test
-     * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\ListElementDoesNotExistsException
-     * @expectedExceptionMessage Cannot retrieve the element not-existing-element from the collection in memory.
-     */
-    public function it_throws_ListElementDoesNotExistsException_if_attempt_to_call_findCreationDateOfElement_on_an_invalid_hash()
-    {
-        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
-
-        $listUuid = new ListCollectionUuid();
-        $list = new ListCollection($listUuid);
-        foreach ($parsedArrayFromJson as $element) {
-            $list->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
-        }
-
-        $this->repo->create($list, 3600);
-        $this->repo->findCreationDateOfElement($listUuid, 'not-existing-element');
+        $this->repo->deleteList($listUuid);
     }
 
     /**
@@ -130,42 +135,43 @@ class ListRedisRepositoryTest extends TestCase
 
         $this->repo->create($list, 3600);
         $this->repo->updateTtl('not existing hash', 7200);
+        $this->repo->flush();
     }
 
-//    /**
-//     * @test
-//     */
-//    public function it_should_create_query_and_delete_a_parsed_json_list_from_redis()
-//    {
-//        $this->repo->flush();
-//
-//        $headers = [
-//            'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',
-//            'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
-//        ];
-//
-//        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
-//
-//        $listUuid = new ListCollectionUuid();
-//        $list = new ListCollection($listUuid);
-//        foreach ($parsedArrayFromJson as $element) {
-//            $list->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
-//        }
-//        $list->setHeaders($headers);
-//
-//        $this->repo->create($list, 3600);
-//
-//        $this->assertCount(10, $this->repo->findListByUuid($list->getUuid()));
-//        $this->assertEquals($this->repo->getHeaders($listUuid), $headers);
-//        $this->assertCount(11, $this->repo->all());
-//        $this->assertGreaterThan(0, $this->repo->stats());
-//
-//        $this->repo->updateTtl($listUuid, 7200);
-//
-//        foreach ($this->repo->findListByUuid($listUuid) as $elementUuid){
-//            $this->assertEquals(7200, $this->repo->ttl($elementUuid));
-//        }
-//
-//        $this->repo->delete($listUuid);
-//    }
+    /**
+     * @test
+     */
+    public function it_should_create_query_and_delete_a_parsed_json_list_from_redis()
+    {
+        $this->repo->flush();
+
+        $headers = [
+            'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',
+            'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
+        ];
+
+        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
+
+        $listUuid = new ListCollectionUuid();
+        $list = new ListCollection($listUuid);
+        foreach ($parsedArrayFromJson as $element) {
+            $list->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
+        }
+        $list->setHeaders($headers);
+
+        $this->repo->create($list, 3600);
+
+        $this->assertCount(10, $this->repo->findListByUuid($list->getUuid()));
+        $this->assertEquals($this->repo->getHeaders($listUuid), $headers);
+        $this->assertCount(11, $this->repo->all());
+        $this->assertGreaterThan(0, $this->repo->stats());
+
+        $this->repo->updateTtl($listUuid, 7200);
+
+        foreach ($this->repo->findListByUuid($listUuid) as $elementUuid){
+            $this->assertEquals(7200, $this->repo->ttl($elementUuid));
+        }
+
+        $this->repo->deleteList($listUuid);
+    }
 }
