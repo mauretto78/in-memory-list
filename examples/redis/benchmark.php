@@ -14,7 +14,7 @@ include __DIR__.'/../shared.php';
 $start = microtime(true);
 
 $from = (isset($_GET['from'])) ?: 1;
-$to = (isset($_GET['to'])) ?: 10000;
+$to = (isset($_GET['to'])) ?: 5000;
 $range = range($from, $to);
 $array = [];
 
@@ -28,8 +28,8 @@ foreach ($range as $number){
 
 $apiArray = json_encode($array);
 
-$client = new Client('memcached', $memcached_params);
-$collection = $client->findByUuid('range-list') ?:  $client->create(json_decode($apiArray), [], 'range-list', 'id');
+$client = new Client('redis', $redis_params);
+$collection = $client->findListByUuid('range-list') ?:  $client->create(json_decode($apiArray), [], 'range-list', 'id');
 
 // loop items
 echo '<h3>Loop items</h3>';

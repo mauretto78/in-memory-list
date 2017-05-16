@@ -35,20 +35,20 @@ class ListCollectionFactory implements Factory
             throw new CreateListFromEmptyArrayException('Try to create a collection from an empty array.');
         }
 
-        $collectionUuid = new ListCollectionUuid($uuid);
-        $collection = new ListCollection($collectionUuid);
+        $listUuid = new ListCollectionUuid($uuid);
+        $list = new ListCollection($listUuid);
 
         foreach ($elements as $element) {
             $e = ($elementUniqueIdentificator) ? (string) $this->_getValueFromKey($element, $elementUniqueIdentificator) : null;
             $elementUuid = new ListElementUuid($e);
-            $collection->addItem(new ListElement($elementUuid, $element));
+            $list->addItem(new ListElement($elementUuid, $element));
         }
 
         if ($headers) {
-            $collection->setHeaders($headers);
+            $list->setHeaders($headers);
         }
 
-        return $collection;
+        return $list;
     }
 
     /**

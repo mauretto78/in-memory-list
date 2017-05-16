@@ -28,9 +28,8 @@ class ListElementTest extends TestCase
         $cacheListElement = new ListElement($cacheListElementUniquieId, $body);
 
         $this->assertInstanceOf(ListElement::class, $cacheListElement);
-        $this->assertArrayHasKey('test', $cacheListElement->getBody());
-        $this->assertArrayHasKey('test2', $cacheListElement->getBody());
-        $this->assertArrayHasKey('test3', $cacheListElement->getBody());
-        $this->assertInstanceOf(DateTimeImmutable::class, $cacheListElement->getCreatedAt());
+        $this->assertArrayHasKey('test', unserialize($cacheListElement->getBody()));
+        $this->assertArrayHasKey('test2', unserialize($cacheListElement->getBody()));
+        $this->assertArrayHasKey('test3', unserialize($cacheListElement->getBody()));
     }
 }

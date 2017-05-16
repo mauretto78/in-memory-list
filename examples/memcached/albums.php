@@ -16,7 +16,6 @@ $apiUrl = 'https://jsonplaceholder.typicode.com/albums';
 $apiArray = json_decode(file_get_contents($apiUrl));
 
 $client = new Client('memcached', $memcached_params);
-$client->flush();
 $collection = $client->findByUuid('albums-list') ?:  $client->create($apiArray, [], 'albums-list', 'id');
 
 // loop items

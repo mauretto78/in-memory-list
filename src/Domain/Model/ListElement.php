@@ -22,11 +22,6 @@ class ListElement
     private $body;
 
     /**
-     * @var \DateTimeImmutable
-     */
-    private $created_at;
-
-    /**
      * IMListElement constructor.
      *
      * @param ListElementUuid $uuid
@@ -36,7 +31,6 @@ class ListElement
     {
         $this->_setUuid($uuid);
         $this->_setBody($body);
-        $this->_setCreatedAt();
     }
 
     /**
@@ -68,22 +62,6 @@ class ListElement
      */
     public function getBody()
     {
-        return unserialize($this->body);
-    }
-
-    /**
-     * set created at.
-     */
-    private function _setCreatedAt()
-    {
-        $this->created_at = new \DateTimeImmutable();
-    }
-
-    /**
-     * @return \DateTimeImmutable
-     */
-    public function getCreatedAt()
-    {
-        return $this->created_at;
+        return $this->body;
     }
 }

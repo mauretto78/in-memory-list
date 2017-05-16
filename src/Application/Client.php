@@ -96,9 +96,9 @@ class Client
     {
         try {
             $factory = new ListCollectionFactory();
-            $collection = $factory->create($elements, $headers, $uuid, $elementUniqueIdentificator);
+            $list = $factory->create($elements, $headers, $uuid, $elementUniqueIdentificator);
 
-            return $this->repository->create($collection, $ttl);
+            return $this->repository->create($list, $ttl);
         } catch (\Exception $exception) {
             return $exception->getMessage();
         }
@@ -113,35 +113,35 @@ class Client
     }
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      * @param $elementUuid
      *
      * @return mixed
      */
-    public function deleteElement($collectionUuid, $elementUuid)
+    public function deleteElement($listUuid, $elementUuid)
     {
-        return $this->repository->deleteElement($collectionUuid, $elementUuid);
+        return $this->repository->deleteElement($listUuid, $elementUuid);
     }
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      *
      * @return mixed
      */
-    public function findByUuid($collectionUuid)
+    public function findListByUuid($listUuid)
     {
-        return $this->repository->findByUuid($collectionUuid);
+        return $this->repository->findListByUuid($listUuid);
     }
 
     /**
-     * @param $collectionUUId
+     * @param $listUuid
      * @param $elementUuid
      *
      * @return mixed
      */
-    public function findElement($collectionUUId, $elementUuid)
+    public function findElement($listUuid, $elementUuid)
     {
-        return $this->repository->findElement($collectionUUId, $elementUuid);
+        return $this->repository->findElement($listUuid, $elementUuid);
     }
 
     /**
@@ -163,9 +163,9 @@ class Client
     /**
      * @return mixed
      */
-    public function getHeaders($collectionUuid)
+    public function getHeaders($listUuid)
     {
-        return $this->repository->getHeaders($collectionUuid);
+        return $this->repository->getHeaders($listUuid);
     }
 
     /**
@@ -177,13 +177,13 @@ class Client
     }
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      *
      * @return mixed
      */
-    public function getTtl($collectionUuid)
+    public function getTtl($listUuid)
     {
-        return $this->repository->ttl($collectionUuid);
+        return $this->repository->ttl($listUuid);
     }
 
     /**
@@ -193,28 +193,28 @@ class Client
      */
     public function item($string)
     {
-        return unserialize($string)->getBody();
+        return unserialize($string);
     }
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      * @param $elementUuid
      * @param array $data
      * @return mixed
      */
-    public function updateElement($collectionUuid, $elementUuid, array $data = [])
+    public function updateElement($listUuid, $elementUuid, array $data = [])
     {
-        return $this->repository->updateElement($collectionUuid, $elementUuid, $data);
+        return $this->repository->updateElement($listUuid, $elementUuid, $data);
     }
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      * @param bool $ttl
      *
      * @return mixed
      */
-    public function updateTtl($collectionUuid, $ttl = false)
+    public function updateTtl($listUuid, $ttl = false)
     {
-        return $this->repository->updateTtl($collectionUuid, $ttl);
+        return $this->repository->updateTtl($listUuid, $ttl);
     }
 }

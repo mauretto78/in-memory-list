@@ -122,14 +122,14 @@ class ClientTest extends TestCase
         $client->deleteElement('fake-list', '7');
         $client->deleteElement('fake-list', '8');
         $client->deleteElement('fake-list', '9');
-        $element1 = $client->findElement('fake-list', '1');
-        $element2 = $client->findElement('fake-list', '2');
+        $element1 = unserialize($client->findElement('fake-list', '1'));
+        $element2 = unserialize($client->findElement('fake-list', '2'));
 
         $this->assertInstanceOf(ListRedisRepository::class, $client->getRepository());
-        $this->assertCount(7, $client->findByUuid('fake-list'));
+        $this->assertCount(7, $client->findListByUuid('fake-list'));
         $this->assertCount(2, $client->getAll());
-        $this->assertEquals('Leanne Graham', $element1->getBody()->name);
-        $this->assertEquals('Ervin Howell', $element2->getBody()->name);
+        $this->assertEquals('Leanne Graham', $element1->name);
+        $this->assertEquals('Ervin Howell', $element2->name);
         $this->assertEquals($client->getHeaders('fake-list'), $headers);
         $this->assertArrayHasKey('Server', $client->getStats());
 
@@ -139,10 +139,11 @@ class ClientTest extends TestCase
             'email'=> 'mauretto1978@yahoo.it',
         ]);
 
-        $element2 = $client->findElement('fake-list', '2');
-        $this->assertEquals('Mauro Cassani', $element2->getBody()->name);
-        $this->assertEquals('mauretto78', $element2->getBody()->username);
-        $this->assertEquals('mauretto1978@yahoo.it', $element2->getBody()->email);
+        $element2 = unserialize($client->findElement('fake-list', '2'));
+
+        $this->assertEquals('Mauro Cassani', $element2->name);
+        $this->assertEquals('mauretto78', $element2->username);
+        $this->assertEquals('mauretto1978@yahoo.it', $element2->email);
 
         $client->updateTtl('fake-list', 7200);
         $this->assertEquals(7200, $client->getTtl('fake-list'));
@@ -170,13 +171,13 @@ class ClientTest extends TestCase
         $client->deleteElement('fake-list', '7');
         $client->deleteElement('fake-list', '8');
         $client->deleteElement('fake-list', '9');
-        $element1 = $client->findElement('fake-list', '1');
-        $element2 = $client->findElement('fake-list', '2');
+        $element1 = unserialize($client->findElement('fake-list', '1'));
+        $element2 = unserialize($client->findElement('fake-list', '2'));
 
         $this->assertInstanceOf(ListMemcachedRepository::class, $client->getRepository());
-        $this->assertCount(7, $client->findByUuid('fake-list'));
-        $this->assertEquals('Leanne Graham', $element1->getBody()->name);
-        $this->assertEquals('Ervin Howell', $element2->getBody()->name);
+        $this->assertCount(7, $client->findListByUuid('fake-list'));
+        $this->assertEquals('Leanne Graham', $element1->name);
+        $this->assertEquals('Ervin Howell', $element2->name);
         $this->assertEquals($client->getHeaders('fake-list'), $headers);
 
         $client->updateElement('fake-list','2', [
@@ -185,10 +186,10 @@ class ClientTest extends TestCase
             'email'=> 'mauretto1978@yahoo.it',
         ]);
 
-        $element2 = $client->findElement('fake-list', '2');
-        $this->assertEquals('Mauro Cassani', $element2->getBody()->name);
-        $this->assertEquals('mauretto78', $element2->getBody()->username);
-        $this->assertEquals('mauretto1978@yahoo.it', $element2->getBody()->email);
+        $element2 = unserialize($client->findElement('fake-list', '2'));
+        $this->assertEquals('Mauro Cassani', $element2->name);
+        $this->assertEquals('mauretto78', $element2->username);
+        $this->assertEquals('mauretto1978@yahoo.it', $element2->email);
 
         $client->delete('fake-list');
     }

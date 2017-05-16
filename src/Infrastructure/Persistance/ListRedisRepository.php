@@ -44,109 +44,107 @@ class ListRedisRepository implements ListRepository
     }
 
     /**
-     * @param ListCollection $collection
+     * @param ListCollection $list
      *
      * @return mixed
      *
      * @throws ListAlreadyExistsException
      */
-    public function create(ListCollection $collection, $ttl = null)
+    public function create(ListCollection $list, $ttl = null)
     {
-        if ($this->findByUuid($collection->getUuid())) {
-            throw new ListAlreadyExistsException('List '.$collection->getUuid().' already exists in memory.');
+        if ($this->findListByUuid($list->getUuid())) {
+            throw new ListAlreadyExistsException('List '.$list->getUuid().' already exists in memory.');
         }
 
         /** @var ListElement $element */
-        foreach ($collection->getItems() as $element) {
+        foreach ($list->getItems() as $element) {
             $this->client->hset(
-                $collection->getUuid(),
+                $list->getUuid(),
                 $element->getUuid(),
-                serialize($element)
+                $element->getBody()
             );
 
             if ($ttl) {
-                $this->client->expire($collection->getUuid(), $ttl);
+                $this->client->expire($list->getUuid(), $ttl);
             }
         }
 
-        if ($collection->getHeaders()) {
-            foreach ($collection->getHeaders() as $key => $header) {
+        if ($list->getHeaders()) {
+            foreach ($list->getHeaders() as $key => $header) {
                 $this->client->hset(
-                    $collection->getUuid().self::HEADERS_SEPARATOR.'headers',
+                    $list->getUuid().self::HEADERS_SEPARATOR.'headers',
                     $key,
                     $header
                 );
             }
 
             if ($ttl) {
-                $this->client->expire($collection->getUuid().self::HEADERS_SEPARATOR.'headers', $ttl);
+                $this->client->expire($list->getUuid().self::HEADERS_SEPARATOR.'headers', $ttl);
             }
         }
 
-        return $this->findByUuid($collection->getUuid());
+        return $this->findListByUuid($list->getUuid());
     }
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      *
      * @return mixed
      */
-    public function delete($collectionUuid)
+    public function delete($listUuid)
     {
-        $collection = $this->findByUuid($collectionUuid);
+        $list = $this->findListByUuid($listUuid);
 
-        foreach ($collection as $element) {
-            /** @var ListElement $element */
-            $element = unserialize($element);
-            $this->deleteElement($collectionUuid, $element->getUuid());
+        foreach ($list as $elementUuid => $element) {
+            $this->deleteElement($listUuid, $elementUuid);
         }
     }
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      * @param $elementUuid
      */
-    public function deleteElement($collectionUuid, $elementUuid)
+    public function deleteElement($listUuid, $elementUuid)
     {
-        $this->client->hdel($collectionUuid, $elementUuid);
+        $this->client->hdel($listUuid, $elementUuid);
     }
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      * @param $elementUuid
      *
      * @return bool
      */
-    public function existsElement($collectionUuid, $elementUuid)
+    public function existsElement($listUuid, $elementUuid)
     {
-        return @isset($this->findByUuid($collectionUuid)[$elementUuid]);
+        return @isset($this->findListByUuid($listUuid)[$elementUuid]);
     }
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      *
      * @return mixed
      */
-    public function findByUuid($collectionUuid)
+    public function findListByUuid($listUuid)
     {
-        return $this->client->hgetall($collectionUuid);
+        return $this->client->hgetall($listUuid);
     }
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      * @param $elementUuid
      *
      * @return mixed
      *
      * @throws ListElementDoesNotExistsException
      */
-    public function findElement($collectionUuid, $elementUuid)
+    public function findElement($listUuid, $elementUuid)
     {
-        if (!$this->existsElement($collectionUuid, $elementUuid)) {
+        if (!$this->existsElement($listUuid, $elementUuid)) {
             throw new ListElementDoesNotExistsException('Cannot retrieve the element '.$elementUuid.' from the collection in memory.');
         }
 
-        return unserialize($this->findByUuid($collectionUuid)[$elementUuid]);
+        return $this->client->hget($listUuid, $elementUuid);
     }
 
     /**
@@ -158,13 +156,13 @@ class ListRedisRepository implements ListRepository
     }
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      *
      * @return array
      */
-    public function getHeaders($collectionUuid)
+    public function getHeaders($listUuid)
     {
-        return $this->client->hgetall($collectionUuid.self::HEADERS_SEPARATOR.'headers');
+        return $this->client->hgetall($listUuid.self::HEADERS_SEPARATOR.'headers');
     }
 
     /**
@@ -176,47 +174,47 @@ class ListRedisRepository implements ListRepository
     }
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      *
      * @return int
      */
-    public function ttl($collectionUuid)
+    public function ttl($listUuid)
     {
-        return $this->client->ttl($collectionUuid);
+        return $this->client->ttl($listUuid);
     }
 
-    public function updateElement($collectionUuid, $elementUuid, array $data = [])
+    public function updateElement($listUuid, $elementUuid, array $data = [])
     {
-        $element = $this->findElement($collectionUuid, $elementUuid);
-        $objMerged = (object)array_merge((array)$element->getBody(), (array)$data);
+        $element = $this->findElement($listUuid, $elementUuid);
+        $objMerged = (object)array_merge((array)$element, (array)$data);
         $updatedElement = new ListElement(
             new ListElementUuid($elementUuid),
             $objMerged
         );
 
         $this->client->hset(
-            $collectionUuid,
+            $listUuid,
             $elementUuid,
-            serialize($updatedElement)
+            $updatedElement->getBody()
         );
     }
 
     /**
-     * @param $collectionUuid
+     * @param $listUuid
      * @param null $ttl
      *
      * @return mixed
      *
      * @throws ListDoesNotExistsException
      */
-    public function updateTtl($collectionUuid, $ttl = null)
+    public function updateTtl($listUuid, $ttl = null)
     {
-        if (!$this->findByUuid($collectionUuid)) {
-            throw new ListDoesNotExistsException('List '.$collectionUuid.' does not exists in memory.');
+        if (!$this->findListByUuid($listUuid)) {
+            throw new ListDoesNotExistsException('List '.$listUuid.' does not exists in memory.');
         }
 
-        $this->client->expire($collectionUuid, $ttl);
+        $this->client->expire($listUuid, $ttl);
 
-        return $this->findByUuid($collectionUuid);
+        return $this->findListByUuid($listUuid);
     }
 }

@@ -54,7 +54,7 @@ class QueryBuilderTest extends TestCase
         $this->client->flush();
         $this->client->create($this->parsedUserArray, [], 'user list', 'id');
 
-        $qb = new QueryBuilder($this->client->findByUUid('user-list'));
+        $qb = new QueryBuilder($this->client->findListByUuid('user-list'));
         $qb->addCriteria('name', 'Ervin Howell', 'wrong operator');
         $this->assertCount(1, $qb->getResults());
 
@@ -71,7 +71,7 @@ class QueryBuilderTest extends TestCase
         $this->client->flush();
         $this->client->create($this->parsedUserArray, [], 'user list');
 
-        $qb = new QueryBuilder($this->client->findByUUid('user-list'));
+        $qb = new QueryBuilder($this->client->findListByUuid('user-list'));
         $qb->addCriteria('not-existing-key', 'Ervin Howell');
         $this->assertCount(1, $qb->getResults());
 
@@ -88,7 +88,7 @@ class QueryBuilderTest extends TestCase
         $this->client->flush();
         $this->client->create($this->parsedUserArray, [], 'user list');
 
-        $qb = new QueryBuilder($this->client->findByUUid('user-list'));
+        $qb = new QueryBuilder($this->client->findListByUuid('user-list'));
         $qb
             ->addCriteria('name', 'Ervin Howell')
             ->orderBy('name', 'not wrong sorting operator');
@@ -107,7 +107,7 @@ class QueryBuilderTest extends TestCase
         $this->client->flush();
         $this->client->create($this->parsedUserArray, [], 'user list', 'id');
 
-        $qb = new QueryBuilder($this->client->findByUUid('user-list'));
+        $qb = new QueryBuilder($this->client->findListByUuid('user-list'));
         $qb->limit(123, 'string');
 
         $this->client->flush();
@@ -123,7 +123,7 @@ class QueryBuilderTest extends TestCase
         $this->client->flush();
         $this->client->create($this->parsedUserArray, [], 'user list', 'id');
 
-        $qb = new QueryBuilder($this->client->findByUUid('user-list'));
+        $qb = new QueryBuilder($this->client->findListByUuid('user-list'));
         $qb->limit('string', 13);
 
         $this->client->flush();
@@ -139,7 +139,7 @@ class QueryBuilderTest extends TestCase
         $this->client->flush();
         $this->client->create($this->parsedUserArray, [], 'user list', 'id');
 
-        $qb = new QueryBuilder($this->client->findByUUid('user-list'));
+        $qb = new QueryBuilder($this->client->findListByUuid('user-list'));
         $qb->limit(432, 13);
 
         $this->client->flush();
