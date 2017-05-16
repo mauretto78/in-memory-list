@@ -248,6 +248,48 @@ foreach ($qb->getResults() as $element){
 
 ```
 
+## Performance
+
+Consider this simple piece of code:
+
+```php
+$start = microtime(true);
+
+// create an array with n elements
+// example:
+// $from = 1
+// $to = 10000
+foreach (range($from, $to) as $number) {
+    $array[] = [
+        'id' => $number,
+        'name' => 'Name '.$number,
+        'email' => 'Email'.$number,
+    ];
+}
+
+$apiArray = json_encode($array);
+
+$client = new Client($driver, $params);
+$collection = $client->findListByUuid('range-list') ?:  $client->create(json_decode($apiArray), [], 'range-list', 'id');
+
+foreach ($collection as $element) {
+    $item = $client->item($element);
+    echo '<p>';
+    echo '<strong>id</strong>: '.$item->id.'<br>';
+    echo '<strong>name</strong>: '.$item->name.'<br>';
+    echo '<strong>email</strong>: '.$item->email.'<br>';
+    echo '</p>';
+}
+
+echo ' ELAPSED TIME: '.$time_elapsed_secs = microtime(true) - $start;
+```
+
+A list with `n` elements is persisted. It was measured separately the time for displaying a simple var_dump and the whole list.
+
+Here are the results obtained:
+
+![Alt text](https://raw.githubusercontent.com/mauretto78/in-memory-list/master/examples/img/banchmark-1.jpg "Benchmark")
+
 ## Built With
 
 * [PRedis](https://github.com/nrk/predis) - Flexible and feature-complete Redis client for PHP and HHVM
