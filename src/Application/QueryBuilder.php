@@ -186,7 +186,6 @@ class QueryBuilder
                                 return $value === $criterion['value'];
                                 break;
                         }
-
                     }
                 );
 

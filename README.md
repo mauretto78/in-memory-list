@@ -8,8 +8,9 @@ Grab your lists from your API, your database or whatever you want and store them
 
 This package uses:
  
+* [Apcu](http://php.net/manual/en/book.apcu.php)
+* [Memcached](https://memcached.org/)
 * [Redis](https://redis.io/)
-* [Memcached](http://php.net/manual/en/book.memcache.php)
 
 ## Basic Usage
 
@@ -35,7 +36,27 @@ foreach ($collection as $element){
 
 ## Drivers
 
-You can use `Redis` or `Memcached`. Please note that `Redis` is the default driver.
+You can use `Apcu`, `Memcached`, `Redis`. Please note that `Redis` is the default driver.
+ 
+```php
+use InMemoryList\Application\Client;
+
+// Apcu, no configuration is needed
+$client = new Client('apcu');
+// ..
+```
+
+```php
+use InMemoryList\Application\Client;
+
+// Memcached
+$memcached_params = [
+    ['localhost', 11211]
+];
+
+$client = new Client('memcached', $memcached_params);
+// ..
+```
  
 ```php
 use InMemoryList\Application\Client;
@@ -51,18 +72,6 @@ $redis_params = [
 ];
 
 $client = new Client('redis', $redis_params);
-// ..
-```
-
-```php
-use InMemoryList\Application\Client;
-
-// Memcached
-$memcached_params = [
-    ['localhost', 11211]
-];
-
-$client = new Client('memcached', $memcached_params);
 // ..
 ```
 
