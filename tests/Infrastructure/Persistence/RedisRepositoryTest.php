@@ -118,6 +118,8 @@ class RedisRepositoryTest extends TestCase
         $this->assertCount(10, $list);
         $this->assertInstanceOf(stdClass::class, unserialize($element));
         $this->assertEquals($this->repo->getHeaders($collection->getUuid()), $headers);
+        $this->assertArrayHasKey('expires', $this->repo->getHeaders($collection->getUuid()));
+        $this->assertArrayHasKey('hash', $this->repo->getHeaders($collection->getUuid()));
         $this->assertCount(2, $this->repo->all());
         $this->assertGreaterThan(0, $this->repo->stats());
 

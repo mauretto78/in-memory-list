@@ -11,34 +11,25 @@ use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Domain\Model\ListCollectionUuid;
-use InMemoryList\Infrastructure\Persistance\MemcachedRepository;
+use InMemoryList\Infrastructure\Persistance\ApcuRepository;
 use PHPUnit\Framework\TestCase;
 
-class MemcachedRepositoryTest extends TestCase
+class ApcuRepositoryTest extends TestCase
 {
     /**
-     * @var MemcachedRepository
+     * @var ApcuRepository
      */
     private $repo;
 
     public function setUp()
     {
-        parent::setUp();
-
-        $memcached = new \Memcached();
-        $memcached->addServers(
-            [
-                ['localhost', 11211],
-            ]
-        );
-
-        $this->repo = new MemcachedRepository($memcached);
+        $this->repo = new ApcuRepository();
     }
 
     /**
      * @test
      */
-    public function it_should_create_query_and_delete_the_list_from_memcached()
+    public function it_should_create_query_and_delete_the_list_from_apcu()
     {
         $fakeElement1 = new ListElement($fakeUUid1 = new ListElementUuid(), [
             'id' => 123,
@@ -85,7 +76,7 @@ class MemcachedRepositoryTest extends TestCase
         $collection->addItem($fakeElement5);
 
         $this->repo->create($collection);
-        $this->repo->deleteElement($collection->getUuid(), $fakeElement5->getUuid());
+        $this->repo->deleteElement($collection->getUuid()->getUuid(), $fakeElement5->getUuid()->getUuid());
 
         $list = $this->repo->findListByUuid($collection->getUuid());
         $element1 = unserialize($this->repo->findElement($collection->getUuid(), $fakeElement1->getUuid()->getUuid()));
@@ -97,13 +88,13 @@ class MemcachedRepositoryTest extends TestCase
         $this->assertArrayHasKey('category', $element1);
         $this->assertArrayHasKey('rate', $element1);
 
-        $this->repo->delete($listUuid);
+        $this->repo->delete($listUuid->getUuid());
     }
 
     /**
      * @test
      */
-    public function it_should_create_query_and_delete_a_parsed_json_list_from_memcached()
+    public function it_should_create_query_and_delete_a_parsed_json_list_from_apcu()
     {
         $headers = [
             'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',
@@ -129,27 +120,6 @@ class MemcachedRepositoryTest extends TestCase
         $this->assertEquals($this->repo->getHeaders($collection->getUuid()), $headers);
         $this->assertGreaterThan(0, $this->repo->stats());
 
-        //var_dump($this->repo->all());
-
-        $this->repo->delete($listUuid);
-    }
-
-    /**
-     * @test
-     * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\ListDoesNotExistsException
-     * @expectedExceptionMessage List not existing hash does not exists in memory.
-     */
-    public function it_throws_ListAlreadyExistsException_if_attempt_to_update_ttl_on_an_invalid_hash()
-    {
-        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
-
-        $listUuid = new ListCollectionUuid();
-        $collection = new ListCollection($listUuid);
-        foreach ($parsedArrayFromJson as $element) {
-            $collection->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
-        }
-
-        $this->repo->create($collection, 3600);
-        $this->repo->updateTtl('not existing hash', 7200);
+        $this->repo->delete($listUuid->getUuid());
     }
 }

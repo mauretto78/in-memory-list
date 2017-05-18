@@ -8,6 +8,7 @@
  *  file that was distributed with this source code.
  */
 use InMemoryList\Application\Client;
+use InMemoryList\Infrastructure\Persistance\ApcuRepository;
 use InMemoryList\Infrastructure\Persistance\MemcachedRepository;
 use InMemoryList\Infrastructure\Persistance\RedisRepository;
 use PHPUnit\Framework\TestCase;
@@ -78,6 +79,18 @@ class ClientTest extends TestCase
 
     /**
      * @test
+     */
+    public function it_catch_CollectionAlreadyExistsException_if_attempt_to_persist_duplicate_collection_from_apcu()
+    {
+        $client = new Client('apcu');
+        $collection = $client->create($this->parsedArrayFromJson, [], 'fake list');
+        $collection2 = $client->create($this->parsedArrayFromJson, [], 'fake list');
+
+        $this->assertEquals($collection2, 'List fake-list already exists in memory.');
+    }
+
+    /**
+     * @test
      * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\ListElementDoesNotExistsException
      * @expectedExceptionMessage Cannot retrieve the element 132131312 from the collection in memory.
      */
@@ -108,8 +121,21 @@ class ClientTest extends TestCase
 
     /**
      * @test
+     * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\ListElementDoesNotExistsException
+     * @expectedExceptionMessage Cannot retrieve the element 132131312 from the collection in memory.
      */
-    public function it_should_store_delete_and_retrieve_correctly_list_elements()
+    public function it_throws_NotExistListElementException_if_attempt_to_find_a_not_existing_element_in_collection_from_apcu()
+    {
+        $client = new Client('apcu');
+        $client->flush();
+        $client->create($this->parsedArrayFromJson, [], 'fake-list', 'id');
+        $client->findElement('fake list', '132131312');
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_store_delete_and_retrieve_from_redis_correctly_list_elements()
     {
         $headers = [
             'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',
@@ -131,6 +157,8 @@ class ClientTest extends TestCase
         $this->assertEquals('Leanne Graham', $element1->name);
         $this->assertEquals('Ervin Howell', $element2->name);
         $this->assertEquals($client->getHeaders('fake-list'), $headers);
+        $this->assertArrayHasKey('expires', $client->getHeaders('fake-list'));
+        $this->assertArrayHasKey('hash', $client->getHeaders('fake-list'));
         $this->assertArrayHasKey('Server', $client->getStats());
 
         $client->updateElement('fake-list', '2', [
@@ -175,6 +203,47 @@ class ClientTest extends TestCase
         $element2 = unserialize($client->findElement('fake-list', '2'));
 
         $this->assertInstanceOf(MemcachedRepository::class, $client->getRepository());
+        $this->assertCount(7, $client->findListByUuid('fake-list'));
+        $this->assertEquals('Leanne Graham', $element1->name);
+        $this->assertEquals('Ervin Howell', $element2->name);
+        $this->assertEquals($client->getHeaders('fake-list'), $headers);
+        $this->assertArrayHasKey('expires', $client->getHeaders('fake-list'));
+        $this->assertArrayHasKey('hash', $client->getHeaders('fake-list'));
+
+        $client->updateElement('fake-list', '2', [
+            'name' => 'Mauro Cassani',
+            'username' => 'mauretto78',
+            'email' => 'mauretto1978@yahoo.it',
+        ]);
+
+        $element2 = unserialize($client->findElement('fake-list', '2'));
+        $this->assertEquals('Mauro Cassani', $element2->name);
+        $this->assertEquals('mauretto78', $element2->username);
+        $this->assertEquals('mauretto1978@yahoo.it', $element2->email);
+
+        $client->delete('fake-list');
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_store_delete_and_retrieve_from_apcu_correctly_list_elements()
+    {
+        $headers = [
+            'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',
+            'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
+        ];
+
+        $client = new Client('apcu');
+        $client->flush();
+        $client->create($this->parsedArrayFromJson, $headers, 'fake list', 'id');
+        $client->deleteElement('fake-list', '7');
+        $client->deleteElement('fake-list', '8');
+        $client->deleteElement('fake-list', '9');
+        $element1 = unserialize($client->findElement('fake-list', '1'));
+        $element2 = unserialize($client->findElement('fake-list', '2'));
+
+        $this->assertInstanceOf(ApcuRepository::class, $client->getRepository());
         $this->assertCount(7, $client->findListByUuid('fake-list'));
         $this->assertEquals('Leanne Graham', $element1->name);
         $this->assertEquals('Ervin Howell', $element2->name);
