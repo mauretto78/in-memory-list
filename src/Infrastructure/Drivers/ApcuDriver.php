@@ -11,25 +11,56 @@
 namespace InMemoryList\Infrastructure\Drivers;
 
 use InMemoryList\Infrastructure\Drivers\Contracts\DriverInterface;
+use InMemoryList\Infrastructure\Drivers\Exceptions\ApcuDriverCheckException;
 
 class ApcuDriver implements DriverInterface
 {
+    /**
+     * ApcuDriver constructor.
+     * @throws ApcuDriverCheckException
+     */
+    public function __construct()
+    {
+        if (!$this->check()) {
+            throw new ApcuDriverCheckException('Apcu extension is not loaded.');
+        }
+
+        $this->connect();
+    }
 
     /**
      * @return bool
      */
     public function check()
     {
-        // TODO: Implement check() method.
+        if (extension_loaded('apcu') && ini_get('apc.enabled')) {
+            return true;
+        }
+
+        return false;
     }
 
+    /**
+     * @return bool
+     */
     public function clear()
     {
-        // TODO: Implement clear() method.
+        return @apcu_clear_cache();
     }
 
+    /**
+     * @return bool
+     */
     public function connect()
     {
-        // TODO: Implement connect() method.
+        return true;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInstance()
+    {
+        return $this;
     }
 }

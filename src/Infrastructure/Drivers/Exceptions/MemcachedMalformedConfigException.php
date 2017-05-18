@@ -12,9 +12,9 @@ namespace InMemoryList\Infrastructure\Drivers\Exceptions;
 
 use Throwable;
 
-class RedisMalformedConfigException extends \Exception
+class MemcachedMalformedConfigException extends \Exception
 {
     function __construct() {
-        parent::__construct("Malformed Redis config params provided.");
+        parent::__construct("Malformed Memcached config params provided.");
     }
 }

@@ -12,9 +12,6 @@ namespace InMemoryList\Application;
 use InMemoryList\Application\Exception\NotSupportedDriverException;
 use InMemoryList\Domain\Model\Contracts\ListRepository;
 use InMemoryList\Infrastructure\Domain\Model\ListCollectionFactory;
-use InMemoryList\Infrastructure\Persistance\ApcuRepository;
-use InMemoryList\Infrastructure\Persistance\MemcachedRepository;
-use InMemoryList\Infrastructure\Persistance\RedisRepository;
 use Predis\Client as Redis;
 
 class Client
@@ -67,23 +64,11 @@ class Client
      */
     private function _setRepository($driver, array $parameters = [])
     {
-        switch ($driver) {
+        $repository = 'InMemoryList\Infrastructure\Persistance\\'.ucfirst($driver).'Repository';
+        $driver = 'InMemoryList\Infrastructure\Drivers\\'.ucfirst($driver).'Driver';
+        $instance = (new $driver($parameters))->getInstance();
 
-            case 'apcu':
-                $this->repository = new ApcuRepository();
-                break;
-
-            case 'memcached':
-                $memcached = new \Memcached();
-                $memcached->addServers($parameters);
-                $this->repository = new MemcachedRepository($memcached);
-                break;
-
-            case 'redis':
-                $redis = new Redis($parameters);
-                $this->repository = new RedisRepository($redis);
-                break;
-        }
+        $this->repository = new $repository($instance);
     }
 
     /**

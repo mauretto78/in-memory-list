@@ -11,10 +11,12 @@
 namespace InMemoryList\Infrastructure\Drivers;
 
 use InMemoryList\Infrastructure\Drivers\Contracts\DriverInterface;
+use InMemoryList\Infrastructure\Drivers\Exceptions\RedisConnectionException;
 use InMemoryList\Infrastructure\Drivers\Exceptions\RedisDriverCheckException;
 use InMemoryList\Infrastructure\Drivers\Exceptions\RedisDriverLogicException;
 use InMemoryList\Infrastructure\Drivers\Exceptions\RedisMalformedConfigException;
 use Predis\Client as Redis;
+use Predis\Response\ServerException;
 
 class RedisDriver implements DriverInterface
 {
@@ -51,14 +53,21 @@ class RedisDriver implements DriverInterface
     {
         $allowedConfigKeys = [
             'alias',
+            'async',
             'database',
             'host',
+            'iterable_multibulk',
             'options',
             'password',
             'port',
             'profile',
-            'scheme',
             'timeout',
+            'path',
+            'persistent',
+            'read_write_timeout',
+            'scheme',
+            'throw_errors',
+            'weight',
         ];
 
         foreach($config as $key => $item){
@@ -92,32 +101,16 @@ class RedisDriver implements DriverInterface
 
     /**
      * @return bool
-     * @throws RedisDriverLogicException
+     * @throws RedisConnectionException
      */
     public function connect()
     {
-        if ($this->instance instanceof Redis) {
-            throw new RedisDriverLogicException('Already connected to Redis server');
-        }
-
-        $this->instance = $this->instance ?: new Redis();
-        $host = isset($this->config[ 'host' ]) ? $this->config[ 'host' ] : '127.0.0.1';
-        $port = isset($this->config[ 'port' ]) ? (int) $this->config[ 'port' ] : '6379';
-        $password = isset($this->config[ 'password' ]) ? $this->config[ 'password' ] : '';
-        $database = isset($this->config[ 'database' ]) ? $this->config[ 'database' ] : '';
-        $timeout = isset($this->config[ 'timeout' ]) ? $this->config[ 'timeout' ] : '';
-
-        if (!$this->instance->connect($host, (int) $port, (int) $timeout)) {
-            return false;
-        }
-
-        if ($password && !$this->instance->auth($password)) {
-            return false;
-        }
-
-        if ($database) {
-            $this->instance->select((int) $database);
-        }
+        $this->instance = new Redis(array_merge([
+            'host' => '127.0.0.1',
+            'port' => 6379,
+            'password' => null,
+            'database' => null,
+        ], $this->config));
 
         return true;
     }

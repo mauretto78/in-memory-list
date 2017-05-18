@@ -67,7 +67,10 @@ class ClientTest extends TestCase
     public function it_catch_CollectionAlreadyExistsException_if_attempt_to_persist_duplicate_collection_from_memcached()
     {
         $memcached_params = [
-            ['localhost', 11211],
+            [
+                'host' => 'localhost',
+                'port' => 11211
+            ],
         ];
 
         $client = new Client('memcached', $memcached_params);
@@ -110,7 +113,10 @@ class ClientTest extends TestCase
     public function it_throws_NotExistListElementException_if_attempt_to_find_a_not_existing_element_in_collection_from_memcached()
     {
         $memcached_params = [
-            ['localhost', 11211],
+            [
+                'host' => 'localhost',
+                'port' => 11211
+            ],
         ];
 
         $client = new Client('memcached', $memcached_params);
@@ -185,7 +191,10 @@ class ClientTest extends TestCase
     public function it_should_store_delete_and_retrieve_from_memcached_correctly_list_elements()
     {
         $memcached_params = [
-            ['localhost', 11211],
+            [
+                'host' => 'localhost',
+                'port' => 11211
+            ],
         ];
 
         $headers = [

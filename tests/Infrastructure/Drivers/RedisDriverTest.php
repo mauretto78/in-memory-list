@@ -15,8 +15,30 @@ class RedisDriverTest extends TestCase
 {
     /**
      * @test
+     * @expectedException \Predis\Connection\ConnectionException
+     * @expectedExceptionMessage `AUTH` failed: ERR Client sent AUTH, but no password is set [tcp://127.0.0.1:6379]
+     */
+    public function it_throws_ConnectionException_if_wrong_config_array_is_provided()
+    {
+        $redis_params = [
+            'scheme' => 'tcp',
+            'host' => '127.0.0.1',
+            'port' => 6379,
+            'database' => 15,
+            'password' => 'non-existing-password',
+        ];
+
+        $driver = new RedisDriver($redis_params);
+        $instance = $driver->getInstance();
+        $driver->clear();
+
+        $this->assertInstanceOf(\Predis\Client::class, $instance);
+    }
+
+    /**
+     * @test
      * @expectedException \InMemoryList\Infrastructure\Drivers\Exceptions\RedisMalformedConfigException
-     * @expectedExceptionMessage Malformed redis config params provided.
+     * @expectedExceptionMessage Malformed Redis config params provided.
      */
     public function it_throws_RedisMalformedConfigException_if_malformed_config_array_is_provided()
     {
@@ -32,7 +54,7 @@ class RedisDriverTest extends TestCase
     /**
      * @test
      */
-    public function it_throws_CreateCollectionFromEmptyArrayException_if_correct_config_array_is_provided()
+    public function it_should_return_PRedis_Client_instance_if_correct_config_array_is_provided()
     {
         $redis_params = [
             'scheme' => 'tcp',
@@ -44,7 +66,11 @@ class RedisDriverTest extends TestCase
         ];
 
         $driver = new RedisDriver($redis_params);
+        $instance = $driver->getInstance();
+        $driver->clear();
 
-        $this->assertInstanceOf(\Predis\Client::class, $driver->getInstance());
+        $this->assertInstanceOf(\Predis\Client::class, $instance);
     }
+
+
 }
