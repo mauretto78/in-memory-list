@@ -12,5 +12,18 @@ namespace InMemoryList\Infrastructure\Drivers\Contracts;
 
 interface DriverInterface
 {
+    /**
+     * @return bool
+     */
+    public function check();
 
+    /**
+     * @return mixed
+     */
+    public function clear();
+
+    /**
+     * @return bool
+     */
+    public function connect();
 }

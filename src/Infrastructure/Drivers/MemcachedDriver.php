@@ -15,4 +15,23 @@ use InMemoryList\Infrastructure\Drivers\Contracts\DriverInterface;
 class MemcachedDriver implements DriverInterface
 {
 
+
+
+    /**
+     * @return bool
+     */
+    public function check()
+    {
+        // TODO: Implement check() method.
+    }
+
+    public function clear()
+    {
+        // TODO: Implement clear() method.
+    }
+
+    public function connect()
+    {
+        // TODO: Implement connect() method.
+    }
 }
