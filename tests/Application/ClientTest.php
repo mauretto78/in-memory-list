@@ -8,8 +8,8 @@
  *  file that was distributed with this source code.
  */
 use InMemoryList\Application\Client;
-use InMemoryList\Infrastructure\Persistance\ListMemcachedRepository;
-use InMemoryList\Infrastructure\Persistance\ListRedisRepository;
+use InMemoryList\Infrastructure\Persistance\MemcachedRepository;
+use InMemoryList\Infrastructure\Persistance\RedisRepository;
 use PHPUnit\Framework\TestCase;
 
 class ClientTest extends TestCase
@@ -125,7 +125,7 @@ class ClientTest extends TestCase
         $element1 = unserialize($client->findElement('fake-list', '1'));
         $element2 = unserialize($client->findElement('fake-list', '2'));
 
-        $this->assertInstanceOf(ListRedisRepository::class, $client->getRepository());
+        $this->assertInstanceOf(RedisRepository::class, $client->getRepository());
         $this->assertCount(7, $client->findListByUuid('fake-list'));
         $this->assertCount(2, $client->getAll());
         $this->assertEquals('Leanne Graham', $element1->name);
@@ -174,7 +174,7 @@ class ClientTest extends TestCase
         $element1 = unserialize($client->findElement('fake-list', '1'));
         $element2 = unserialize($client->findElement('fake-list', '2'));
 
-        $this->assertInstanceOf(ListMemcachedRepository::class, $client->getRepository());
+        $this->assertInstanceOf(MemcachedRepository::class, $client->getRepository());
         $this->assertCount(7, $client->findListByUuid('fake-list'));
         $this->assertEquals('Leanne Graham', $element1->name);
         $this->assertEquals('Ervin Howell', $element2->name);

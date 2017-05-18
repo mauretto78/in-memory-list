@@ -11,13 +11,13 @@ use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Domain\Model\ListCollectionUuid;
-use InMemoryList\Infrastructure\Persistance\ListMemcachedRepository;
+use InMemoryList\Infrastructure\Persistance\MemcachedRepository;
 use PHPUnit\Framework\TestCase;
 
-class ListMemcachedRepositoryTest extends TestCase
+class MemcachedRepositoryTest extends TestCase
 {
     /**
-     * @var ListMemcachedRepository
+     * @var MemcachedRepository
      */
     private $repo;
 
@@ -32,7 +32,7 @@ class ListMemcachedRepositoryTest extends TestCase
             ]
         );
 
-        $this->repo = new ListMemcachedRepository($memcached);
+        $this->repo = new MemcachedRepository($memcached);
     }
 
     /**

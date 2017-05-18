@@ -17,7 +17,7 @@ use InMemoryList\Infrastructure\Persistance\Exception\ListAlreadyExistsException
 use InMemoryList\Infrastructure\Persistance\Exception\ListDoesNotExistsException;
 use InMemoryList\Infrastructure\Persistance\Exception\ListElementDoesNotExistsException;
 
-class ListMemcachedRepository implements ListRepository
+class MemcachedRepository implements ListRepository
 {
     /**
      * @var \Memcached

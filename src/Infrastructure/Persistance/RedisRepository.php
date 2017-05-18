@@ -18,7 +18,7 @@ use InMemoryList\Infrastructure\Persistance\Exception\ListDoesNotExistsException
 use InMemoryList\Infrastructure\Persistance\Exception\ListElementDoesNotExistsException;
 use Predis\Client;
 
-class ListRedisRepository implements ListRepository
+class RedisRepository implements ListRepository
 {
     /**
      * @var Client

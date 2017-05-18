@@ -11,14 +11,14 @@ use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Domain\Model\ListCollectionUuid;
-use InMemoryList\Infrastructure\Persistance\ListRedisRepository;
+use InMemoryList\Infrastructure\Persistance\RedisRepository;
 use PHPUnit\Framework\TestCase;
 use Predis\Client;
 
-class ListRedisRepositoryTest extends TestCase
+class RedisRepositoryTest extends TestCase
 {
     /**
-     * @var ListRedisRepository
+     * @var RedisRepository
      */
     private $repo;
 
@@ -26,7 +26,7 @@ class ListRedisRepositoryTest extends TestCase
     {
         parent::setUp();
 
-        $this->repo = new ListRedisRepository(new Client());
+        $this->repo = new RedisRepository(new Client());
     }
 
     /**

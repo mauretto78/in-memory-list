@@ -12,8 +12,8 @@ namespace InMemoryList\Application;
 use InMemoryList\Application\Exception\NotSupportedDriverException;
 use InMemoryList\Domain\Model\Contracts\ListRepository;
 use InMemoryList\Infrastructure\Domain\Model\ListCollectionFactory;
-use InMemoryList\Infrastructure\Persistance\ListMemcachedRepository;
-use InMemoryList\Infrastructure\Persistance\ListRedisRepository;
+use InMemoryList\Infrastructure\Persistance\MemcachedRepository;
+use InMemoryList\Infrastructure\Persistance\RedisRepository;
 use Predis\Client as Redis;
 
 class Client
@@ -65,13 +65,13 @@ class Client
         switch ($driver) {
             case 'redis':
                 $redis = new Redis($parameters);
-                $this->repository = new ListRedisRepository($redis);
+                $this->repository = new RedisRepository($redis);
                 break;
 
             case 'memcached':
                 $memcached = new \Memcached();
                 $memcached->addServers($parameters);
-                $this->repository = new ListMemcachedRepository($memcached);
+                $this->repository = new MemcachedRepository($memcached);
                 break;
         }
     }
