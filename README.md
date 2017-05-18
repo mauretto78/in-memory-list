@@ -49,19 +49,27 @@ $client = new Client('apcu');
 ```php
 use InMemoryList\Application\Client;
 
-// Memcached
+// Memcached, you can pass one or more servers
 $memcached_params = [
-    ['localhost', 11211]
+    [
+        'host' => 'localhost',
+        'port' => 11211
+    ],
+    [
+        'host' => 'localhost',
+        'port' => 11222
+    ],
+    // etc..
 ];
 
 $client = new Client('memcached', $memcached_params);
 // ..
-```
+```  
  
 ```php
 use InMemoryList\Application\Client;
 
-// Redis
+// Redis, please refer to PRedis library
 $redis_params = [
     'scheme' => 'tcp',
     'host' => '127.0.0.1',
