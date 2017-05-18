@@ -26,4 +26,9 @@ interface DriverInterface
      * @return bool
      */
     public function connect();
+
+    /**
+     * @return mixed
+     */
+    public function getInstance();
 }

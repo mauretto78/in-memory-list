@@ -13,6 +13,7 @@ namespace InMemoryList\Infrastructure\Drivers;
 use InMemoryList\Infrastructure\Drivers\Contracts\DriverInterface;
 use InMemoryList\Infrastructure\Drivers\Exceptions\RedisDriverCheckException;
 use InMemoryList\Infrastructure\Drivers\Exceptions\RedisDriverLogicException;
+use InMemoryList\Infrastructure\Drivers\Exceptions\RedisMalformedConfigException;
 use Predis\Client as Redis;
 
 class RedisDriver implements DriverInterface
@@ -36,14 +37,36 @@ class RedisDriver implements DriverInterface
     {
         $this->_setConfig($config);
         if (!$this->check()) {
-            throw new RedisDriverCheckException('Redis extension is not loaded.');
+            throw new RedisDriverCheckException('PRedis Client is not loaded.');
         }
 
         $this->connect();
     }
 
+    /**
+     * @param $config
+     * @throws RedisMalformedConfigException
+     */
     private function _setConfig($config)
     {
+        $allowedConfigKeys = [
+            'alias',
+            'database',
+            'host',
+            'options',
+            'password',
+            'port',
+            'profile',
+            'scheme',
+            'timeout',
+        ];
+
+        foreach($config as $key => $item){
+            if(!in_array($key, $allowedConfigKeys)){
+                throw new RedisMalformedConfigException();
+            }
+        }
+
         $this->config = $config;
     }
 
@@ -52,9 +75,16 @@ class RedisDriver implements DriverInterface
      */
     public function check()
     {
-        return extension_loaded('Redis');
+        if (extension_loaded('Redis')) {
+            trigger_error('The native Redis extension is installed, you should use Redis instead of Predis to increase performances', E_USER_NOTICE);
+        }
+
+        return class_exists('Predis\Client');
     }
 
+    /**
+     * @return mixed
+     */
     public function clear()
     {
         $this->instance->flushall();
@@ -90,5 +120,13 @@ class RedisDriver implements DriverInterface
         }
 
         return true;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInstance()
+    {
+        return $this->instance;
     }
 }
