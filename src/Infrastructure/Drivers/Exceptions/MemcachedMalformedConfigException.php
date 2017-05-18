@@ -14,7 +14,8 @@ use Throwable;
 
 class MemcachedMalformedConfigException extends \Exception
 {
-    function __construct() {
+    public function __construct()
+    {
         parent::__construct("Malformed Memcached config params provided.");
     }
 }

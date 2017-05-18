@@ -71,6 +71,4 @@ class RedisDriverTest extends TestCase
 
         $this->assertInstanceOf(\Predis\Client::class, $instance);
     }
-
-
 }

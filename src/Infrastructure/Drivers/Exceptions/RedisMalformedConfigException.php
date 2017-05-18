@@ -14,7 +14,8 @@ use Throwable;
 
 class RedisMalformedConfigException extends \Exception
 {
-    function __construct() {
+    public function __construct()
+    {
         parent::__construct("Malformed Redis config params provided.");
     }
 }

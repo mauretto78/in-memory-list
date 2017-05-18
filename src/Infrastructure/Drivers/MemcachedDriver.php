@@ -55,9 +55,9 @@ class MemcachedDriver implements DriverInterface
             'sasl_password',
         ];
 
-        foreach($config as $server){
-            foreach ($server as $key => $item){
-                if(!in_array($key, $allowedConfigKeys)){
+        foreach ($config as $server) {
+            foreach ($server as $key => $item) {
+                if (!in_array($key, $allowedConfigKeys)) {
                     throw new MemcachedMalformedConfigException();
                 }
             }
@@ -97,7 +97,7 @@ class MemcachedDriver implements DriverInterface
         }
 
         foreach ($servers as $server) {
-            if(!$this->instance->addServer($server['host'], $server['port'])){
+            if (!$this->instance->addServer($server['host'], $server['port'])) {
                 throw new MemcachedDriverConnectionException('Memcached connection refused: [host'.$server['host'].' port'.$server['port'].']');
             }
         }

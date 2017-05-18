@@ -70,8 +70,8 @@ class RedisDriver implements DriverInterface
             'weight',
         ];
 
-        foreach($config as $key => $item){
-            if(!in_array($key, $allowedConfigKeys)){
+        foreach ($config as $key => $item) {
+            if (!in_array($key, $allowedConfigKeys)) {
                 throw new RedisMalformedConfigException();
             }
         }
