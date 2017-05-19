@@ -327,6 +327,7 @@ Here are the results obtained:
 ## Built With
 
 * [PRedis](https://github.com/nrk/predis) - Flexible and feature-complete Redis client for PHP and HHVM
+* [ramsey/uuid](https://github.com/ramsey/uuid) - A PHP 5.4+ library for generating RFC 4122 version 1, 3, 4, and 5 universally unique identifiers (UUID).
 * [Symfony Console](https://github.com/symfony/console) - Symfony Console Component
 
 ## Authors

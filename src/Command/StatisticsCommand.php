@@ -48,18 +48,18 @@ class StatisticsCommand extends BaseCommand
         $cache = $this->createClient($driver, $params);
         $statistics = $cache->getStatistics();
 
-        if($statistics and count($statistics)){
+        if ($statistics and count($statistics)) {
             $table = new Table($output);
             $table->setHeaders(['#', 'Key', 'Created on', 'Expire', 'Ttl', 'Size']);
 
             $counter = 0;
-            foreach ($statistics as $key => $item){
+            foreach ($statistics as $key => $item) {
                 $item = unserialize($item);
 
                 /** @var \DateTimeImmutable $created_on */
                 $created_on = $item['created_on'];
 
-                if($item['ttl'] and $item['ttl'] > 0){
+                if ($item['ttl'] and $item['ttl'] > 0) {
                     $expire_date = $created_on->add(new \DateInterval('PT'.$item['ttl'].'S'))->format('Y-m-d H:i:s');
                 } else {
                     $expire_date = '--';

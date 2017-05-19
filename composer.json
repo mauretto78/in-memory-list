@@ -2,7 +2,7 @@
     "name": "mauretto78/in-memory-list",
     "type": "library",
     "description": "In Memory List",
-    "keywords": ["redis", "memcached", "cache", "list", "in-memory"],
+    "keywords": ["apcu", "memcached", "redis", "cache", "list", "in-memory"],
     "homepage": "https://github.com/mauretto78/in-memory-list",
     "license": "MIT",
     "support": {

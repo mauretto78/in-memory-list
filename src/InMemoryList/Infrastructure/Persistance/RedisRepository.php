@@ -237,7 +237,7 @@ class RedisRepository implements ListRepository
             throw new ListDoesNotExistsException('List '.$listUuid.' does not exists in memory.');
         }
 
-        foreach ($list as $elementUuid => $element){
+        foreach ($list as $elementUuid => $element) {
             $this->_addOrUpdateElementToStatistics($elementUuid, $ttl);
         }
 

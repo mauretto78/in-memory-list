@@ -28,15 +28,14 @@ class BaseCommand extends Command
     {
         $convertedParamsArray = [];
 
-        foreach ($params as $param){
-
+        foreach ($params as $param) {
             $param = str_replace(['[',']'], '', $param);
             $param = explode(',', $param);
 
-            if(count($param)){
-                foreach ($param as $p){
+            if (count($param)) {
+                foreach ($param as $p) {
                     $p = explode(':', $p);
-                    if(count($p)){
+                    if (count($p)) {
                         $convertedParamsArray[@$p[0]] = @$p[1];
                     }
                 }

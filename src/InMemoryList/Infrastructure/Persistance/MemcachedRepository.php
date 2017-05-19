@@ -110,7 +110,7 @@ class MemcachedRepository implements ListRepository
         unset($arrayStatistics[(string) $elementUuid]);
 
         $this->memcached->replace($listUuid, $arrayToReplace);
-        $this->memcached->replace(ListRepository::STATISTICS,$arrayStatistics);
+        $this->memcached->replace(ListRepository::STATISTICS, $arrayStatistics);
     }
 
     /**

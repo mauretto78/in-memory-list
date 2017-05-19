@@ -42,8 +42,8 @@ class ListCollectionUuid
             ListRepository::STATISTICS,
         ];
 
-        foreach ($notAllowedNames as $notAllowedName){
-            if( strpos( $uuid, $notAllowedName ) !== false ) {
+        foreach ($notAllowedNames as $notAllowedName) {
+            if (strpos($uuid, $notAllowedName) !== false) {
                 throw new ListCollectionNotAllowedUuidException('You can\'t use '. $uuid . ' in your uuid.');
             }
         }
