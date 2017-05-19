@@ -45,5 +45,3 @@ class BaseCommand extends Command
         return $convertedParamsArray;
     }
 }
-
-// php bin/console iml:ca:stat redis [host:localhost,port:11211] [host:localhost,port:11212]
