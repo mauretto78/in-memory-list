@@ -272,6 +272,16 @@ You have some commands avaliable via  `php bin/console`:
 * `iml:cache:flush` to flush the cache
 * `iml:cache:statistics` to get detailed statistics of items stored in cache
 
+![Alt text](https://raw.githubusercontent.com/mauretto78/in-memory-list/master/examples/img/console.jpg "Console")
+
+You have to follow this syntax to choose driver and pass the connection parameters:
+
+`iml:cache:COMMAND YOUR_DRIVER [key:value,key2:value2,key3:value3]`
+
+Example:
+
+`iml:ca:stat redis [host:localhost,port:6379]`
+
 ## Performance
 
 Consider this simple piece of code:
