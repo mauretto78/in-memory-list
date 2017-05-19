@@ -13,13 +13,9 @@ use InMemoryList\Domain\Model\ListCollection;
 
 interface ListRepository
 {
-    const HASH_SEPARATOR = '@';
+    const HASH_SEPARATOR = ':';
     const HEADERS_SEPARATOR = '#';
-
-    /**
-     * @return mixed
-     */
-    public function all();
+    const STATISTICS = 'statistics';
 
     /**
      * @param ListCollection $list
@@ -80,14 +76,7 @@ interface ListRepository
     /**
      * @return mixed
      */
-    public function stats();
-
-    /**
-     * @param $listUuid
-     *
-     * @return mixed
-     */
-    public function ttl($listUuid);
+    public function getStatistics();
 
     /**
      * @param $listUuid

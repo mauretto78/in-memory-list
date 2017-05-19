@@ -17,13 +17,15 @@
     ],
     "autoload": {
         "psr-4": {
-            "InMemoryList\\": "src/"
+            "InMemoryList\\": "src/InMemoryList",
+            "InMemoryList\\Command\\": "src/Command"
         }
     },
     "require": {
         "php": "^5.4 || ^7.0",
         "ramsey/uuid": "^3.6",
-        "predis/predis": "^1.1"
+        "predis/predis": "^1.1",
+        "symfony/console": "^3.2"
     },
     "require-dev": {
         "phpunit/phpunit": "~5.7"

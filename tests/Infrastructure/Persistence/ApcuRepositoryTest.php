@@ -118,7 +118,12 @@ class ApcuRepositoryTest extends TestCase
         $this->assertCount(10, $list);
         $this->assertInstanceOf(stdClass::class, unserialize($element));
         $this->assertEquals($this->repo->getHeaders($collection->getUuid()), $headers);
-        $this->assertGreaterThan(0, $this->repo->stats());
+        $this->assertCount(10, $this->repo->getStatistics());
+        $this->assertArrayHasKey($fakeUuid1->getUuid(), $this->repo->getStatistics());
+
+        $statisticsElement1 = $this->repo->getStatistics()[$fakeUuid1->getUuid()];
+        $created_on = unserialize($statisticsElement1)['created_on'];
+        $this->assertInstanceOf(DateTimeImmutable::class, $created_on);
 
         $this->repo->delete($listUuid->getUuid());
     }

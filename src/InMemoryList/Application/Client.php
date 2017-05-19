@@ -150,14 +150,6 @@ class Client
     /**
      * @return mixed
      */
-    public function getAll()
-    {
-        return $this->repository->all();
-    }
-
-    /**
-     * @return mixed
-     */
     public function getHeaders($listUuid)
     {
         return $this->repository->getHeaders($listUuid);
@@ -166,19 +158,9 @@ class Client
     /**
      * @return mixed
      */
-    public function getStats()
+    public function getStatistics()
     {
-        return $this->repository->stats();
-    }
-
-    /**
-     * @param $listUuid
-     *
-     * @return mixed
-     */
-    public function getTtl($listUuid)
-    {
-        return $this->repository->ttl($listUuid);
+        return $this->repository->getStatistics();
     }
 
     /**

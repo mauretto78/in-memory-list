@@ -93,9 +93,30 @@ class RedisRepositoryTest extends TestCase
 
     /**
      * @test
+     * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\ListDoesNotExistsException
+     * @expectedExceptionMessage List not existing hash does not exists in memory.
      */
-    public function it_should_create_query_and_delete_a_parsed_json_list_from_redis()
+    public function it_throws_ListAlreadyExistsException_if_attempt_to_update_ttl_on_an_invalid_hash()
     {
+        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
+
+        $listUuid = new ListCollectionUuid();
+        $collection = new ListCollection($listUuid);
+        foreach ($parsedArrayFromJson as $element) {
+            $collection->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
+        }
+
+        $this->repo->create($collection, 3600);
+        $this->repo->updateTtl('not existing hash', 7200);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_create_query_and_delete_a_parsed_json_list_and_get_statistics_from_redis()
+    {
+        $this->repo->flush();
+
         $headers = [
             'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',
             'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
@@ -120,31 +141,13 @@ class RedisRepositoryTest extends TestCase
         $this->assertEquals($this->repo->getHeaders($collection->getUuid()), $headers);
         $this->assertArrayHasKey('expires', $this->repo->getHeaders($collection->getUuid()));
         $this->assertArrayHasKey('hash', $this->repo->getHeaders($collection->getUuid()));
-        $this->assertCount(2, $this->repo->all());
-        $this->assertGreaterThan(0, $this->repo->stats());
+        $this->assertGreaterThan(0, $this->repo->getStatistics());
+        $this->assertCount(10, $this->repo->getStatistics());
+        $this->assertArrayHasKey($fakeUuid1->getUuid(), $this->repo->getStatistics());
 
         $this->repo->updateTtl($listUuid, 7200);
-        $this->assertEquals(7200, $this->repo->ttl($listUuid));
-
         $this->repo->delete($listUuid);
-    }
 
-    /**
-     * @test
-     * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\ListDoesNotExistsException
-     * @expectedExceptionMessage List not existing hash does not exists in memory.
-     */
-    public function it_throws_ListAlreadyExistsException_if_attempt_to_update_ttl_on_an_invalid_hash()
-    {
-        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
-
-        $listUuid = new ListCollectionUuid();
-        $collection = new ListCollection($listUuid);
-        foreach ($parsedArrayFromJson as $element) {
-            $collection->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
-        }
-
-        $this->repo->create($collection, 3600);
-        $this->repo->updateTtl('not existing hash', 7200);
+        $this->assertCount(0, $this->repo->getStatistics());
     }
 }

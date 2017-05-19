@@ -127,9 +127,8 @@ class MemcachedRepositoryTest extends TestCase
         $this->assertCount(10, $list);
         $this->assertInstanceOf(stdClass::class, unserialize($element));
         $this->assertEquals($this->repo->getHeaders($collection->getUuid()), $headers);
-        $this->assertGreaterThan(0, $this->repo->stats());
-
-        //var_dump($this->repo->all());
+        $this->assertCount(10, $this->repo->getStatistics());
+        $this->assertArrayHasKey($fakeUuid1->getUuid(), $this->repo->getStatistics());
 
         $this->repo->delete($listUuid);
     }

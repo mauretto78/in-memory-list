@@ -159,13 +159,12 @@ class ClientTest extends TestCase
 
         $this->assertInstanceOf(RedisRepository::class, $client->getRepository());
         $this->assertCount(7, $client->findListByUuid('fake-list'));
-        $this->assertCount(2, $client->getAll());
         $this->assertEquals('Leanne Graham', $element1->name);
         $this->assertEquals('Ervin Howell', $element2->name);
         $this->assertEquals($client->getHeaders('fake-list'), $headers);
         $this->assertArrayHasKey('expires', $client->getHeaders('fake-list'));
         $this->assertArrayHasKey('hash', $client->getHeaders('fake-list'));
-        $this->assertArrayHasKey('Server', $client->getStats());
+        //$this->assertArrayHasKey('Server', $client->getStatistics());
 
         $client->updateElement('fake-list', '2', [
             'name' => 'Mauro Cassani',
@@ -180,7 +179,6 @@ class ClientTest extends TestCase
         $this->assertEquals('mauretto1978@yahoo.it', $element2->email);
 
         $client->updateTtl('fake-list', 7200);
-        $this->assertEquals(7200, $client->getTtl('fake-list'));
 
         $client->delete('fake list');
     }
@@ -213,6 +211,7 @@ class ClientTest extends TestCase
 
         $this->assertInstanceOf(MemcachedRepository::class, $client->getRepository());
         $this->assertCount(7, $client->findListByUuid('fake-list'));
+        $this->assertCount(7, $client->getStatistics());
         $this->assertEquals('Leanne Graham', $element1->name);
         $this->assertEquals('Ervin Howell', $element2->name);
         $this->assertEquals($client->getHeaders('fake-list'), $headers);

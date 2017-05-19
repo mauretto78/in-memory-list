@@ -9,6 +9,8 @@
  */
 namespace InMemoryList\Domain\Model;
 
+use InMemoryList\Domain\Model\Contracts\ListRepository;
+use InMemoryList\Domain\Model\Exception\ListCollectionNotAllowedUuidException;
 use Ramsey\Uuid\Uuid;
 
 class ListCollectionUuid
@@ -29,10 +31,23 @@ class ListCollectionUuid
     }
 
     /**
-     * @return mixed
+     * @param null $uuid
+     * @throws ListCollectionNotAllowedUuidException
      */
     public function _setUuid($uuid = null)
     {
+        $notAllowedNames = [
+            ListRepository::HASH_SEPARATOR,
+            ListRepository::HEADERS_SEPARATOR,
+            ListRepository::STATISTICS,
+        ];
+
+        foreach ($notAllowedNames as $notAllowedName){
+            if( strpos( $uuid, $notAllowedName ) !== false ) {
+                throw new ListCollectionNotAllowedUuidException('You can\'t use '. $uuid . ' in your uuid.');
+            }
+        }
+
         $this->uuid = str_replace(' ', '-', $uuid) ?: Uuid::uuid4()->toString();
     }
 

@@ -16,7 +16,7 @@ $apiUrl = 'https://jsonplaceholder.typicode.com/comments';
 $apiArray = json_decode(file_get_contents($apiUrl));
 
 $client = new Client('redis', $redis_params);
-$collection = $client->findByUuid('comments-list') ?:  $client->create($apiArray, [], 'comments-list', 'id');
+$collection = $client->findListByUuid('comments-list') ?:  $client->create($apiArray, [], 'comments-list', 'id');
 
 // loop items
 echo '<h3>Loop items</h3>';

@@ -18,31 +18,8 @@ use InMemoryList\Infrastructure\Persistance\Exception\ListDoesNotExistsException
 use InMemoryList\Infrastructure\Persistance\Exception\ListElementDoesNotExistsException;
 use Predis\Client;
 
-class RedisRepository implements ListRepository
+class ApcuRepository implements ListRepository
 {
-    /**
-     * @var Client
-     */
-    private $client;
-
-    /**
-     * IMListRedisRepository constructor.
-     *
-     * @param Client $client
-     */
-    public function __construct(Client $client)
-    {
-        $this->client = $client;
-    }
-
-    /**
-     * @return array
-     */
-    public function all()
-    {
-        return $this->client->keys('*');
-    }
-
     /**
      * @param ListCollection $list
      *
@@ -56,31 +33,39 @@ class RedisRepository implements ListRepository
             throw new ListAlreadyExistsException('List '.$list->getUuid().' already exists in memory.');
         }
 
+        $arrayOfElements = [];
+        $arrayOfElementsForStatistics = [];
+
         /** @var ListElement $element */
         foreach ($list->getItems() as $element) {
-            $this->client->hset(
-                $list->getUuid(),
-                $element->getUuid(),
-                $element->getBody()
-            );
-
-            if ($ttl) {
-                $this->client->expire($list->getUuid(), $ttl);
-            }
+            $arrayOfElements[(string) $element->getUuid()] = $element->getBody();
+            $arrayOfElementsForStatistics[(string) $element->getUuid()] = serialize([
+                'created_on' => new \DateTimeImmutable(),
+                'ttl' => $ttl,
+                'size' => strlen($element->getBody())
+            ]);
         }
 
-        if ($list->getHeaders()) {
-            foreach ($list->getHeaders() as $key => $header) {
-                $this->client->hset(
-                    $list->getUuid().self::HEADERS_SEPARATOR.'headers',
-                    $key,
-                    $header
-                );
-            }
+        // list index
+        apcu_store(
+            $list->getUuid()->getUuid(),
+            $arrayOfElements,
+            $ttl
+        );
 
-            if ($ttl) {
-                $this->client->expire($list->getUuid().self::HEADERS_SEPARATOR.'headers', $ttl);
-            }
+        // add elements to statistics
+        apcu_store(
+            ListRepository::STATISTICS,
+            $arrayOfElementsForStatistics
+        );
+
+        // headers
+        if ($list->getHeaders()) {
+            apcu_store(
+                $list->getUuid().self::HEADERS_SEPARATOR.'headers',
+                $list->getHeaders(),
+                $ttl
+            );
         }
 
         return $this->findListByUuid($list->getUuid());
@@ -93,20 +78,34 @@ class RedisRepository implements ListRepository
      */
     public function delete($listUuid)
     {
-        $list = $this->findListByUuid($listUuid);
-
-        foreach ($list as $elementUuid => $element) {
-            $this->deleteElement($listUuid, $elementUuid);
-        }
+        apcu_delete($listUuid);
     }
 
     /**
      * @param $listUuid
      * @param $elementUuid
+     * @param null $ttl
      */
-    public function deleteElement($listUuid, $elementUuid)
+    public function deleteElement($listUuid, $elementUuid, $ttl = null)
     {
-        $this->client->hdel($listUuid, $elementUuid);
+        $arrayToReplace = $this->findListByUuid($listUuid);
+        $arrayStatistics = $this->getStatistics();
+
+        unset($arrayToReplace[(string) $elementUuid]);
+        unset($arrayStatistics[(string) $elementUuid]);
+
+        $this->delete($listUuid);
+
+        apcu_store(
+            $listUuid,
+            $arrayToReplace,
+            $ttl
+        );
+
+        apcu_store(
+            ListRepository::STATISTICS,
+            $arrayStatistics
+        );
     }
 
     /**
@@ -117,7 +116,7 @@ class RedisRepository implements ListRepository
      */
     public function existsElement($listUuid, $elementUuid)
     {
-        return @isset($this->findListByUuid($listUuid)[$elementUuid]);
+        return @isset(apcu_fetch($listUuid)[$elementUuid]);
     }
 
     /**
@@ -127,7 +126,7 @@ class RedisRepository implements ListRepository
      */
     public function findListByUuid($listUuid)
     {
-        return $this->client->hgetall($listUuid);
+        return apcu_fetch($listUuid);
     }
 
     /**
@@ -144,7 +143,7 @@ class RedisRepository implements ListRepository
             throw new ListElementDoesNotExistsException('Cannot retrieve the element '.$elementUuid.' from the collection in memory.');
         }
 
-        return $this->client->hget($listUuid, $elementUuid);
+        return apcu_fetch($listUuid)[(string) $elementUuid];
     }
 
     /**
@@ -152,7 +151,7 @@ class RedisRepository implements ListRepository
      */
     public function flush()
     {
-        $this->client->flushall();
+        apcu_clear_cache();
     }
 
     /**
@@ -162,40 +161,54 @@ class RedisRepository implements ListRepository
      */
     public function getHeaders($listUuid)
     {
-        return $this->client->hgetall($listUuid.self::HEADERS_SEPARATOR.'headers');
+        return apcu_fetch($listUuid.self::HEADERS_SEPARATOR.'headers');
     }
 
     /**
      * @return array
      */
-    public function stats()
+    public function getStatistics()
     {
-        return $this->client->info();
+        return apcu_fetch(ListRepository::STATISTICS);
     }
 
     /**
      * @param $listUuid
+     * @param $elementUuid
+     * @param array $data
+     * @param null $ttl
      *
-     * @return int
+     * @return mixed
      */
-    public function ttl($listUuid)
-    {
-        return $this->client->ttl($listUuid);
-    }
-
-    public function updateElement($listUuid, $elementUuid, array $data = [])
+    public function updateElement($listUuid, $elementUuid, array $data = [], $ttl = null)
     {
         $element = $this->findElement($listUuid, $elementUuid);
+        $arrayStatistics = $this->getStatistics();
+
         $objMerged = (object) array_merge((array) $element, (array) $data);
+        $arrayOfElements = apcu_fetch($listUuid);
         $updatedElement = new ListElement(
             new ListElementUuid($elementUuid),
             $objMerged
         );
+        $arrayOfElements[(string) $elementUuid] = $updatedElement->getBody();
+        $arrayStatistics[(string) $elementUuid] = serialize([
+            'created_on' => new \DateTimeImmutable(),
+            'ttl' => $ttl,
+            'size' => strlen($updatedElement->getBody())
+        ]);
 
-        $this->client->hset(
+        $this->delete($listUuid);
+
+        apcu_store(
             $listUuid,
-            $elementUuid,
-            $updatedElement->getBody()
+            $arrayOfElements,
+            $ttl
+        );
+
+        apcu_store(
+            ListRepository::STATISTICS,
+            $arrayStatistics
         );
     }
 
@@ -209,12 +222,5 @@ class RedisRepository implements ListRepository
      */
     public function updateTtl($listUuid, $ttl = null)
     {
-        if (!$this->findListByUuid($listUuid)) {
-            throw new ListDoesNotExistsException('List '.$listUuid.' does not exists in memory.');
-        }
-
-        $this->client->expire($listUuid, $ttl);
-
-        return $this->findListByUuid($listUuid);
     }
 }

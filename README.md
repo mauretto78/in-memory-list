@@ -265,6 +265,13 @@ foreach ($qb->getResults() as $element){
 
 ```
 
+## Commands
+
+You have some commands avaliable via  `php bin/console`:
+ 
+* `iml:cache:flush` to flush the cache
+* `iml:cache:statistics` to get detailed statistics of items stored in cache
+
 ## Performance
 
 Consider this simple piece of code:
@@ -310,12 +317,11 @@ Here are the results obtained:
 ## Built With
 
 * [PRedis](https://github.com/nrk/predis) - Flexible and feature-complete Redis client for PHP and HHVM
+* [Symfony Console](https://github.com/symfony/console) - Symfony Console Component
 
 ## Authors
 
 * **Mauro Cassani** - [github](https://github.com/mauretto78)
-
-See also the list of [contributors](https://github.com/mauretto78/in-memory-list/contributors.md) who participated in this project.
 
 ## License
 
