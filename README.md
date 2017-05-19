@@ -278,9 +278,9 @@ You have to follow this syntax to choose driver and pass the connection paramete
 
 `iml:cache:COMMAND YOUR_DRIVER [key:value,key2:value2,key3:value3]`
 
-Example:
+Each string in square brackets represents an array, so to get a multi-server connection you have to pass arrays separed by space:
 
-`iml:ca:stat redis [host:localhost,port:6379]`
+`iml:ca:stat memcached [host:localhost,port:11211] [host:localhost,port:11222]`
 
 ## Performance
 
