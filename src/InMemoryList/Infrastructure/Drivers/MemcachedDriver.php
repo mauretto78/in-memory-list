@@ -71,7 +71,7 @@ class MemcachedDriver implements DriverInterface
      */
     public function check()
     {
-        return class_exists('Memcached');
+        return class_exists('\Memcached');
     }
 
     /**
