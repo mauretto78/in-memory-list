@@ -23,13 +23,13 @@
 
     <testsuites>
         <testsuite name="Redis Browser Test Suite">
-            <directory>tests</directory>
+            <directory>tests/InMemoryList</directory>
         </testsuite>
     </testsuites>
 
     <filter>
         <whitelist>
-            <directory suffix=".php">src/</directory>
+            <directory suffix=".php">src</directory>
         </whitelist>
     </filter>
 

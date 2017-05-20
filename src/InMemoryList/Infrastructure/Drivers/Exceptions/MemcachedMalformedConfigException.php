@@ -10,8 +10,6 @@
 
 namespace InMemoryList\Infrastructure\Drivers\Exceptions;
 
-use Throwable;
-
 class MemcachedMalformedConfigException extends \Exception
 {
     public function __construct()

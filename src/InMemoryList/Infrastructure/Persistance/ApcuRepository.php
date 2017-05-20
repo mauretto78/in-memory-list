@@ -13,9 +13,9 @@ use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\Contracts\ListRepository;
 use InMemoryList\Domain\Model\ListElementUuid;
-use InMemoryList\Infrastructure\Persistance\Exception\ListAlreadyExistsException;
-use InMemoryList\Infrastructure\Persistance\Exception\ListDoesNotExistsException;
-use InMemoryList\Infrastructure\Persistance\Exception\ListElementDoesNotExistsException;
+use InMemoryList\Infrastructure\Persistance\Exceptions\ListAlreadyExistsException;
+use InMemoryList\Infrastructure\Persistance\Exceptions\ListDoesNotExistsException;
+use InMemoryList\Infrastructure\Persistance\Exceptions\ListElementDoesNotExistsException;
 use Predis\Client;
 
 class ApcuRepository implements ListRepository

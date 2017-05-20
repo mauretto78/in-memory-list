@@ -15,7 +15,7 @@ class ListFactoryTest extends TestCase
 {
     /**
      * @test
-     * @expectedException \InMemoryList\Infrastructure\Domain\Model\Exception\CreateListFromEmptyArrayException
+     * @expectedException \InMemoryList\Infrastructure\Domain\Model\Exceptions\CreateListFromEmptyArrayException
      * @expectedExceptionMessage Try to create a collection from an empty array.
      */
     public function it_throws_CreateCollectionFromEmptyArrayException_if_empty_array_is_provided()
@@ -28,10 +28,10 @@ class ListFactoryTest extends TestCase
 
     /**
      * @test
-     * @expectedException \InMemoryList\Infrastructure\Domain\Model\Exception\NotValidKeyElementInListException
+     * @expectedException \InMemoryList\Infrastructure\Domain\Model\Exceptions\NotValidKeyElementInListException
      * @expectedExceptionMessage not-existing-id is not a valid key.
      */
-    public function gdfgdfdgfgfd()
+    public function it_throws_NotValidKeyElementInListException_if_a_not_existing_unique_identifier_is_provided()
     {
         $simpleArray = [
             [
@@ -136,7 +136,7 @@ class ListFactoryTest extends TestCase
             'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
         ];
 
-        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../../examples/files/users.json'));
+        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../../../examples/files/users.json'));
         $factory = new ListCollectionFactory();
         $imList = $factory->create($parsedArrayFromJson, $headers, 'fake list from json object');
 

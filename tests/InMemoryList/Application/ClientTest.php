@@ -19,12 +19,12 @@ class ClientTest extends TestCase
 
     public function setUp()
     {
-        $this->parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../examples/files/users.json'));
+        $this->parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
     }
 
     /**
      * @test
-     * @expectedException \InMemoryList\Application\Exception\NotSupportedDriverException
+     * @expectedException InMemoryList\Application\Exceptions\NotSupportedDriverException
      * @expectedExceptionMessage not supported driver is not a supported driver.
      */
     public function it_throws_NotSupportedDriverException_if_a_not_supported_driver_is_provided()
@@ -94,7 +94,7 @@ class ClientTest extends TestCase
 
     /**
      * @test
-     * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\ListElementDoesNotExistsException
+     * @expectedException InMemoryList\Infrastructure\Persistance\Exceptions\ListElementDoesNotExistsException
      * @expectedExceptionMessage Cannot retrieve the element 132131312 from the collection in memory.
      */
     public function it_throws_NotExistListElementException_if_attempt_to_find_a_not_existing_element_in_collection_from_redis()
@@ -107,7 +107,7 @@ class ClientTest extends TestCase
 
     /**
      * @test
-     * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\ListElementDoesNotExistsException
+     * @expectedException InMemoryList\Infrastructure\Persistance\Exceptions\ListElementDoesNotExistsException
      * @expectedExceptionMessage Cannot retrieve the element 132131312 from the collection in memory.
      */
     public function it_throws_NotExistListElementException_if_attempt_to_find_a_not_existing_element_in_collection_from_memcached()
@@ -127,7 +127,7 @@ class ClientTest extends TestCase
 
     /**
      * @test
-     * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\ListElementDoesNotExistsException
+     * @expectedException InMemoryList\Infrastructure\Persistance\Exceptions\ListElementDoesNotExistsException
      * @expectedExceptionMessage Cannot retrieve the element 132131312 from the collection in memory.
      */
     public function it_throws_NotExistListElementException_if_attempt_to_find_a_not_existing_element_in_collection_from_apcu()

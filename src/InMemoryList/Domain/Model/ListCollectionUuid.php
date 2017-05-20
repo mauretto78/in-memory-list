@@ -10,7 +10,7 @@
 namespace InMemoryList\Domain\Model;
 
 use InMemoryList\Domain\Model\Contracts\ListRepository;
-use InMemoryList\Domain\Model\Exception\ListCollectionNotAllowedUuidException;
+use InMemoryList\Domain\Model\Exceptions\ListCollectionNotAllowedUuidException;
 use Ramsey\Uuid\Uuid;
 
 class ListCollectionUuid

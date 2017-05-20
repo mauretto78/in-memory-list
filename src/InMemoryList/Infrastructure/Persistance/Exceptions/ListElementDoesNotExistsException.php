@@ -7,7 +7,7 @@
  *  For the full copyright and license information, please view the LICENSE
  *  file that was distributed with this source code.
  */
-namespace InMemoryList\Infrastructure\Persistance\Exception;
+namespace InMemoryList\Infrastructure\Persistance\Exceptions;
 
 class ListElementDoesNotExistsException extends \Exception
 {

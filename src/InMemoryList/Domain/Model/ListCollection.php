@@ -9,8 +9,8 @@
  */
 namespace InMemoryList\Domain\Model;
 
-use InMemoryList\Domain\Model\Exception\ListElementDuplicateKeyException;
-use InMemoryList\Domain\Model\Exception\ListElementKeyDoesNotExistException;
+use InMemoryList\Domain\Model\Exceptions\ListElementDuplicateKeyException;
+use InMemoryList\Domain\Model\Exceptions\ListElementKeyDoesNotExistException;
 
 class ListCollection implements \Countable
 {

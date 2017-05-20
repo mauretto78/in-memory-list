@@ -11,28 +11,25 @@ use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Domain\Model\ListCollectionUuid;
-use InMemoryList\Infrastructure\Persistance\RedisRepository;
+use InMemoryList\Infrastructure\Persistance\ApcuRepository;
 use PHPUnit\Framework\TestCase;
-use Predis\Client;
 
-class RedisRepositoryTest extends TestCase
+class ApcuRepositoryTest extends TestCase
 {
     /**
-     * @var RedisRepository
+     * @var ApcuRepository
      */
     private $repo;
 
     public function setUp()
     {
-        parent::setUp();
-
-        $this->repo = new RedisRepository(new Client());
+        $this->repo = new ApcuRepository();
     }
 
     /**
      * @test
      */
-    public function it_should_create_query_and_delete_the_list_from_redis()
+    public function it_should_create_query_and_delete_the_list_from_apcu()
     {
         $fakeElement1 = new ListElement($fakeUUid1 = new ListElementUuid(), [
             'id' => 123,
@@ -79,50 +76,32 @@ class RedisRepositoryTest extends TestCase
         $collection->addItem($fakeElement5);
 
         $this->repo->create($collection);
-        $element1 = unserialize($this->repo->findElement($collection->getUuid(), $fakeUUid1->getUuid()));
+        $this->repo->deleteElement($collection->getUuid()->getUuid(), $fakeElement5->getUuid()->getUuid());
 
-        $this->assertCount(5, $this->repo->findListByUuid($collection->getUuid()));
+        $list = $this->repo->findListByUuid($collection->getUuid());
+        $element1 = unserialize($this->repo->findElement($collection->getUuid(), $fakeElement1->getUuid()->getUuid()));
+
+        $this->assertCount(4, $list);
         $this->assertArrayHasKey('id', $element1);
         $this->assertArrayHasKey('title', $element1);
         $this->assertArrayHasKey('category-id', $element1);
         $this->assertArrayHasKey('category', $element1);
         $this->assertArrayHasKey('rate', $element1);
 
-        $this->repo->delete($listUuid);
-    }
-
-    /**
-     * @test
-     * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\ListDoesNotExistsException
-     * @expectedExceptionMessage List not existing hash does not exists in memory.
-     */
-    public function it_throws_ListAlreadyExistsException_if_attempt_to_update_ttl_on_an_invalid_hash()
-    {
-        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
-
-        $listUuid = new ListCollectionUuid();
-        $collection = new ListCollection($listUuid);
-        foreach ($parsedArrayFromJson as $element) {
-            $collection->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
-        }
-
-        $this->repo->create($collection, 3600);
-        $this->repo->updateTtl('not existing hash', 7200);
+        $this->repo->delete($listUuid->getUuid());
     }
 
     /**
      * @test
      */
-    public function it_should_create_query_and_delete_a_parsed_json_list_and_get_statistics_from_redis()
+    public function it_should_create_query_and_delete_a_parsed_json_list_from_apcu()
     {
-        $this->repo->flush();
-
         $headers = [
             'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',
             'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
         ];
 
-        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
+        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../../examples/files/users.json'));
 
         $listUuid = new ListCollectionUuid();
         $collection = new ListCollection($listUuid);
@@ -131,7 +110,7 @@ class RedisRepositoryTest extends TestCase
         }
         $collection->setHeaders($headers);
 
-        $this->repo->create($collection, 3600);
+        $this->repo->create($collection);
 
         $list = $this->repo->findListByUuid($collection->getUuid());
         $element = $this->repo->findElement($collection->getUuid(), $fakeUuid1->getUuid());
@@ -139,15 +118,13 @@ class RedisRepositoryTest extends TestCase
         $this->assertCount(10, $list);
         $this->assertInstanceOf(stdClass::class, unserialize($element));
         $this->assertEquals($this->repo->getHeaders($collection->getUuid()), $headers);
-        $this->assertArrayHasKey('expires', $this->repo->getHeaders($collection->getUuid()));
-        $this->assertArrayHasKey('hash', $this->repo->getHeaders($collection->getUuid()));
-        $this->assertGreaterThan(0, $this->repo->getStatistics());
         $this->assertCount(10, $this->repo->getStatistics());
         $this->assertArrayHasKey($fakeUuid1->getUuid(), $this->repo->getStatistics());
 
-        $this->repo->updateTtl($listUuid, 7200);
-        $this->repo->delete($listUuid);
+        $statisticsElement1 = $this->repo->getStatistics()[$fakeUuid1->getUuid()];
+        $created_on = unserialize($statisticsElement1)['created_on'];
+        $this->assertInstanceOf(DateTimeImmutable::class, $created_on);
 
-        $this->assertCount(0, $this->repo->getStatistics());
+        $this->repo->delete($listUuid->getUuid());
     }
 }

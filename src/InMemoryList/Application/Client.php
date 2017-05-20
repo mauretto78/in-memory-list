@@ -9,10 +9,9 @@
  */
 namespace InMemoryList\Application;
 
-use InMemoryList\Application\Exception\NotSupportedDriverException;
+use InMemoryList\Application\Exceptions\NotSupportedDriverException;
 use InMemoryList\Domain\Model\Contracts\ListRepository;
 use InMemoryList\Infrastructure\Domain\Model\ListCollectionFactory;
-use Predis\Client as Redis;
 
 class Client
 {

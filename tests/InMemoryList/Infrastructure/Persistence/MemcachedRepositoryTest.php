@@ -110,7 +110,7 @@ class MemcachedRepositoryTest extends TestCase
             'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
         ];
 
-        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
+        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../../examples/files/users.json'));
 
         $listUuid = new ListCollectionUuid();
         $collection = new ListCollection($listUuid);
@@ -135,12 +135,12 @@ class MemcachedRepositoryTest extends TestCase
 
     /**
      * @test
-     * @expectedException \InMemoryList\Infrastructure\Persistance\Exception\ListDoesNotExistsException
+     * @expectedException InMemoryList\Infrastructure\Persistance\Exceptions\ListDoesNotExistsException
      * @expectedExceptionMessage List not existing hash does not exists in memory.
      */
     public function it_throws_ListAlreadyExistsException_if_attempt_to_update_ttl_on_an_invalid_hash()
     {
-        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
+        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../../examples/files/users.json'));
 
         $listUuid = new ListCollectionUuid();
         $collection = new ListCollection($listUuid);

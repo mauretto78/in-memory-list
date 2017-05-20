@@ -9,10 +9,10 @@
  */
 namespace InMemoryList\Application;
 
-use InMemoryList\Application\Exception\EmptyListException;
-use InMemoryList\Application\Exception\NotValidKeyElementInListException;
-use InMemoryList\Application\Exception\NotValidOperatorException;
-use InMemoryList\Application\Exception\NotValidSortingOperatorException;
+use InMemoryList\Application\Exceptions\EmptyListException;
+use InMemoryList\Application\Exceptions\NotValidKeyElementInListException;
+use InMemoryList\Application\Exceptions\NotValidOperatorException;
+use InMemoryList\Application\Exceptions\NotValidSortingOperatorException;
 
 class QueryBuilder
 {

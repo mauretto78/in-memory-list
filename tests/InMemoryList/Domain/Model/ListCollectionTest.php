@@ -17,7 +17,7 @@ class ListCollectionTest extends TestCase
 {
     /**
      * @test
-     * @expectedException \InMemoryList\Domain\Model\Exception\ListElementDuplicateKeyException
+     * @expectedException InMemoryList\Domain\Model\Exceptions\ListElementDuplicateKeyException
      */
     public function it_should_return_exception_if_a_try_to_add_duplicate_element()
     {
@@ -30,7 +30,7 @@ class ListCollectionTest extends TestCase
 
     /**
      * @test
-     * @expectedException \InMemoryList\Domain\Model\Exception\ListElementKeyDoesNotExistException
+     * @expectedException InMemoryList\Domain\Model\Exceptions\ListElementKeyDoesNotExistException
      */
     public function it_should_return_exception_if_try_to_delete_a_not_existing_element()
     {
@@ -42,7 +42,7 @@ class ListCollectionTest extends TestCase
 
     /**
      * @test
-     * @expectedException \InMemoryList\Domain\Model\Exception\ListElementKeyDoesNotExistException
+     * @expectedException InMemoryList\Domain\Model\Exceptions\ListElementKeyDoesNotExistException
      */
     public function it_should_return_exception_if_not_finds_an_element()
     {

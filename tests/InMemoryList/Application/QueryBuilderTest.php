@@ -31,13 +31,13 @@ class QueryBuilderTest extends TestCase
     public function setUp()
     {
         $this->client = new Client();
-        $this->parsedPostsArray = json_decode(file_get_contents(__DIR__.'/../../examples/files/posts.json'));
-        $this->parsedUserArray = json_decode(file_get_contents(__DIR__.'/../../examples/files/users.json'));
+        $this->parsedPostsArray = json_decode(file_get_contents(__DIR__.'/../../../examples/files/posts.json'));
+        $this->parsedUserArray = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
     }
 
     /**
      * @test
-     * @expectedException \InMemoryList\Application\Exception\EmptyListException
+     * @expectedException \InMemoryList\Application\Exceptions\EmptyListException
      */
     public function it_throws_EmptyCollectionException_if_an_empty_collection_is_provided()
     {
@@ -46,7 +46,7 @@ class QueryBuilderTest extends TestCase
 
     /**
      * @test
-     * @expectedException \InMemoryList\Application\Exception\NotValidOperatorException
+     * @expectedException \InMemoryList\Application\Exceptions\NotValidOperatorException
      * @expectedExceptionMessage wrong operator is not a valid operator.
      */
     public function it_throws_NotValidOperatorQueryBuilderException_if_an_invalid_operator_is_provided()
@@ -63,7 +63,7 @@ class QueryBuilderTest extends TestCase
 
     /**
      * @test
-     * @expectedException \InMemoryList\Application\Exception\NotValidKeyElementInListException
+     * @expectedException \InMemoryList\Application\Exceptions\NotValidKeyElementInListException
      * @expectedExceptionMessage not-existing-key is not a valid key.
      */
     public function it_throws_NotValidKeyElementInCollectionException_if_a_not_valid_element_key_is_provided()
@@ -80,7 +80,7 @@ class QueryBuilderTest extends TestCase
 
     /**
      * @test
-     * @expectedException \InMemoryList\Application\Exception\NotValidSortingOperatorException
+     * @expectedException \InMemoryList\Application\Exceptions\NotValidSortingOperatorException
      * @expectedExceptionMessage not wrong sorting operator is not a valid sorting operator.
      */
     public function it_throws_NotValidSortingOperatorException_if_an_invalid_sorting_operator_is_provided()

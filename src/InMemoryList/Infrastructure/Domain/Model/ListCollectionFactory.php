@@ -14,8 +14,8 @@ use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\ListCollectionUuid;
 use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Domain\Model\Contracts\ListFactory as Factory;
-use InMemoryList\Infrastructure\Domain\Model\Exception\CreateListFromEmptyArrayException;
-use InMemoryList\Infrastructure\Domain\Model\Exception\NotValidKeyElementInListException;
+use InMemoryList\Infrastructure\Domain\Model\Exceptions\CreateListFromEmptyArrayException;
+use InMemoryList\Infrastructure\Domain\Model\Exceptions\NotValidKeyElementInListException;
 
 class ListCollectionFactory implements Factory
 {

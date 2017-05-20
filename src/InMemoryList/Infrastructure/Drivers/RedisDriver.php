@@ -11,12 +11,9 @@
 namespace InMemoryList\Infrastructure\Drivers;
 
 use InMemoryList\Infrastructure\Drivers\Contracts\DriverInterface;
-use InMemoryList\Infrastructure\Drivers\Exceptions\RedisConnectionException;
 use InMemoryList\Infrastructure\Drivers\Exceptions\RedisDriverCheckException;
-use InMemoryList\Infrastructure\Drivers\Exceptions\RedisDriverLogicException;
 use InMemoryList\Infrastructure\Drivers\Exceptions\RedisMalformedConfigException;
 use Predis\Client as Redis;
-use Predis\Response\ServerException;
 
 class RedisDriver implements DriverInterface
 {
