@@ -12,9 +12,9 @@ services:
   - redis-server
 
 before_script:
-  - if [[ $TRAVIS_PHP_VERSION = "5.6" ]]; then echo yes | pecl install memcached; fi
-  - if [[ $TRAVIS_PHP_VERSION = "7.0" ]]; then echo yes | pecl install memcached; fi
-  - if [[ $TRAVIS_PHP_VERSION = "7.1" ]]; then echo yes | pecl install memcached; fi
+  - if [[ $TRAVIS_PHP_VERSION = "5.6" ]]; then echo yes | pecl install apcu-4.0.11; fi
+  - if [[ $TRAVIS_PHP_VERSION = "7.0" ]]; then echo yes | pecl install apcu; fi
+  - if [[ $TRAVIS_PHP_VERSION = "7.1" ]]; then echo yes | pecl install apcu; fi
   - composer self-update
   - composer install --dev
 
