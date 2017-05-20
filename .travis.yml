@@ -13,6 +13,7 @@ services:
 before_script:
   - composer self-update
   - composer install --no-interaction --prefer-source --dev
+  - composer dump-autoload -o
 script:
   - vendor/bin/phpunit
 matrix:
