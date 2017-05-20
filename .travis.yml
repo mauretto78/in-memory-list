@@ -12,6 +12,8 @@ services:
   - redis-server
 
 before_script:
+  - pear config-set preferred_state beta
+  - yes '' | pecl install apcu
   - composer self-update
   - composer install --dev
 
