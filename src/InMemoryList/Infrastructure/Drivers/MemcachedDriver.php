@@ -14,6 +14,7 @@ use InMemoryList\Infrastructure\Drivers\Contracts\DriverInterface;
 use InMemoryList\Infrastructure\Drivers\Exceptions\MemcachedDriverCheckException;
 use InMemoryList\Infrastructure\Drivers\Exceptions\MemcachedDriverConnectionException;
 use InMemoryList\Infrastructure\Drivers\Exceptions\MemcachedMalformedConfigException;
+use Memcached;
 
 class MemcachedDriver implements DriverInterface
 {
@@ -84,7 +85,7 @@ class MemcachedDriver implements DriverInterface
 
     public function connect()
     {
-        $this->instance = new \Memcached();
+        $this->instance = new Memcached();
         $servers = $this->config ?: [];
 
         if (count($servers) < 1) {

@@ -25,7 +25,7 @@ class MemcachedRepositoryTest extends TestCase
     {
         parent::setUp();
 
-        $memcached = new \Memcached();
+        $memcached = new Memcached();
         $memcached->addServers(
             [
                 ['localhost', 11211],
