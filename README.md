@@ -1,5 +1,8 @@
 # In-memory List
 
+[![Build Status](https://travis-ci.org/mauretto78/in-memory-list.svg?branch=master)](https://travis-ci.org/mauretto78/in-memory-list)
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
+
 **In-memory List** easily allows you to create and save your lists in memory.
 
 If you are looking for a caching system for your lists this library is suitable for you.
