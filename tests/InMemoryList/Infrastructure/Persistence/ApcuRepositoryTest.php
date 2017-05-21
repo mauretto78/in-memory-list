@@ -91,7 +91,7 @@ class ApcuRepositoryTest extends TestCase
         $this->assertArrayHasKey('category', $element1);
         $this->assertArrayHasKey('rate', $element1);
 
-        $this->repo->delete($listUuid->getUuid());
+        $this->repo->delete((string)$listUuid->getUuid());
     }
 
     /**
@@ -128,6 +128,6 @@ class ApcuRepositoryTest extends TestCase
         $created_on = unserialize($statisticsElement1)['created_on'];
         $this->assertInstanceOf(DateTimeImmutable::class, $created_on);
 
-        $this->repo->delete($listUuid->getUuid());
+        $this->repo->delete((string)$listUuid->getUuid());
     }
 }
