@@ -62,7 +62,7 @@ class MemcachedRepository implements ListRepository
 
         // list index
         $this->memcached->set(
-            $list->getUuid(),
+            (string)$list->getUuid(),
             $arrayOfElements,
             $ttl
         );
@@ -76,7 +76,7 @@ class MemcachedRepository implements ListRepository
         // headers
         if ($list->getHeaders()) {
             $this->memcached->set(
-                $list->getUuid().self::HEADERS_SEPARATOR.'headers',
+                (string)$list->getUuid().self::HEADERS_SEPARATOR.'headers',
                 $list->getHeaders(),
                 $ttl
             );
@@ -203,13 +203,13 @@ class MemcachedRepository implements ListRepository
         ]);
 
         $this->memcached->replace(
-            $listUuid,
+            (string)$listUuid,
             $arrayOfElements,
             $ttl
         );
 
         $this->memcached->replace(
-            ListRepository::STATISTICS,
+            (string)ListRepository::STATISTICS,
             $arrayStatistics
         );
     }

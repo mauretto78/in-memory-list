@@ -51,9 +51,9 @@ class RedisRepository implements ListRepository
         /** @var ListElement $element */
         foreach ($list->getItems() as $element) {
             $this->client->hset(
-                $list->getUuid(),
-                $element->getUuid(),
-                $element->getBody()
+                (string)$list->getUuid(),
+                (string)$element->getUuid(),
+                (string)$element->getBody()
             );
 
             $this->_addOrUpdateElementToStatistics($element->getUuid(), strlen($element->getBody()), $ttl);

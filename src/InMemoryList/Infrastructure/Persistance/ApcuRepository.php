@@ -48,7 +48,7 @@ class ApcuRepository implements ListRepository
 
         // list index
         apcu_store(
-            $list->getUuid()->getUuid(),
+            (string)$list->getUuid(),
             $arrayOfElements,
             $ttl
         );
@@ -62,7 +62,7 @@ class ApcuRepository implements ListRepository
         // headers
         if ($list->getHeaders()) {
             apcu_store(
-                $list->getUuid().self::HEADERS_SEPARATOR.'headers',
+                (string)$list->getUuid().self::HEADERS_SEPARATOR.'headers',
                 $list->getHeaders(),
                 $ttl
             );
@@ -97,7 +97,7 @@ class ApcuRepository implements ListRepository
         $this->delete($listUuid);
 
         apcu_store(
-            $listUuid,
+            (string)$listUuid,
             $arrayToReplace,
             $ttl
         );
@@ -201,13 +201,13 @@ class ApcuRepository implements ListRepository
         $this->delete($listUuid);
 
         apcu_store(
-            $listUuid,
+            (string)$listUuid,
             $arrayOfElements,
             $ttl
         );
 
         apcu_store(
-            ListRepository::STATISTICS,
+            (string)ListRepository::STATISTICS,
             $arrayStatistics
         );
     }
