@@ -4,8 +4,6 @@ sudo: false
 
 php:
   - 5.6
-  - 7.0
-  - 7.1
 
 services:
   - memcached
@@ -16,7 +14,6 @@ global:
 
 before_install:
   - echo "extension = memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-  - echo 'extension = redis.so' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
   - if [[ $TRAVIS_PHP_VERSION = "5.6" ]]; then echo yes | pecl install apcu-4.0.11; fi
   - if [[ $TRAVIS_PHP_VERSION = "7.0" ]]; then echo yes | pecl install apcu-5.1.7; fi
   - if [[ $TRAVIS_PHP_VERSION = "7.1" ]]; then echo yes | pecl install apcu-5.1.7; fi
