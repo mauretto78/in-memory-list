@@ -76,7 +76,10 @@ class ApcuRepositoryTest extends TestCase
         $collection->addItem($fakeElement5);
 
         $this->repo->create($collection);
-        $this->repo->deleteElement($collection->getUuid()->getUuid(), $fakeElement5->getUuid());
+        $this->repo->deleteElement(
+            (string)$collection->getUuid(),
+            (string)$fakeElement5->getUuid()
+        );
 
         $list = $this->repo->findListByUuid($collection->getUuid());
         $element1 = unserialize($this->repo->findElement($collection->getUuid(), $fakeElement1->getUuid()->getUuid()));
