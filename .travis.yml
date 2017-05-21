@@ -17,7 +17,6 @@ before_install:
   - if [[ $TRAVIS_PHP_VERSION = "5.6" ]]; then echo yes | pecl install apcu-4.0.11; fi
   - if [[ $TRAVIS_PHP_VERSION = "7.0" ]]; then echo yes | pecl install apcu-5.1.7; fi
   - if [[ $TRAVIS_PHP_VERSION = "7.1" ]]; then echo yes | pecl install apcu-5.1.7; fi
-  - if [[ $TRAVIS_PHP_VERSION != 7.1 ]]; then echo 'extension = apcu.so' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi",
   - if [[ $TRAVIS_PHP_VERSION != 7.1 ]]; then echo 'apc.enable_cli = 1' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi",
 
 before_script:
