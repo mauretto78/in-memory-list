@@ -84,7 +84,6 @@ class StatisticsCommandTest extends TestCase
         $output = $commandTester->getDisplay();
 
         $this->assertContains('Clients', $output);
-        $this->assertContains('Cluster', $output);
         $this->assertContains('CPU', $output);
         $this->assertContains('Memory', $output);
         $this->assertContains('Persistence', $output);
