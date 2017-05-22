@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/mauretto78/in-memory-list.svg?branch=master)](https://travis-ci.org/mauretto78/in-memory-list)
 [![license](https://img.shields.io/github/license/mauretto78/in-memory-list.svg)]()
+[![Packagist](https://img.shields.io/packagist/v/mauretto78/in-memory-list.svg)]()
 
 **In-memory List** easily allows you to create and save your lists in memory.
 
