@@ -125,7 +125,7 @@ Please note that the unique ID **must be a string**.
 
 ### headers
 
-You can set a headers array to yout list:
+You can set a headers array to your list:
 
 ```php
 use InMemoryList\Application\Client;
@@ -153,7 +153,7 @@ var_dump($client->getHeaders('simple-array'));
 
 ### element-uuid
 
-You can assign an unique ID to list elemens (instead, a [uuid](https://github.com/ramsey/uuid) will be generated). Consider this array:
+You can assign an uuid to list elemens (instead, a [uuid](https://github.com/ramsey/uuid) will be generated). Consider this array:
 
 ```php
 $simpleArray = [
@@ -319,9 +319,9 @@ You have to follow this syntax to choose driver and pass the connection paramete
 
 `iml:cache:COMMAND YOUR_DRIVER [key:value,key2:value2,key3:value3]`
 
-Each string in square brackets represents an array, so to get a multi-server connection you have to pass arrays separed by space:
+Each string in square brackets represents an array, so to get a multi-server connection you have to pass arrays separated by space:
 
-`iml:ca:stat memcached [host:localhost,port:11211] [host:localhost,port:11222]`
+`iml:cache:statistics memcached [host:localhost,port:11211] [host:localhost,port:11222]`
 
 ## Performance
 
