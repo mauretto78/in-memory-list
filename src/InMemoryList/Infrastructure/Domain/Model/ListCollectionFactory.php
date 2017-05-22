@@ -24,6 +24,7 @@ class ListCollectionFactory implements Factory
      * @param array $headers
      * @param null  $uuid
      * @param null  $elementUniqueIdentificator
+     * @param null  $index
      *
      * @return ListCollection
      *

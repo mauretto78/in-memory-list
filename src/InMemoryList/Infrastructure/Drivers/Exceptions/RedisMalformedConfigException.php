@@ -16,6 +16,6 @@ class RedisMalformedConfigException extends \Exception
 {
     public function __construct()
     {
-        parent::__construct("Malformed Redis config params provided.");
+        parent::__construct("Malformed Redis config parameters provided.");
     }
 }

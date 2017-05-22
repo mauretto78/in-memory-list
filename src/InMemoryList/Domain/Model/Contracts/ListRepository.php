@@ -15,15 +15,17 @@ interface ListRepository
 {
     const HASH_SEPARATOR = ':';
     const HEADERS_SEPARATOR = '#';
+    const INDEX = 'index';
     const STATISTICS = 'statistics';
 
     /**
      * @param ListCollection $list
      * @param null           $ttl
+     * @param null           $index
      *
      * @return mixed
      */
-    public function create(ListCollection $list, $ttl = null);
+    public function create(ListCollection $list, $ttl = null, $index = null);
 
     /**
      * @param $listUuid
@@ -72,6 +74,11 @@ interface ListRepository
      * @return mixed
      */
     public function getHeaders($listUuid);
+
+    /**
+     * @return mixed
+     */
+    public function getIndex();
 
     /**
      * @return mixed

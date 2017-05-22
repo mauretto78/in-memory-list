@@ -113,7 +113,7 @@ class ApcuRepositoryTest extends TestCase
         }
         $collection->setHeaders($headers);
 
-        $this->repo->create($collection);
+        $this->repo->create($collection, null, true);
 
         $list = $this->repo->findListByUuid($collection->getUuid());
         $element = $this->repo->findElement($collection->getUuid(), $fakeUuid1->getUuid());
@@ -121,10 +121,11 @@ class ApcuRepositoryTest extends TestCase
         $this->assertCount(10, $list);
         $this->assertInstanceOf(stdClass::class, unserialize($element));
         $this->assertEquals($this->repo->getHeaders($collection->getUuid()), $headers);
-        $this->assertCount(10, $this->repo->getStatistics());
-        $this->assertArrayHasKey($fakeUuid1->getUuid(), $this->repo->getStatistics());
+        $this->assertCount(10, $this->repo->getIndex());
+        $this->assertArrayHasKey($fakeUuid1->getUuid(), $this->repo->getIndex());
+        $this->assertGreaterThan(0, $this->repo->getStatistics());
 
-        $statisticsElement1 = $this->repo->getStatistics()[$fakeUuid1->getUuid()];
+        $statisticsElement1 = $this->repo->getIndex()[$fakeUuid1->getUuid()];
         $created_on = unserialize($statisticsElement1)['created_on'];
         $this->assertInstanceOf(DateTimeImmutable::class, $created_on);
 

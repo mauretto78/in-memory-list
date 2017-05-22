@@ -131,7 +131,7 @@ class RedisRepositoryTest extends TestCase
         }
         $collection->setHeaders($headers);
 
-        $this->repo->create($collection, 3600);
+        $this->repo->create($collection, 3600, true);
 
         $list = $this->repo->findListByUuid($collection->getUuid());
         $element = $this->repo->findElement($collection->getUuid(), $fakeUuid1->getUuid());
@@ -141,13 +141,12 @@ class RedisRepositoryTest extends TestCase
         $this->assertEquals($this->repo->getHeaders($collection->getUuid()), $headers);
         $this->assertArrayHasKey('expires', $this->repo->getHeaders($collection->getUuid()));
         $this->assertArrayHasKey('hash', $this->repo->getHeaders($collection->getUuid()));
-        $this->assertGreaterThan(0, $this->repo->getStatistics());
-        $this->assertCount(10, $this->repo->getStatistics());
-        $this->assertArrayHasKey($fakeUuid1->getUuid(), $this->repo->getStatistics());
+        $this->assertCount(10, $this->repo->getIndex());
+        $this->assertArrayHasKey($fakeUuid1->getUuid(), $this->repo->getIndex());
 
         $this->repo->updateTtl($listUuid, 7200);
         $this->repo->delete($listUuid);
 
-        $this->assertCount(0, $this->repo->getStatistics());
+        $this->assertGreaterThan(0, $this->repo->getStatistics());
     }
 }

@@ -15,8 +15,8 @@ $start = microtime(true);
 $apiUrl = 'https://jsonplaceholder.typicode.com/albums';
 $apiArray = json_decode(file_get_contents($apiUrl));
 
-$client = new Client('memcached', $memcached_params);
-$collection = $client->findListByUuid('albums-list') ?:  $client->create($apiArray, [], 'albums-list', 'id');
+$client = new Client('memcached', $memcached_parameters);
+$collection = $client->findListByUuid('albums-list') ?: $client->create($apiArray, ['uuid' => 'albums-list', 'element-uuid' => 'id']);
 
 // loop items
 echo '<h3>Loop items</h3>';

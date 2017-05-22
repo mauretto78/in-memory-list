@@ -37,43 +37,54 @@ class RedisRepository implements ListRepository
 
     /**
      * @param ListCollection $list
+     * @param null $ttl
+     * @param null $index
      *
      * @return mixed
      *
      * @throws ListAlreadyExistsException
      */
-    public function create(ListCollection $list, $ttl = null)
+    public function create(ListCollection $list, $ttl = null, $index = null)
     {
-        if ($this->findListByUuid($list->getUuid())) {
+        $listUuid = $list->getUuid();
+
+        if ($this->findListByUuid($listUuid)) {
             throw new ListAlreadyExistsException('List '.$list->getUuid().' already exists in memory.');
         }
 
         /** @var ListElement $element */
         foreach ($list->getItems() as $element) {
+            $listElementUuid = $element->getUuid();
+            $body = $element->getBody();
+
             $this->client->hset(
                 (string)$list->getUuid(),
-                (string)$element->getUuid(),
-                (string)$element->getBody()
+                (string)$listElementUuid,
+                (string)$body
             );
 
-            $this->_addOrUpdateElementToStatistics($element->getUuid(), strlen($element->getBody()), $ttl);
+            // add elements to general index
+            if($index){
+                $this->_addOrUpdateElementToIndex($listElementUuid, strlen($body), $ttl);
+            }
 
+            // set ttl
             if ($ttl) {
-                $this->client->expire($list->getUuid(), $ttl);
+                $this->client->expire($listElementUuid, $ttl);
             }
         }
 
         if ($list->getHeaders()) {
             foreach ($list->getHeaders() as $key => $header) {
                 $this->client->hset(
-                    $list->getUuid().self::HEADERS_SEPARATOR.'headers',
+                    $listUuid.self::HEADERS_SEPARATOR.'headers',
                     $key,
                     $header
                 );
             }
 
             if ($ttl) {
-                $this->client->expire($list->getUuid().self::HEADERS_SEPARATOR.'headers', $ttl);
+                $this->client->expire($listUuid.self::HEADERS_SEPARATOR.'headers', $ttl);
             }
         }
 
@@ -101,7 +112,10 @@ class RedisRepository implements ListRepository
     public function deleteElement($listUuid, $elementUuid)
     {
         $this->client->hdel($listUuid, $elementUuid);
-        $this->_removeElementToStatistics($elementUuid);
+
+        if($this->_existsElementInIndex($elementUuid)){
+            $this->_removeElementToIndex($elementUuid);
+        }
     }
 
     /**
@@ -163,9 +177,9 @@ class RedisRepository implements ListRepository
     /**
      * @return array
      */
-    public function getStatistics()
+    public function getIndex()
     {
-        return $this->client->hgetall(ListRepository::STATISTICS);
+        return $this->client->hgetall(ListRepository::INDEX);
     }
 
     /**
@@ -173,10 +187,10 @@ class RedisRepository implements ListRepository
      * @param $size
      * @param null $ttl
      */
-    private function _addOrUpdateElementToStatistics($elementUuid, $size, $ttl = null)
+    private function _addOrUpdateElementToIndex($elementUuid, $size, $ttl = null)
     {
         $this->client->hset(
-            ListRepository::STATISTICS,
+            ListRepository::INDEX,
             $elementUuid,
             serialize([
                 'uuid' => $elementUuid,
@@ -190,12 +204,29 @@ class RedisRepository implements ListRepository
     /**
      * @param $elementUuid
      */
-    private function _removeElementToStatistics($elementUuid)
+    private function _removeElementToIndex($elementUuid)
     {
         $this->client->hdel(
-            ListRepository::STATISTICS,
+            ListRepository::INDEX,
             $elementUuid
         );
+    }
+
+    /**
+     * @param $elementUuid
+     * @return string
+     */
+    private function _existsElementInIndex($elementUuid)
+    {
+        return (!$this->client->hget(ListRepository::INDEX, $elementUuid)) ? false : true;
+    }
+
+    /**
+     * @return array
+     */
+    public function getStatistics()
+    {
+        return $this->client->info();
     }
 
     /**
@@ -238,7 +269,9 @@ class RedisRepository implements ListRepository
         }
 
         foreach ($list as $elementUuid => $element) {
-            $this->_addOrUpdateElementToStatistics($elementUuid, $ttl);
+            if($this->_existsElementInIndex($elementUuid)){
+                $this->_addOrUpdateElementToIndex($elementUuid, $ttl);
+            }
         }
 
         $this->client->expire($listUuid, $ttl);

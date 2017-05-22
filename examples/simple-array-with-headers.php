@@ -32,7 +32,7 @@ $headers = [
 ];
 
 $client = new Client();
-$collection = $client->findListByUuid('simple-list-with-headers') ?:  $client->create(json_decode($simpleArray), $headers, 'simple-list-with-headers');
+$collection = $client->findListByUuid('simple-list-with-headers') ?:  $client->create(json_decode($simpleArray), ['uuid' => 'simple-list-with-headers', 'headers' => $headers]);
 
 // loop items
 echo '<h3>Loop items</h3>';

@@ -28,8 +28,8 @@ foreach ($range as $number) {
 
 $apiArray = json_encode($array);
 
-$client = new Client('redis', $redis_params);
-$collection = $client->findListByUuid('range-list') ?:  $client->create(json_decode($apiArray), [], 'range-list', 'id');
+$client = new Client('redis', $redis_parameters);
+$collection = $client->findListByUuid('range-list') ?:  $client->create(json_decode($apiArray), ['uuid' => 'range-list', 'element-uuid' => 'id']);
 
 // loop items
 echo '<h3>Loop items</h3>';

@@ -9,6 +9,7 @@
  */
 namespace InMemoryList\Application;
 
+use InMemoryList\Application\Exceptions\MalformedParametersException;
 use InMemoryList\Application\Exceptions\NotSupportedDriverException;
 use InMemoryList\Domain\Model\Contracts\ListRepository;
 use InMemoryList\Infrastructure\Domain\Model\ListCollectionFactory;
@@ -80,19 +81,40 @@ class Client
 
     /**
      * @param array $elements
-     * @param null  $uuid
-     * @param null  $elementUniqueIdentificator
-     * @param null  $ttl
-     *
+     * @param array $parameters
      * @return mixed|string
+     * @throws MalformedParametersException
      */
-    public function create(array $elements, array $headers = [], $uuid = null, $elementUniqueIdentificator = null, $ttl = null)
+    public function create(array $elements, array $parameters = [])
     {
+        $allowedParameters = [
+            'element-uuid',
+            'headers',
+            'index',
+            'ttl',
+            'uuid',
+        ];
+
+        foreach ($parameters as $key => $parameter) {
+            if (!in_array($key, $allowedParameters)) {
+                throw new MalformedParametersException();
+            }
+        }
+
         try {
             $factory = new ListCollectionFactory();
-            $list = $factory->create($elements, $headers, $uuid, $elementUniqueIdentificator);
+            $list = $factory->create(
+                $elements,
+                (isset($parameters['headers'])) ? $parameters['headers'] : [],
+                (isset($parameters['uuid'])) ? $parameters['uuid'] : null,
+                (isset($parameters['element-uuid'])) ? $parameters['element-uuid'] : null
+            );
 
-            return $this->repository->create($list, $ttl);
+            return $this->repository->create(
+                $list,
+                (isset($parameters['ttl'])) ? $parameters['ttl'] : null,
+                (isset($parameters['index'])) ? $parameters['index'] : null
+            );
         } catch (\Exception $exception) {
             return $exception->getMessage();
         }
@@ -152,6 +174,14 @@ class Client
     public function getHeaders($listUuid)
     {
         return $this->repository->getHeaders($listUuid);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIndex()
+    {
+        return $this->repository->getIndex();
     }
 
     /**

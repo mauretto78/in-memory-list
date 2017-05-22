@@ -36,12 +36,14 @@ class MemcachedRepository implements ListRepository
 
     /**
      * @param ListCollection $list
+     * @param null $ttl
+     * @param null $index
      *
      * @return mixed
      *
      * @throws ListAlreadyExistsException
      */
-    public function create(ListCollection $list, $ttl = null)
+    public function create(ListCollection $list, $ttl = null, $index = null)
     {
         if ($this->findListByUuid($list->getUuid())) {
             throw new ListAlreadyExistsException('List '.$list->getUuid().' already exists in memory.');
@@ -60,20 +62,22 @@ class MemcachedRepository implements ListRepository
             ]);
         }
 
-        // list index
+        // create index
         $this->memcached->set(
             (string)$list->getUuid(),
             $arrayOfElements,
             $ttl
         );
 
-        // add elements to statistics
-        $this->memcached->set(
-            ListRepository::STATISTICS,
-            $arrayOfElementsForStatistics
-        );
+        // add elements to general index
+        if($index){
+            $this->memcached->set(
+                ListRepository::INDEX,
+                $arrayOfElementsForStatistics
+            );
+        }
 
-        // headers
+        // set headers
         if ($list->getHeaders()) {
             $this->memcached->set(
                 (string)$list->getUuid().self::HEADERS_SEPARATOR.'headers',
@@ -104,13 +108,16 @@ class MemcachedRepository implements ListRepository
     public function deleteElement($listUuid, $elementUuid)
     {
         $arrayToReplace = $this->findListByUuid($listUuid);
-        $arrayStatistics = $this->getStatistics();
-
         unset($arrayToReplace[(string) $elementUuid]);
-        unset($arrayStatistics[(string) $elementUuid]);
 
         $this->memcached->replace($listUuid, $arrayToReplace);
-        $this->memcached->replace(ListRepository::STATISTICS, $arrayStatistics);
+
+        if($this->_existsElementInIndex($elementUuid)){
+            $indexStatistics = $this->getIndex();
+            unset($indexStatistics[(string) $elementUuid]);
+
+            $this->memcached->replace(ListRepository::INDEX, $indexStatistics);
+        }
     }
 
     /**
@@ -122,6 +129,15 @@ class MemcachedRepository implements ListRepository
     public function existsElement($listUuid, $elementUuid)
     {
         return @isset($this->memcached->get($listUuid)[$elementUuid]);
+    }
+
+    /**
+     * @param $elementUuid
+     * @return string
+     */
+    private function _existsElementInIndex($elementUuid)
+    {
+        return (isset($this->memcached->get(ListRepository::INDEX)[$elementUuid]));
     }
 
     /**
@@ -174,7 +190,15 @@ class MemcachedRepository implements ListRepository
      */
     public function getStatistics()
     {
-        return $this->memcached->get(ListRepository::STATISTICS);
+        return $this->memcached->getStats();
+    }
+
+    /**
+     * @return array
+     */
+    public function getIndex()
+    {
+        return $this->memcached->get(ListRepository::INDEX);
     }
 
     /**
@@ -187,7 +211,6 @@ class MemcachedRepository implements ListRepository
     public function updateElement($listUuid, $elementUuid, array $data = [], $ttl = null)
     {
         $element = $this->findElement($listUuid, $elementUuid);
-        $arrayStatistics = $this->getStatistics();
 
         $objMerged = (object) array_merge((array) $element, (array) $data);
         $arrayOfElements = $this->memcached->get($listUuid);
@@ -196,11 +219,6 @@ class MemcachedRepository implements ListRepository
             $objMerged
         );
         $arrayOfElements[(string) $elementUuid] = $updatedElement->getBody();
-        $arrayStatistics[(string) $elementUuid] = serialize([
-            'created_on' => new \DateTimeImmutable(),
-            'ttl' => $ttl,
-            'size' => strlen($updatedElement->getBody())
-        ]);
 
         $this->memcached->replace(
             (string)$listUuid,
@@ -208,10 +226,19 @@ class MemcachedRepository implements ListRepository
             $ttl
         );
 
-        $this->memcached->replace(
-            (string)ListRepository::STATISTICS,
-            $arrayStatistics
-        );
+        if($this->_existsElementInIndex($elementUuid)){
+            $indexStatistics = $this->getIndex();
+            $indexStatistics[(string) $elementUuid] = serialize([
+                'created_on' => new \DateTimeImmutable(),
+                'ttl' => $ttl,
+                'size' => strlen($updatedElement->getBody())
+            ]);
+
+            $this->memcached->replace(
+                (string)ListRepository::INDEX,
+                $indexStatistics
+            );
+        }
     }
 
     /**

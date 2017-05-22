@@ -16,20 +16,20 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class StatisticsCommand extends BaseCommand
+class IndexCommand extends BaseCommand
 {
     /**
      * StatisticsCommand constructor.
      */
     public function __construct()
     {
-        parent::__construct('iml_cache_statistics');
+        parent::__construct('iml_cache_index');
     }
 
     protected function configure()
     {
         $this
-            ->setName('iml:cache:statistics')
+            ->setName('iml:cache:index')
             ->setDescription('Get all data stored in cache.')
             ->setHelp('This command displays in a table all data stored in cache.')
             ->addArgument('driver', InputArgument::OPTIONAL, 'driver [apcu, memcached, redis]')
@@ -46,35 +46,42 @@ class StatisticsCommand extends BaseCommand
         $parameters = $input->getArgument('parameters') ?: [];
 
         $cache = $this->createClient($driver, $parameters);
-        $statistics = $cache->getStatistics();
+        $statistics = $cache->getIndex();
 
-        $table = new Table($output);
-        $table->setHeaders(['Key', 'Value']);
+        if ($statistics and count($statistics)) {
+            $table = new Table($output);
+            $table->setHeaders(['#', 'Key', 'Created on', 'Expire', 'Ttl', 'Size']);
 
-        $counter = 0;
-        foreach ($statistics as $infoKey => $infoData){
+            $counter = 0;
+            foreach ($statistics as $key => $item) {
+                $item = unserialize($item);
 
-            $dataString = '';
+                /** @var \DateTimeImmutable $created_on */
+                $created_on = $item['created_on'];
 
-            if(is_array($infoData)){
-                foreach ($infoData as $key => $value){
-                    $valueToDisplay = (is_array($value)) ? implode(',', $value) : $value;
-                    $dataString .= '['.$key.']->' . $valueToDisplay . "\xA";
+                if ($item['ttl'] and $item['ttl'] > 0) {
+                    $expire_date = $created_on->add(new \DateInterval('PT'.$item['ttl'].'S'))->format('Y-m-d H:i:s');
+                } else {
+                    $expire_date = '--';
                 }
-            } else {
-                $dataString .= $infoData;
+
+                $table->setRow(
+                    $counter,
+                    [
+                        $counter+1,
+                        '<fg=yellow>'.$key.'</>',
+                        $created_on->format('Y-m-d H:i:s'),
+                        $expire_date,
+                        $item['ttl'],
+                        $item['size'],
+                    ]
+                );
+                ++$counter;
             }
 
-            $table->setRow(
-                $counter,
-                [
-                    $infoKey,
-                    $dataString
-                ]
-            );
-            ++$counter;
+            $table->render();
+        } else {
+            $output->writeln('<fg=red>['.$driver.'] Empty Index.</>');
         }
-
-        $table->render();
     }
 }

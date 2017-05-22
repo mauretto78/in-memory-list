@@ -52,7 +52,10 @@ class QueryBuilderTest extends TestCase
     public function it_throws_NotValidOperatorQueryBuilderException_if_an_invalid_operator_is_provided()
     {
         $this->client->flush();
-        $this->client->create($this->parsedUserArray, [], 'user list', 'id');
+        $this->client->create($this->parsedUserArray, [
+            'uuid' => 'user list',
+            'element-uuid' => 'id'
+        ]);
 
         $qb = new QueryBuilder($this->client->findListByUuid('user-list'));
         $qb->addCriteria('name', 'Ervin Howell', 'wrong operator');
@@ -69,7 +72,9 @@ class QueryBuilderTest extends TestCase
     public function it_throws_NotValidKeyElementInCollectionException_if_a_not_valid_element_key_is_provided()
     {
         $this->client->flush();
-        $this->client->create($this->parsedUserArray, [], 'user list');
+        $this->client->create($this->parsedUserArray, [
+            'uuid' => 'user list'
+        ]);
 
         $qb = new QueryBuilder($this->client->findListByUuid('user-list'));
         $qb->addCriteria('not-existing-key', 'Ervin Howell');
@@ -86,7 +91,9 @@ class QueryBuilderTest extends TestCase
     public function it_throws_NotValidSortingOperatorException_if_an_invalid_sorting_operator_is_provided()
     {
         $this->client->flush();
-        $this->client->create($this->parsedUserArray, [], 'user list');
+        $this->client->create($this->parsedUserArray, [
+            'uuid' => 'user list'
+        ]);
 
         $qb = new QueryBuilder($this->client->findListByUuid('user-list'));
         $qb
@@ -105,7 +112,10 @@ class QueryBuilderTest extends TestCase
     public function it_throws_InvalidArgumentException_if_an_invalid_offset_is_provided()
     {
         $this->client->flush();
-        $this->client->create($this->parsedUserArray, [], 'user list', 'id');
+        $this->client->create($this->parsedUserArray, [
+            'uuid' => 'user list',
+            'element-uuid' => 'id'
+        ]);
 
         $qb = new QueryBuilder($this->client->findListByUuid('user-list'));
         $qb->limit(123, 'string');
@@ -121,7 +131,10 @@ class QueryBuilderTest extends TestCase
     public function it_throws_InvalidArgumentException_if_an_invalid_length_is_provided()
     {
         $this->client->flush();
-        $this->client->create($this->parsedUserArray, [], 'user list', 'id');
+        $this->client->create($this->parsedUserArray, [
+            'uuid' => 'user list',
+            'element-uuid' => 'id'
+        ]);
 
         $qb = new QueryBuilder($this->client->findListByUuid('user-list'));
         $qb->limit('string', 13);
@@ -137,7 +150,10 @@ class QueryBuilderTest extends TestCase
     public function it_throws_InvalidArgumentException_if_an_offset_is_grater_than_length_is_provided()
     {
         $this->client->flush();
-        $this->client->create($this->parsedUserArray, [], 'user list', 'id');
+        $this->client->create($this->parsedUserArray, [
+            'uuid' => 'user list',
+            'element-uuid' => 'id'
+        ]);
 
         $qb = new QueryBuilder($this->client->findListByUuid('user-list'));
         $qb->limit(432, 13);
@@ -151,7 +167,10 @@ class QueryBuilderTest extends TestCase
     public function it_should_query_sorting_and_retrieve_data_from_in_memory_collection()
     {
         $this->client->flush();
-        $userCollection = $this->client->create($this->parsedUserArray, [], 'user list', 'id');
+        $userCollection = $this->client->create($this->parsedUserArray, [
+            'uuid' => 'user list',
+            'element-uuid' => 'id'
+        ]);
 
         // perform a simple query
         $qb = new QueryBuilder($userCollection);

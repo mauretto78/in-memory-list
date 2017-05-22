@@ -15,20 +15,20 @@ use Symfony\Component\Console\Command\Command;
 
 class BaseCommand extends Command
 {
-    protected function createClient($driver, array $params = [])
+    protected function createClient($driver, array $parameters = [])
     {
-        return new Client($driver, $this->_convertParamsArray($params));
+        return new Client($driver, $this->_convertparametersArray($parameters));
     }
 
     /**
-     * @param array $params
+     * @param array $parameters
      * @return array
      */
-    private function _convertParamsArray(array $params = [])
+    private function _convertparametersArray(array $parameters = [])
     {
-        $convertedParamsArray = [];
+        $convertedparametersArray = [];
 
-        foreach ($params as $param) {
+        foreach ($parameters as $param) {
             $param = str_replace(['[',']'], '', $param);
             $param = explode(',', $param);
 
@@ -36,12 +36,12 @@ class BaseCommand extends Command
                 foreach ($param as $p) {
                     $p = explode(':', $p);
                     if (count($p)) {
-                        $convertedParamsArray[@$p[0]] = @$p[1];
+                        $convertedparametersArray[@$p[0]] = @$p[1];
                     }
                 }
             }
         }
 
-        return $convertedParamsArray;
+        return $convertedparametersArray;
     }
 }

@@ -9,6 +9,7 @@ $app = new \Symfony\Component\Console\Application('In Memory List', 'v1.0');
 
 // add commands here
 $app->add(new \InMemoryList\Command\FlushCommand());
+$app->add(new \InMemoryList\Command\IndexCommand());
 $app->add(new \InMemoryList\Command\StatisticsCommand());
 
 $app->run();

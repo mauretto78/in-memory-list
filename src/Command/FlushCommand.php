@@ -34,18 +34,18 @@ class FlushCommand extends BaseCommand
             ->setHelp('This command flushes all data stored in cache.')
             ->addArgument('driver', InputArgument::OPTIONAL, 'driver [apcu, memcached, redis]')
             ->addArgument(
-                'params',
+                'parameters',
                 InputArgument::IS_ARRAY,
-                'Insert here connection params'
+                'Insert here connection parameters'
             );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $driver = $input->getArgument('driver') ?: 'redis';
-        $params = $input->getArgument('params') ?: [];
+        $parameters = $input->getArgument('parameters') ?: [];
 
-        $cache = $this->createClient($driver, $params);
+        $cache = $this->createClient($driver, $parameters);
         $cache->flush();
 
         $output->writeln('<fg=red>['.$driver.'] Cache was successful flushed.</>');

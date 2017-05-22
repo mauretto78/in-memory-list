@@ -18,9 +18,9 @@ class MemcachedDriverTest extends TestCase
      */
     public function it_should_return_Memcached_instance_if_empty_config_array_is_provided()
     {
-        $memcached_params = [];
+        $memcached_parameters = [];
 
-        $driver = new MemcachedDriver($memcached_params);
+        $driver = new MemcachedDriver($memcached_parameters);
         $instance = $driver->getInstance();
         $driver->clear();
 
@@ -30,7 +30,7 @@ class MemcachedDriverTest extends TestCase
     /**
      * @test
      * @expectedException \InMemoryList\Infrastructure\Drivers\Exceptions\MemcachedMalformedConfigException
-     * @expectedExceptionMessage Malformed Memcached config params provided.
+     * @expectedExceptionMessage Malformed Memcached config parameters provided.
      */
     public function it_throws_RedisMalformedConfigException_if_malformed_config_array_is_provided()
     {
@@ -51,7 +51,7 @@ class MemcachedDriverTest extends TestCase
      */
     public function it_should_return_Memcached_instance_if_correct_config_array_is_provided()
     {
-        $memcached_params = [
+        $memcached_parameters = [
             [
                 'host' =>'127.0.0.1',
                 'port' => 11211,
@@ -62,7 +62,7 @@ class MemcachedDriverTest extends TestCase
             ],
         ];
 
-        $driver = new MemcachedDriver($memcached_params);
+        $driver = new MemcachedDriver($memcached_parameters);
         $instance = $driver->getInstance();
         $driver->clear();
 

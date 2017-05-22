@@ -15,8 +15,8 @@ $start = microtime(true);
 $apiUrl = 'https://jsonplaceholder.typicode.com/comments';
 $apiArray = json_decode(file_get_contents($apiUrl));
 
-$client = new Client('memcached', $memcached_params);
-$collection = $client->findListByUuid('comments-list') ?:  $client->create($apiArray, [], 'comments-list', 'id');
+$client = new Client('memcached', $memcached_parameters);
+$collection = $client->findListByUuid('comments-list') ?: $client->create($apiArray, ['uuid' => 'comments-list', 'element-uuid' => 'id']);
 
 // loop items
 echo '<h3>Loop items</h3>';

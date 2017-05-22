@@ -1,7 +1,7 @@
 # In-memory List
 
 [![Build Status](https://travis-ci.org/mauretto78/in-memory-list.svg?branch=master)](https://travis-ci.org/mauretto78/in-memory-list)
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
+[![license](https://img.shields.io/github/license/mauretto78/in-memory-list.svg)]()
 
 **In-memory List** easily allows you to create and save your lists in memory.
 
@@ -53,7 +53,7 @@ $client = new Client('apcu');
 use InMemoryList\Application\Client;
 
 // Memcached, you can pass one or more servers
-$memcached_params = [
+$memcached_parameters = [
     [
         'host' => 'localhost',
         'port' => 11211
@@ -65,7 +65,7 @@ $memcached_params = [
     // etc..
 ];
 
-$client = new Client('memcached', $memcached_params);
+$client = new Client('memcached', $memcached_parameters);
 // ..
 ```  
  
@@ -73,7 +73,7 @@ $client = new Client('memcached', $memcached_params);
 use InMemoryList\Application\Client;
 
 // Redis, please refer to PRedis library
-$redis_params = [
+$redis_parameters = [
     'scheme' => 'tcp',
     'host' => '127.0.0.1',
     'port' => 6379,
@@ -82,15 +82,50 @@ $redis_params = [
     ],
 ];
 
-$client = new Client('redis', $redis_params);
+$client = new Client('redis', $redis_parameters);
 // ..
 ```
 
 Please refer to [official page](https://github.com/nrk/predis) for more details on PRedis connection.
 
-## Headers
+## Parameters
 
-You can set a `headers` array to you list.
+When you create a list, you can provide a parameters array. The allowed keys are:
+
+* `uuid` 
+* `headers` 
+* `element-uuid` 
+* `index` 
+* `ttl`
+
+### uuid
+
+You can assign an uuid to your list (instead, a [uuid](https://github.com/ramsey/uuid) will be generated):
+
+```php
+use InMemoryList\Application\Client;
+
+$array = [
+    ...
+]
+
+$client = new Client();
+$collection = $client->create($array, [
+    'uuid' => 'simple-array'
+]);
+
+// And now you can retrive the list:
+$simpleArray = $client->findListByUuid('simple-array');
+
+//..
+
+```
+
+Please note that the unique ID **must be a string**. 
+
+### headers
+
+You can set a headers array to yout list:
 
 ```php
 use InMemoryList\Application\Client;
@@ -105,42 +140,18 @@ $headers = [
 ];
 
 $client = new Client();
-$collection = $client->create($array, $headers, 'simple-array');
-$headers = $client->getHeaders('simple-array');
+$collection = $client->create($array, [
+    'uuid' => 'simple-array',
+    'headers' => $headers
+]);
+
+// get headers
+var_dump($client->getHeaders('simple-array'));
 
 // ...
 ```
 
-## Assign an unique ID to your list
-
-Please note that you can set an unique ID for your list. If the ID is already taken, an Exception will be thrown.
-
-```php
-use InMemoryList\Application\Client;
-
-$array = [
-    ...
-]
-
-$client = new Client();
-$collection = $client->create($array, [], 'simple-array');
-
-// ..
-```
-
-And now you can retrive the list:
-
-```php
-//..
-$simpleArray = $client->findListByUuid('simple-array');
-
-//..
-
-```
-
-Please note that the unique ID **must be a string**. 
-
-## Assign unique IDs to your list elements
+### element-uuid
 
 You can assign an unique ID to list elemens (instead, a [uuid](https://github.com/ramsey/uuid) will be generated). Consider this array:
 
@@ -156,22 +167,58 @@ $simpleArray = [
 ]
 ```
 
-Maybe you would use `id` key as unique ID in your list:
+Maybe you would use `id` key as uuid in your list:
 
 ```php
 use InMemoryList\Application\Client;
 
 $client = new Client();
-$collection = $client->create($simpleArray, [], 'simple-array', 'id');
-```
+$collection = $client->create($simpleArray, [
+    'uuid' => 'simple-array',
+    'element-uuid' => 'id'
+]);
 
-And now to retrieve a single element, you can simply do:
-
-```php
+// now to retrieve a single element, you can simply do:
 $item1 = $client->item($collection['1']);
 ```
 
-Please note that the unique ID **must be a string**. 
+Please note that the uuid **must be a string**. 
+
+### index
+
+You can specify if you want to include the list in the cache index:
+
+```php
+use InMemoryList\Application\Client;
+
+$client = new Client();
+$collection = $client->create($array, [
+    'uuid' => 'simple-array',
+    'element-uuid' => 'id',
+    'index' => true
+]);
+
+// now your list will be present in the cache index
+
+// ..
+```
+
+### ttl
+
+You can specify a ttl (in seconds) for your lists:
+
+```php
+use InMemoryList\Application\Client;
+
+$client = new Client();
+$collection = $client->create($array, [
+    'uuid' => 'simple-array',
+    'element-uuid' => 'id',
+    'ttl' => 3600
+]);
+
+// ..
+```
 
 ## Update an element
 
@@ -190,18 +237,6 @@ $client->updateElement(
 );
 ```
 
-## Time to live (TTL)
-
-You can specify a ttl (in seconds) for your lists:
-
-```php
-use InMemoryList\Application\Client;
-
-$client = new Client();
-$collection = $client->create($array, [], 'your-list-name', 'id', 3600);
-// ..
-```
-
 ## Sorting and Quering
 
 You can perform queries on your list. You can concatenate criteria:
@@ -215,7 +250,9 @@ $array = [
 ]
 
 $client = new Client();
-$collection = $client->create($array, 'simple-array');
+$collection = $client->create($array, [
+    'uuid' => 'simple-array'
+]);
 $qb = new QueryBuilder($collection);
 $qb
     ->addCriteria('title', '...', 'CONTAINS')
@@ -226,19 +263,18 @@ foreach ($qb->getResults() as $element){
     $item = $client->item($element);
     // ...
 }
-
 ```
 
 You can use the following operators to perform your queries:
 
-* '=' (default operator)
-* '>'
-* '<'
-* '<='
-* '>='
-* '!='
-* 'ARRAY'
-* 'CONTAINS' (case insensitive)
+* `=` (default operator)
+* `>`
+* `<`
+* `<=`
+* `>=`
+* `!=`
+* `ARRAY`
+* `CONTAINS` (case insensitive)
 
 ## Limit and Offset
 
@@ -253,7 +289,9 @@ $array = [
 ]
 
 $client = new Client();
-$collection = $client->create($array, 'simple-array');
+$collection = $client->create($array, [
+    'uuid' => 'simple-array'
+]);
 $qb = new QueryBuilder($collection);
 $qb
     ->addCriteria('title', [...], 'ARRAY')
@@ -265,7 +303,6 @@ foreach ($qb->getResults() as $element){
     $item = $client->item($element);
     // ...
 }
-
 ```
 
 ## Commands
@@ -273,7 +310,8 @@ foreach ($qb->getResults() as $element){
 You have some commands avaliable via  `php bin/console`:
  
 * `iml:cache:flush` to flush the cache
-* `iml:cache:statistics` to get detailed statistics of items stored in cache
+* `iml:cache:index` to get full index of items stored in cache
+* `iml:cache:statistics` to get cache statistics 
 
 ![Alt text](https://raw.githubusercontent.com/mauretto78/in-memory-list/master/examples/img/console.jpg "Console")
 
@@ -306,8 +344,8 @@ foreach (range($from, $to) as $number) {
 
 $apiArray = json_encode($array);
 
-$client = new Client($driver, $params);
-$collection = $client->findListByUuid('range-list') ?:  $client->create(json_decode($apiArray), [], 'range-list', 'id');
+$client = new Client($driver, $parameters);
+$collection = $client->findListByUuid('range-list') ?:  $client->create(json_decode($apiArray), ['uuid' => 'range-list', 'element-uuid' => 'id']);
 
 foreach ($collection as $element) {
     $item = $client->item($element);

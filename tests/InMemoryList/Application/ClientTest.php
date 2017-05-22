@@ -55,8 +55,12 @@ class ClientTest extends TestCase
     public function it_catch_CollectionAlreadyExistsException_if_attempt_to_persist_duplicate_collection_from_redis()
     {
         $client = new Client();
-        $collection = $client->create($this->parsedArrayFromJson, [], 'fake list');
-        $collection2 = $client->create($this->parsedArrayFromJson, [], 'fake list');
+        $collection = $client->create($this->parsedArrayFromJson, [
+            'uuid' => 'fake list'
+        ]);
+        $collection2 = $client->create($this->parsedArrayFromJson, [
+            'uuid' => 'fake list'
+        ]);
 
         $this->assertEquals($collection2, 'List fake-list already exists in memory.');
     }
@@ -66,16 +70,20 @@ class ClientTest extends TestCase
      */
     public function it_catch_CollectionAlreadyExistsException_if_attempt_to_persist_duplicate_collection_from_memcached()
     {
-        $memcached_params = [
+        $memcached_parameters = [
             [
                 'host' => 'localhost',
                 'port' => 11211
             ],
         ];
 
-        $client = new Client('memcached', $memcached_params);
-        $collection = $client->create($this->parsedArrayFromJson, [], 'fake list');
-        $collection2 = $client->create($this->parsedArrayFromJson, [], 'fake list');
+        $client = new Client('memcached', $memcached_parameters);
+        $collection = $client->create($this->parsedArrayFromJson, [
+            'uuid' => 'fake list'
+        ]);
+        $collection2 = $client->create($this->parsedArrayFromJson, [
+            'uuid' => 'fake list'
+        ]);
 
         $this->assertEquals($collection2, 'List fake-list already exists in memory.');
     }
@@ -86,10 +94,28 @@ class ClientTest extends TestCase
     public function it_catch_CollectionAlreadyExistsException_if_attempt_to_persist_duplicate_collection_from_apcu()
     {
         $client = new Client('apcu');
-        $collection = $client->create($this->parsedArrayFromJson, [], 'fake list');
-        $collection2 = $client->create($this->parsedArrayFromJson, [], 'fake list');
+        $collection = $client->create($this->parsedArrayFromJson, [
+            'uuid' => 'fake list'
+        ]);
+        $collection2 = $client->create($this->parsedArrayFromJson, [
+            'uuid' => 'fake list'
+        ]);
 
         $this->assertEquals($collection2, 'List fake-list already exists in memory.');
+    }
+
+    /**
+     * @test
+     * @expectedException \InMemoryList\Application\Exceptions\MalformedParametersException
+     * @expectedExceptionMessage Malformed parameters array provided to Client create function.
+     */
+    public function it_throws_MalformedParametersException_if_attempt_to_provide_a_wrong_parameters_array_when_create_list()
+    {
+        $client = new Client();
+        $collection = $client->create($this->parsedArrayFromJson, [
+            'not-allowed-key' => 'not-allowed-value',
+            'uuid' => 'fake list'
+        ]);
     }
 
     /**
@@ -101,7 +127,10 @@ class ClientTest extends TestCase
     {
         $client = new Client();
         $client->flush();
-        $client->create($this->parsedArrayFromJson, [], 'fake-list', 'id');
+        $client->create($this->parsedArrayFromJson, [
+            'uuid' => 'fake list',
+            'element-uuid' => 'id'
+        ]);
         $client->findElement('fake list', '132131312');
     }
 
@@ -112,16 +141,19 @@ class ClientTest extends TestCase
      */
     public function it_throws_NotExistListElementException_if_attempt_to_find_a_not_existing_element_in_collection_from_memcached()
     {
-        $memcached_params = [
+        $memcached_parameters = [
             [
                 'host' => 'localhost',
                 'port' => 11211
             ],
         ];
 
-        $client = new Client('memcached', $memcached_params);
+        $client = new Client('memcached', $memcached_parameters);
         $client->flush();
-        $client->create($this->parsedArrayFromJson, [], 'fake-list', 'id');
+        $client->create($this->parsedArrayFromJson, [
+            'uuid' => 'fake list',
+            'element-uuid' => 'id'
+        ]);
         $client->findElement('fake list', '132131312');
     }
 
@@ -134,7 +166,10 @@ class ClientTest extends TestCase
     {
         $client = new Client('apcu');
         $client->flush();
-        $client->create($this->parsedArrayFromJson, [], 'fake-list', 'id');
+        $client->create($this->parsedArrayFromJson, [
+            'uuid' => 'fake list',
+            'element-uuid' => 'id'
+        ]);
         $client->findElement('fake list', '132131312');
     }
 
@@ -150,7 +185,12 @@ class ClientTest extends TestCase
 
         $client = new Client();
         $client->flush();
-        $client->create($this->parsedArrayFromJson, $headers, 'fake list', 'id', 3600);
+        $client->create($this->parsedArrayFromJson, [
+            'headers' => $headers,
+            'ttl' => 3600,
+            'uuid' => 'fake list',
+            'element-uuid' => 'id'
+        ]);
         $client->deleteElement('fake-list', '7');
         $client->deleteElement('fake-list', '8');
         $client->deleteElement('fake-list', '9');
@@ -161,10 +201,12 @@ class ClientTest extends TestCase
         $this->assertCount(7, $client->findListByUuid('fake-list'));
         $this->assertEquals('Leanne Graham', $element1->name);
         $this->assertEquals('Ervin Howell', $element2->name);
-        $this->assertEquals($client->getHeaders('fake-list'), $headers);
-        $this->assertArrayHasKey('expires', $client->getHeaders('fake-list'));
-        $this->assertArrayHasKey('hash', $client->getHeaders('fake-list'));
-        //$this->assertArrayHasKey('Server', $client->getStatistics());
+
+        $headers1 = $client->getHeaders('fake-list');
+        $this->assertEquals($headers1, $headers);
+        $this->assertArrayHasKey('expires', $headers1);
+        $this->assertArrayHasKey('hash', $headers1);
+        $this->assertEquals('ec457d0a974c48d5685a7efa03d137dc8bbde7e3', $headers1['hash']);
 
         $client->updateElement('fake-list', '2', [
             'name' => 'Mauro Cassani',
@@ -188,7 +230,7 @@ class ClientTest extends TestCase
      */
     public function it_should_store_delete_and_retrieve_from_memcached_correctly_list_elements()
     {
-        $memcached_params = [
+        $memcached_parameters = [
             [
                 'host' => 'localhost',
                 'port' => 11211
@@ -200,9 +242,14 @@ class ClientTest extends TestCase
             'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
         ];
 
-        $client = new Client('memcached', $memcached_params);
+        $client = new Client('memcached', $memcached_parameters);
         $client->flush();
-        $client->create($this->parsedArrayFromJson, $headers, 'fake list', 'id');
+        $client->create($this->parsedArrayFromJson, [
+            'headers' => $headers,
+            'uuid' => 'fake list',
+            'element-uuid' => 'id',
+            'index' => true
+        ]);
         $client->deleteElement('fake-list', '7');
         $client->deleteElement('fake-list', '8');
         $client->deleteElement('fake-list', '9');
@@ -211,12 +258,13 @@ class ClientTest extends TestCase
 
         $this->assertInstanceOf(MemcachedRepository::class, $client->getRepository());
         $this->assertCount(7, $client->findListByUuid('fake-list'));
-        $this->assertCount(7, $client->getStatistics());
+        $this->assertCount(7, $client->getIndex());
         $this->assertEquals('Leanne Graham', $element1->name);
         $this->assertEquals('Ervin Howell', $element2->name);
         $this->assertEquals($client->getHeaders('fake-list'), $headers);
         $this->assertArrayHasKey('expires', $client->getHeaders('fake-list'));
         $this->assertArrayHasKey('hash', $client->getHeaders('fake-list'));
+        $this->assertGreaterThan(0, $client->getStatistics());
 
         $client->updateElement('fake-list', '2', [
             'name' => 'Mauro Cassani',
@@ -244,7 +292,11 @@ class ClientTest extends TestCase
 
         $client = new Client('apcu');
         $client->flush();
-        $client->create($this->parsedArrayFromJson, $headers, 'fake list', 'id');
+        $client->create($this->parsedArrayFromJson, [
+            'headers' => $headers,
+            'uuid' => 'fake list',
+            'element-uuid' => 'id'
+        ]);
         $client->deleteElement('fake-list', '7');
         $client->deleteElement('fake-list', '8');
         $client->deleteElement('fake-list', '9');

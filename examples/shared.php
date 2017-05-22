@@ -9,7 +9,7 @@
  */
 require __DIR__.'/../vendor/autoload.php';
 
-$redis_params = [
+$redis_parameters = [
     'scheme' => 'tcp',
     'host' => '127.0.0.1',
     'port' => 6379,
@@ -18,7 +18,7 @@ $redis_params = [
     ],
 ];
 
-$memcached_params = [
+$memcached_parameters = [
     [
         'host' => 'localhost',
         'port' => 11211

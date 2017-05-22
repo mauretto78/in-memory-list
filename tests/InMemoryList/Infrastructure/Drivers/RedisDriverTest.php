@@ -20,7 +20,7 @@ class RedisDriverTest extends TestCase
      */
     public function it_throws_ConnectionException_if_wrong_config_array_is_provided()
     {
-        $redis_params = [
+        $redis_parameters = [
             'scheme' => 'tcp',
             'host' => '127.0.0.1',
             'port' => 6379,
@@ -28,7 +28,7 @@ class RedisDriverTest extends TestCase
             'password' => 'non-existing-password',
         ];
 
-        $driver = new RedisDriver($redis_params);
+        $driver = new RedisDriver($redis_parameters);
         $instance = $driver->getInstance();
         $driver->clear();
 
@@ -38,7 +38,7 @@ class RedisDriverTest extends TestCase
     /**
      * @test
      * @expectedException \InMemoryList\Infrastructure\Drivers\Exceptions\RedisMalformedConfigException
-     * @expectedExceptionMessage Malformed Redis config params provided.
+     * @expectedExceptionMessage Malformed Redis config parameters provided.
      */
     public function it_throws_RedisMalformedConfigException_if_malformed_config_array_is_provided()
     {
@@ -56,7 +56,7 @@ class RedisDriverTest extends TestCase
      */
     public function it_should_return_PRedis_Client_instance_if_correct_config_array_is_provided()
     {
-        $redis_params = [
+        $redis_parameters = [
             'scheme' => 'tcp',
             'host' => '127.0.0.1',
             'port' => 6379,
@@ -65,7 +65,7 @@ class RedisDriverTest extends TestCase
             ],
         ];
 
-        $driver = new RedisDriver($redis_params);
+        $driver = new RedisDriver($redis_parameters);
         $instance = $driver->getInstance();
         $driver->clear();
 
