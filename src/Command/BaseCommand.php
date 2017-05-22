@@ -34,7 +34,7 @@ class BaseCommand extends Command
 
             if (count($param)) {
                 foreach ($param as $p) {
-                    $p = explode(':', $p);
+                    $p = explode('=', $p);
                     if (count($p)) {
                         $convertedparametersArray[@$p[0]] = @$p[1];
                     }

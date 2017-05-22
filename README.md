@@ -40,7 +40,11 @@ foreach ($collection as $element){
 
 ## Drivers
 
-You can use `Apcu`, `Memcached`, `Redis`. Please note that `Redis` is the default driver.
+Avaliable drivers:
+
+* `apcu` 
+* `memcached` 
+* `redis` (default driver)
  
 ```php
 use InMemoryList\Application\Client;
@@ -91,13 +95,13 @@ Please refer to [official page](https://github.com/nrk/predis) for more details 
 
 ## Parameters
 
-When you create a list, you can provide a parameters array. The allowed keys are:
+When use `create` method to a generate a list, you can provide to it a parameters array. The allowed keys are:
 
-* `uuid` 
-* `headers` 
-* `element-uuid` 
-* `index` 
-* `ttl`
+* `uuid` - uuid of list
+* `headers` - headers array for the list
+* `element-uuid` - uuid for the list elements
+* `index` - add the list elements to cache index or not
+* `ttl` - time to live of the list (in seconds)
 
 ### uuid
 
@@ -318,11 +322,11 @@ You have some commands avaliable via  `php bin/console`:
 
 You have to follow this syntax to choose driver and pass the connection parameters:
 
-`iml:cache:COMMAND YOUR_DRIVER [key:value,key2:value2,key3:value3]`
+`iml:cache:COMMAND DRIVER [key=value,key2=value2,key3=value3]`
 
 Each string in square brackets represents an array, so to get a multi-server connection you have to pass arrays separated by space:
 
-`iml:cache:statistics memcached [host:localhost,port:11211] [host:localhost,port:11222]`
+`iml:cache:statistics memcached [host=localhost,port=11211] [host=localhost,port=11222]`
 
 ## Performance
 

@@ -23,6 +23,7 @@
 
     <testsuites>
         <testsuite name="Redis Browser Test Suite">
+            <directory>tests/Command</directory>
             <directory>tests/InMemoryList</directory>
         </testsuite>
     </testsuites>
