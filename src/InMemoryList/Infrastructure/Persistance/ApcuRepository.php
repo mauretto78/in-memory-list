@@ -61,7 +61,7 @@ class ApcuRepository implements ListRepository
         );
 
         // add elements to general index
-        if($index){
+        if ($index) {
             apcu_store(
                 ListRepository::INDEX,
                 $arrayOfElementsForStatistics
@@ -108,7 +108,7 @@ class ApcuRepository implements ListRepository
             $ttl
         );
 
-        if($this->_existsElementInIndex($elementUuid)){
+        if ($this->_existsElementInIndex($elementUuid)) {
             $indexStatistics = $this->getIndex();
             unset($indexStatistics[(string) $elementUuid]);
 
@@ -231,7 +231,7 @@ class ApcuRepository implements ListRepository
             $ttl
         );
 
-        if($this->_existsElementInIndex($elementUuid)){
+        if ($this->_existsElementInIndex($elementUuid)) {
             $indexStatistics = $this->getIndex();
             $indexStatistics[(string) $elementUuid] = serialize([
                 'created_on' => new \DateTimeImmutable(),

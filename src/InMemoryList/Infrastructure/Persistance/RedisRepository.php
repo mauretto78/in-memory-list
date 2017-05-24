@@ -64,7 +64,7 @@ class RedisRepository implements ListRepository
             );
 
             // add elements to general index
-            if($index){
+            if ($index) {
                 $this->_addOrUpdateElementToIndex($listElementUuid, strlen($body), $ttl);
             }
 
@@ -113,7 +113,7 @@ class RedisRepository implements ListRepository
     {
         $this->client->hdel($listUuid, $elementUuid);
 
-        if($this->_existsElementInIndex($elementUuid)){
+        if ($this->_existsElementInIndex($elementUuid)) {
             $this->_removeElementToIndex($elementUuid);
         }
     }
@@ -269,7 +269,7 @@ class RedisRepository implements ListRepository
         }
 
         foreach ($list as $elementUuid => $element) {
-            if($this->_existsElementInIndex($elementUuid)){
+            if ($this->_existsElementInIndex($elementUuid)) {
                 $this->_addOrUpdateElementToIndex($elementUuid, $ttl);
             }
         }

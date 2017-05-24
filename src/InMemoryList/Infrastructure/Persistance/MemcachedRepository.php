@@ -70,7 +70,7 @@ class MemcachedRepository implements ListRepository
         );
 
         // add elements to general index
-        if($index){
+        if ($index) {
             $this->memcached->set(
                 ListRepository::INDEX,
                 $arrayOfElementsForStatistics
@@ -112,7 +112,7 @@ class MemcachedRepository implements ListRepository
 
         $this->memcached->replace($listUuid, $arrayToReplace);
 
-        if($this->_existsElementInIndex($elementUuid)){
+        if ($this->_existsElementInIndex($elementUuid)) {
             $indexStatistics = $this->getIndex();
             unset($indexStatistics[(string) $elementUuid]);
 
@@ -226,7 +226,7 @@ class MemcachedRepository implements ListRepository
             $ttl
         );
 
-        if($this->_existsElementInIndex($elementUuid)){
+        if ($this->_existsElementInIndex($elementUuid)) {
             $indexStatistics = $this->getIndex();
             $indexStatistics[(string) $elementUuid] = serialize([
                 'created_on' => new \DateTimeImmutable(),

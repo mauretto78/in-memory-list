@@ -312,7 +312,7 @@ foreach ($qb->getResults() as $element){
 
 ## Commands
 
-If you have an application which uses [Symfony Console](https://github.com/symfony/console) - Symfony Console, you have some commands avaliable:
+If you have an application which uses [Symfony Console](https://github.com/symfony/console), you have some commands avaliable:
 
 * `iml:cache:flush` to flush the cache
 * `iml:cache:index` to get full index of items stored in cache
@@ -325,25 +325,19 @@ You can register the commands in your app, consider this example:
 
 <?php
 // Example of a Silex Application 'bin/console' file
+// we use \Knp\Provider\ConsoleServiceProvider as ConsoleServiceProvider, use what you want
 
 set_time_limit(0);
 
 require __DIR__.'/../vendor/autoload.php';
 
-// setup Application
-$app  = new App\Application('console');
-
-// register console provider
+$app = new Silex\Application();
 $app->register(new \Knp\Provider\ConsoleServiceProvider(), array(
     'console.name'              => '...',
     'console.version'           => '...',
     'console.project_directory' => __DIR__.'/..'
 ));
 
-// Init the app
-$app->init();
-
-// instance of console
 $console = $app['console'];
 
 // add commands here
@@ -351,8 +345,6 @@ $console = $app['console'];
 $console->add(new \InMemoryList\Command\FlushCommand());
 $console->add(new \InMemoryList\Command\IndexCommand());
 $console->add(new \InMemoryList\Command\StatisticsCommand());
-
-// run console
 $console->run();
 ```
 

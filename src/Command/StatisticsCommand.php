@@ -62,12 +62,11 @@ class StatisticsCommand extends BaseCommand
         $table->setHeaders(['Key', 'Value']);
 
         $counter = 0;
-        foreach ($statistics as $infoKey => $infoData){
-
+        foreach ($statistics as $infoKey => $infoData) {
             $dataString = '';
 
-            if(is_array($infoData)){
-                foreach ($infoData as $key => $value){
+            if (is_array($infoData)) {
+                foreach ($infoData as $key => $value) {
                     $valueToDisplay = (is_array($value)) ? implode(',', $value) : $value;
                     $dataString .= '['.$key.']->' . $valueToDisplay . "\xA";
                 }
