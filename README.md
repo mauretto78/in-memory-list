@@ -407,6 +407,14 @@ Here are the results obtained:
 
 ![Alt text](https://raw.githubusercontent.com/mauretto78/in-memory-list/master/examples/img/banchmark-1.jpg "Benchmark")
 
+## Testing
+
+In order to run all the test, you need to install **all the drivers** on your machine:
+
+* APCU - [install via PECL](https://pecl.php.net/package/APCu)
+* MEMCACHED - [install via PECL](https://pecl.php.net/package/memcached)
+* REDIS - [official install guide](https://redis.io/topics/quickstart)
+
 ## Built With
 
 * [PRedis](https://github.com/nrk/predis) - Flexible and feature-complete Redis client for PHP and HHVM
