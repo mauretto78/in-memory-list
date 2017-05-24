@@ -71,7 +71,7 @@ class ApcuRepository implements ListRepository
         // headers
         if ($list->getHeaders()) {
             apcu_store(
-                (string)$list->getUuid().self::HEADERS_SEPARATOR.'headers',
+                (string)$list->getUuid().self::SEPARATOR.self::HEADERS,
                 $list->getHeaders(),
                 $ttl
             );
@@ -178,7 +178,7 @@ class ApcuRepository implements ListRepository
      */
     public function getHeaders($listUuid)
     {
-        return apcu_fetch($listUuid.self::HEADERS_SEPARATOR.'headers');
+        return apcu_fetch($listUuid.self::SEPARATOR.'headers');
     }
 
     /**

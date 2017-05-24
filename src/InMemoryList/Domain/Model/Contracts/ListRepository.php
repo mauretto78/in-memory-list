@@ -13,15 +13,18 @@ use InMemoryList\Domain\Model\ListCollection;
 
 interface ListRepository
 {
-    const HASH_SEPARATOR = ':';
-    const HEADERS_SEPARATOR = '#';
+    const CHUNK = 'chunk';
+    const CHUNKSIZE = 1000;
+    const COUNTER = 'counter';
+    const HEADERS = 'headers';
     const INDEX = 'index';
+    const SEPARATOR = ':';
     const STATISTICS = 'statistics';
 
     /**
      * @param ListCollection $list
-     * @param null           $ttl
-     * @param null           $index
+     * @param null $ttl
+     * @param null $index
      *
      * @return mixed
      */

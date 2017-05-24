@@ -37,14 +37,17 @@ class ListCollectionUuid
     public function _setUuid($uuid = null)
     {
         $notAllowedNames = [
-            ListRepository::HASH_SEPARATOR,
-            ListRepository::HEADERS_SEPARATOR,
+            ListRepository::CHUNK,
+            ListRepository::COUNTER,
+            ListRepository::HEADERS,
+            ListRepository::INDEX,
+            ListRepository::SEPARATOR,
             ListRepository::STATISTICS,
         ];
 
         foreach ($notAllowedNames as $notAllowedName) {
             if (strpos($uuid, $notAllowedName) !== false) {
-                throw new ListCollectionNotAllowedUuidException('You can\'t use '. $uuid . ' in your uuid.');
+                throw new ListCollectionNotAllowedUuidException('You can\'t assign "'. $uuid . '" as list uuid.');
             }
         }
 

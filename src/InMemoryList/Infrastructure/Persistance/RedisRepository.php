@@ -52,39 +52,57 @@ class RedisRepository implements ListRepository
             throw new ListAlreadyExistsException('List '.$list->getUuid().' already exists in memory.');
         }
 
-        /** @var ListElement $element */
-        foreach ($list->getItems() as $element) {
-            $listElementUuid = $element->getUuid();
-            $body = $element->getBody();
+        // set counter
+        $this->client->set(
+            (string)$list->getUuid().self::SEPARATOR.self::COUNTER,
+            count($list->getItems())
+        );
 
-            $this->client->hset(
-                (string)$list->getUuid(),
-                (string)$listElementUuid,
-                (string)$body
-            );
+        // persist in memory array in chunks
+        foreach (array_chunk($list->getItems(), self::CHUNKSIZE) as $chunkNumber => $item){
+            foreach ($item as $key => $element){
 
-            // add elements to general index
-            if($index){
-                $this->_addOrUpdateElementToIndex($listElementUuid, strlen($body), $ttl);
-            }
+                $listChunkUuid = $list->getUuid().self::SEPARATOR.self::CHUNK.'-'.($chunkNumber+1);
+                $listElementUuid = $element->getUuid();
+                $body = $element->getBody();
 
-            // set ttl
-            if ($ttl) {
-                $this->client->expire($listElementUuid, $ttl);
+                $this->client->hset(
+                    (string)$listChunkUuid,
+                    (string)$listElementUuid,
+                    (string)$body
+                );
+
+                // add elements to general index
+                if($index){
+                    $this->_addOrUpdateElementToIndex(
+                        $listElementUuid,
+                        strlen($body),
+                        $ttl
+                    );
+                }
+
+                // set ttl
+                if ($ttl) {
+                    $this->client->expire(
+                        (string)$listChunkUuid,
+                        $ttl
+                    );
+                }
             }
         }
 
         if ($list->getHeaders()) {
             foreach ($list->getHeaders() as $key => $header) {
                 $this->client->hset(
-                    $listUuid.self::HEADERS_SEPARATOR.'headers',
+                    $listUuid.self::SEPARATOR.self::HEADERS,
                     $key,
                     $header
                 );
             }
 
             if ($ttl) {
-                $this->client->expire($listUuid.self::HEADERS_SEPARATOR.'headers', $ttl);
+                $this->client->expire($listUuid.self::SEPARATOR.self::HEADERS, $ttl);
+                $this->client->expire($listUuid.self::SEPARATOR.self::COUNTER, $ttl);
             }
         }
 
@@ -136,7 +154,18 @@ class RedisRepository implements ListRepository
      */
     public function findListByUuid($listUuid)
     {
-        return $this->client->hgetall($listUuid);
+        $collection = [];
+        $number = ceil(count($this->client->get($listUuid.self::SEPARATOR.self::COUNTER)) / self::CHUNKSIZE);
+
+        for ($i=1; $i<=$number; $i++){
+            if(empty($collection)){
+                $collection = $this->client->hgetall($listUuid.self::SEPARATOR.self::CHUNK.'-1');
+            } else {
+                array_merge($collection, $this->client->hgetall($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
+            }
+        }
+
+        return $collection;
     }
 
     /**
@@ -171,7 +200,7 @@ class RedisRepository implements ListRepository
      */
     public function getHeaders($listUuid)
     {
-        return $this->client->hgetall($listUuid.self::HEADERS_SEPARATOR.'headers');
+        return $this->client->hgetall($listUuid.self::SEPARATOR.self::HEADERS);
     }
 
     /**

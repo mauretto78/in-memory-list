@@ -81,6 +81,9 @@ class RedisRepositoryTest extends TestCase
         $this->repo->create($collection);
         $element1 = unserialize($this->repo->findElement($collection->getUuid(), $fakeUUid1->getUuid()));
 
+        var_dump($this->repo->findListByUuid($collection->getUuid()));
+        die();
+
         $this->assertCount(5, $this->repo->findListByUuid($collection->getUuid()));
         $this->assertArrayHasKey('id', $element1);
         $this->assertArrayHasKey('title', $element1);
@@ -131,7 +134,7 @@ class RedisRepositoryTest extends TestCase
         }
         $collection->setHeaders($headers);
 
-        $this->repo->create($collection, 3600, true);
+        $this->repo->create($collection,3600, true);
 
         $list = $this->repo->findListByUuid($collection->getUuid());
         $element = $this->repo->findElement($collection->getUuid(), $fakeUuid1->getUuid());

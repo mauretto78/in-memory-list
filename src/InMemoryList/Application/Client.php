@@ -88,6 +88,7 @@ class Client
     public function create(array $elements, array $parameters = [])
     {
         $allowedParameters = [
+            'chunk',
             'element-uuid',
             'headers',
             'index',
@@ -112,6 +113,7 @@ class Client
 
             return $this->repository->create(
                 $list,
+                (isset($parameters['chunk'])) ? $parameters['chunk'] : 1000,
                 (isset($parameters['ttl'])) ? $parameters['ttl'] : null,
                 (isset($parameters['index'])) ? $parameters['index'] : null
             );

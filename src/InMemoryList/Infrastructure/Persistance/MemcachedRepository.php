@@ -49,28 +49,48 @@ class MemcachedRepository implements ListRepository
             throw new ListAlreadyExistsException('List '.$list->getUuid().' already exists in memory.');
         }
 
+        // create arrayOfElements
         $arrayOfElements = [];
-        $arrayOfElementsForStatistics = [];
 
         /** @var ListElement $element */
         foreach ($list->getItems() as $element) {
             $arrayOfElements[(string) $element->getUuid()] = $element->getBody();
-            $arrayOfElementsForStatistics[(string) $element->getUuid()] = serialize([
-                'created_on' => new \DateTimeImmutable(),
-                'ttl' => $ttl,
-                'size' => strlen($element->getBody())
-            ]);
         }
 
-        // create index
+        // set counter
         $this->memcached->set(
-            (string)$list->getUuid(),
-            $arrayOfElements,
+            (string)$list->getUuid().self::SEPARATOR.self::COUNTER,
+            count($list->getItems()),
             $ttl
         );
 
+        // persist in memory array in chunks
+        foreach (array_chunk($arrayOfElements, $chunkSize) as $chunkNumber => $item){
+            $arrayToPersist = [];
+            foreach ($item as $key => $value){
+                $arrayToPersist[$key] = serialize($value);
+            }
+
+            $this->memcached->set(
+                (string)$list->getUuid().self::SEPARATOR.'chunk-'.($chunkNumber+1),
+                $arrayToPersist,
+                $ttl
+            );
+        }
+
         // add elements to general index
         if($index){
+            $arrayOfElementsForStatistics = [];
+
+            /** @var ListElement $element */
+            foreach ($list->getItems() as $element) {
+                $arrayOfElementsForStatistics[(string) $element->getUuid()] = serialize([
+                    'created_on' => new \DateTimeImmutable(),
+                    'ttl' => $ttl,
+                    'size' => strlen($element->getBody())
+                ]);
+            }
+
             $this->memcached->set(
                 ListRepository::INDEX,
                 $arrayOfElementsForStatistics
@@ -80,7 +100,7 @@ class MemcachedRepository implements ListRepository
         // set headers
         if ($list->getHeaders()) {
             $this->memcached->set(
-                (string)$list->getUuid().self::HEADERS_SEPARATOR.'headers',
+                (string)$list->getUuid().self::SEPARATOR.self::HEADERS,
                 $list->getHeaders(),
                 $ttl
             );
@@ -182,7 +202,7 @@ class MemcachedRepository implements ListRepository
      */
     public function getHeaders($listUuid)
     {
-        return $this->memcached->get($listUuid.self::HEADERS_SEPARATOR.'headers');
+        return $this->memcached->get($listUuid.self::SEPARATOR.self::HEADERS);
     }
 
     /**
