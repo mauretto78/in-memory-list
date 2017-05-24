@@ -56,11 +56,11 @@ class RedisDriver implements DriverInterface
             'iterable_multibulk',
             'options',
             'password',
+            'path',
             'port',
+            'persistent',
             'profile',
             'timeout',
-            'path',
-            'persistent',
             'read_write_timeout',
             'scheme',
             'throw_errors',
@@ -98,7 +98,6 @@ class RedisDriver implements DriverInterface
 
     /**
      * @return bool
-     * @throws RedisConnectionException
      */
     public function connect()
     {

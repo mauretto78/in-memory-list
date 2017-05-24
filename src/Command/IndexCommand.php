@@ -19,11 +19,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 class IndexCommand extends BaseCommand
 {
     /**
-     * StatisticsCommand constructor.
+     * IndexCommand constructor.
+     * @param null $driver
+     * @param array $defaultParameters
      */
-    public function __construct()
+    public function __construct($driver = null, array $defaultParameters = [])
     {
-        parent::__construct('iml_cache_index');
+        parent::__construct(
+            'iml_cache_index',
+            $driver,
+            $defaultParameters
+        );
     }
 
     protected function configure()
@@ -42,8 +48,8 @@ class IndexCommand extends BaseCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $driver = $input->getArgument('driver') ?: 'redis';
-        $parameters = $input->getArgument('parameters') ?: [];
+        $driver = $input->getArgument('driver') ?: $this->driver;
+        $parameters = $this->convertparametersArray($input->getArgument('parameters')) ?: $this->defaultParameters;
 
         $cache = $this->createClient($driver, $parameters);
         $statistics = $cache->getIndex();

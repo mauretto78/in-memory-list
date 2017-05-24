@@ -15,16 +15,61 @@ use Symfony\Component\Console\Command\Command;
 
 class BaseCommand extends Command
 {
+    /**
+     * @var
+     */
+    protected $driver;
+
+    /**
+     * @var array
+     */
+    protected $defaultParameters;
+
+    /**
+     * BaseCommand constructor.
+     * @param null|string $name
+     * @param null $driver
+     * @param array $defaultParameters
+     */
+    public function __construct($name, $driver = null, array $defaultParameters = [])
+    {
+        parent::__construct($name);
+
+        $this->driver = $driver;
+        $this->defaultParameters = $defaultParameters;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDriver()
+    {
+        return $this->driver;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDefaultParameters()
+    {
+        return $this->defaultParameters;
+    }
+
+    /**
+     * @param $driver
+     * @param array $parameters
+     * @return Client
+     */
     protected function createClient($driver, array $parameters = [])
     {
-        return new Client($driver, $this->_convertparametersArray($parameters));
+        return new Client($driver, $parameters);
     }
 
     /**
      * @param array $parameters
      * @return array
      */
-    private function _convertparametersArray(array $parameters = [])
+    protected function convertparametersArray(array $parameters = [])
     {
         $convertedparametersArray = [];
 

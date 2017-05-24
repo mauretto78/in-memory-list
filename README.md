@@ -312,19 +312,64 @@ foreach ($qb->getResults() as $element){
 
 ## Commands
 
-You have some commands avaliable via  `php bin/console`:
- 
+If you have an application which uses [Symfony Console](https://github.com/symfony/console) - Symfony Console, you have some commands avaliable:
+
 * `iml:cache:flush` to flush the cache
 * `iml:cache:index` to get full index of items stored in cache
 * `iml:cache:statistics` to get cache statistics 
 
-![Alt text](https://raw.githubusercontent.com/mauretto78/in-memory-list/master/examples/img/console.jpg "Console")
+You can register the commands in your app, consider this example:
 
-You have to follow this syntax to choose driver and pass the connection parameters:
+```php
+#!/usr/bin/env php
+
+<?php
+// Example of a Silex Application 'bin/console' file
+
+set_time_limit(0);
+
+require __DIR__.'/../vendor/autoload.php';
+
+// setup Application
+$app  = new App\Application('console');
+
+// register console provider
+$app->register(new \Knp\Provider\ConsoleServiceProvider(), array(
+    'console.name'              => '...',
+    'console.version'           => '...',
+    'console.project_directory' => __DIR__.'/..'
+));
+
+// Init the app
+$app->init();
+
+// instance of console
+$console = $app['console'];
+
+// add commands here
+...
+$console->add(new \InMemoryList\Command\FlushCommand());
+$console->add(new \InMemoryList\Command\IndexCommand());
+$console->add(new \InMemoryList\Command\StatisticsCommand());
+
+// run console
+$console->run();
+```
+
+You can pass to commands your driver and connection parameters array. Example:
+
+```php
+$console->add(new \InMemoryList\Command\FlushCommand('redis', [
+    'host' => '127.0.0.1',
+    'port' => 6379,
+]));
+```
+
+If you prefer you can use this syntax on command line:
 
 `iml:cache:COMMAND DRIVER [key=value,key2=value2,key3=value3]`
 
-Each string in square brackets represents an array, so to get a multi-server connection you have to pass arrays separated by space:
+Each string in square brackets represents an array, so to get a multi-server connection you have to pass arrays separated by space. Example:
 
 `iml:cache:statistics memcached [host=localhost,port=11211] [host=localhost,port=11222]`
 

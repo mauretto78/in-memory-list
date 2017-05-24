@@ -19,13 +19,23 @@ use Symfony\Component\Console\Output\OutputInterface;
 class StatisticsCommand extends BaseCommand
 {
     /**
-     * StatisticsCommand constructor.
+     * @var array
      */
-    public function __construct()
-    {
-        parent::__construct('iml_cache_statistics');
-    }
+    private $default;
 
+    /**
+     * StatisticsCommand constructor.
+     * @param null $driver
+     * @param array $defaultParameters
+     */
+    public function __construct($driver = null, array $defaultParameters = [])
+    {
+        parent::__construct(
+            'iml_cache_statistics',
+            $driver,
+            $defaultParameters
+        );
+    }
     protected function configure()
     {
         $this
@@ -42,8 +52,8 @@ class StatisticsCommand extends BaseCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $driver = $input->getArgument('driver') ?: 'redis';
-        $parameters = $input->getArgument('parameters') ?: [];
+        $driver = $input->getArgument('driver') ?: $this->driver;
+        $parameters = $this->convertparametersArray($input->getArgument('parameters')) ?: $this->defaultParameters;
 
         $cache = $this->createClient($driver, $parameters);
         $statistics = $cache->getStatistics();
