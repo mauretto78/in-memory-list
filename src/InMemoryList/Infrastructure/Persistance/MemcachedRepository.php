@@ -187,7 +187,7 @@ class MemcachedRepository implements ListRepository
             if(empty($collection)){
                 $collection = $this->memcached->get($listUuid.self::SEPARATOR.self::CHUNK.'-1');
             } else {
-                array_merge($collection, $this->memcached->get($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
+                $collection = array_merge($collection, $this->memcached->get($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
             }
         }
 
@@ -263,34 +263,45 @@ class MemcachedRepository implements ListRepository
      */
     public function updateElement($listUuid, $elementUuid, array $data = [], $ttl = null)
     {
-        $element = $this->findElement($listUuid, $elementUuid);
+        $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
 
-        $objMerged = (object) array_merge((array) $element, (array) $data);
-        $arrayOfElements = $this->memcached->get($listUuid);
-        $updatedElement = new ListElement(
-            new ListElementUuid($elementUuid),
-            $objMerged
-        );
-        $arrayOfElements[(string) $elementUuid] = $updatedElement->getBody();
+        for ($i=1; $i<=$number; $i++){
+            $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
+            $chunk = $this->memcached->get($chunkNumber);
 
-        $this->memcached->replace(
-            (string)$listUuid,
-            $arrayOfElements,
-            $ttl
-        );
+            if(array_key_exists($elementUuid, $chunk)){
+                $element = $this->findElement($listUuid, $elementUuid);
+                $objMerged = (object) array_merge((array) $element, (array) $data);
+                $arrayOfElements = $this->memcached->get($listUuid);
+                $updatedElement = new ListElement(
+                    new ListElementUuid($elementUuid),
+                    $objMerged
+                );
+                $body = $updatedElement->getBody();
+                $arrayOfElements[(string) $elementUuid] = $body;
 
-        if($this->_existsElementInIndex($elementUuid)){
-            $indexStatistics = $this->getIndex();
-            $indexStatistics[(string) $elementUuid] = serialize([
-                'created_on' => new \DateTimeImmutable(),
-                'ttl' => $ttl,
-                'size' => strlen($updatedElement->getBody())
-            ]);
+                $this->memcached->replace(
+                    (string)$chunkNumber,
+                    $arrayOfElements,
+                    $ttl
+                );
 
-            $this->memcached->replace(
-                (string)ListRepository::INDEX,
-                $indexStatistics
-            );
+                if($this->_existsElementInIndex($elementUuid)){
+                    $indexStatistics = $this->getIndex();
+                    $indexStatistics[(string) $elementUuid] = serialize([
+                        'created_on' => new \DateTimeImmutable(),
+                        'ttl' => $ttl,
+                        'size' => strlen($body)
+                    ]);
+
+                    $this->memcached->replace(
+                        (string)ListRepository::INDEX,
+                        $indexStatistics
+                    );
+                }
+
+                break;
+            }
         }
     }
 

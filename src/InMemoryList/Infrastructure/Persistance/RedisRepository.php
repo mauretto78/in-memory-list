@@ -63,19 +63,19 @@ class RedisRepository implements ListRepository
             foreach ($item as $key => $element){
 
                 $listChunkUuid = $list->getUuid().self::SEPARATOR.self::CHUNK.'-'.($chunkNumber+1);
-                $listElementUuid = $element->getUuid();
+                $elementUuid = $element->getUuid();
                 $body = $element->getBody();
 
                 $this->client->hset(
                     (string)$listChunkUuid,
-                    (string)$listElementUuid,
+                    (string)$elementUuid,
                     (string)$body
                 );
 
                 // add elements to general index
                 if($index){
                     $this->_addOrUpdateElementToIndex(
-                        $listElementUuid,
+                        $elementUuid,
                         strlen($body),
                         $ttl
                     );
@@ -175,7 +175,7 @@ class RedisRepository implements ListRepository
             if(empty($collection)){
                 $collection = $this->client->hgetall($listUuid.self::SEPARATOR.self::CHUNK.'-1');
             } else {
-                array_merge($collection, $this->client->hgetall($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
+                $collection = array_merge($collection, $this->client->hgetall($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
             }
         }
 
@@ -285,23 +285,45 @@ class RedisRepository implements ListRepository
      * @param $listUuid
      * @param $elementUuid
      * @param array $data
+     * @param null $ttl
      *
      * @return mixed
      */
-    public function updateElement($listUuid, $elementUuid, array $data = [])
+    public function updateElement($listUuid, $elementUuid, array $data = [], $ttl = null)
     {
-        $element = $this->findElement($listUuid, $elementUuid);
-        $objMerged = (object) array_merge((array) $element, (array) $data);
-        $updatedElement = new ListElement(
-            new ListElementUuid($elementUuid),
-            $objMerged
-        );
+        $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
 
-        $this->client->hset(
-            $listUuid,
-            $elementUuid,
-            $updatedElement->getBody()
-        );
+        for ($i=1; $i<=$number; $i++){
+            $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
+            $chunk = $this->client->hgetall($chunkNumber);
+
+            if(array_key_exists($elementUuid, $chunk)){
+
+                $element = $this->findElement($listUuid, $elementUuid);
+                $objMerged = (object) array_merge((array) $element, (array) $data);
+                $updatedElement = new ListElement(
+                    new ListElementUuid($elementUuid),
+                    $objMerged
+                );
+                $body = $updatedElement->getBody();
+
+                $this->client->hset(
+                    $chunkNumber,
+                    $elementUuid,
+                    $body
+                );
+
+                if($this->_existsElementInIndex($elementUuid)){
+                    $this->_addOrUpdateElementToIndex(
+                        $elementUuid,
+                        strlen($body),
+                        $ttl
+                    );
+                }
+
+                break;
+            }
+        }
     }
 
     /**
