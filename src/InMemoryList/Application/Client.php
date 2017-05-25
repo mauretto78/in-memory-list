@@ -180,6 +180,14 @@ class Client
     /**
      * @return mixed
      */
+    public function getCounter($listUuid)
+    {
+        return $this->repository->getCounter($listUuid);
+    }
+
+    /**
+     * @return mixed
+     */
     public function getHeaders($listUuid)
     {
         return $this->repository->getHeaders($listUuid);

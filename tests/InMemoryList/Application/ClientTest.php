@@ -176,7 +176,31 @@ class ClientTest extends TestCase
     /**
      * @test
      */
-    public function it_should_store_delete_and_retrieve_from_redis_correctly_list_elements()
+    public function gfdfgfdgfd()
+    {
+        $array = [];
+        foreach (range(1, 5000) as $number) {
+            $array[] = [
+                'id' => $number,
+                'name' => 'Name '.$number,
+                'email' => 'Email'.$number,
+            ];
+        }
+
+        $apiArray = json_encode($array);
+
+        $client = new Client();
+        $client->create(json_decode($apiArray), [
+            'uuid' => 'range list',
+        ]);
+
+        $this->assertEquals(5000, $client->getCounter('range-list'));
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_store_delete_and_retrieve_correctly_list_elements_from_redis()
     {
         $headers = [
             'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',
@@ -228,7 +252,7 @@ class ClientTest extends TestCase
     /**
      * @test
      */
-    public function it_should_store_delete_and_retrieve_from_memcached_correctly_list_elements()
+    public function it_should_store_delete_and_retrieve_correctly_list_elements_from_memcached()
     {
         $memcached_parameters = [
             [
@@ -283,7 +307,7 @@ class ClientTest extends TestCase
     /**
      * @test
      */
-    public function it_should_store_delete_and_retrieve_from_apcu_correctly_list_elements()
+    public function it_should_store_delete_and_retrieve_correctly_list_elements_from_apcu()
     {
         $headers = [
             'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',

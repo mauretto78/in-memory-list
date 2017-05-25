@@ -77,6 +77,13 @@ interface ListRepository
      *
      * @return mixed
      */
+    public function getCounter($listUuid);
+
+    /**
+     * @param $listUuid
+     *
+     * @return mixed
+     */
     public function getHeaders($listUuid);
 
     /**

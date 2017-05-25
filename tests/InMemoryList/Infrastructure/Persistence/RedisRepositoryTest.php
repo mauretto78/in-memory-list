@@ -135,7 +135,7 @@ class RedisRepositoryTest extends TestCase
         }
         $collection->setHeaders($headers);
 
-        $this->repo->create($collection,3600, true);
+        $this->repo->create($collection, 3600, true);
 
         $list = $this->repo->findListByUuid($collection->getUuid());
         $element = $this->repo->findElement($collection->getUuid(), $fakeUuid1->getUuid());

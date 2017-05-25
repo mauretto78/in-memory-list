@@ -65,9 +65,9 @@ class MemcachedRepository implements ListRepository
         );
 
         // persist in memory array in chunks
-        foreach (array_chunk($arrayOfElements, self::CHUNKSIZE, true) as $chunkNumber => $item){
+        foreach (array_chunk($arrayOfElements, self::CHUNKSIZE, true) as $chunkNumber => $item) {
             $arrayToPersist = [];
-            foreach ($item as $key => $element){
+            foreach ($item as $key => $element) {
                 $arrayToPersist[$key] = $element;
             }
 
@@ -79,7 +79,7 @@ class MemcachedRepository implements ListRepository
         }
 
         // add elements to general index
-        if($index){
+        if ($index) {
             $arrayOfElementsForStatistics = [];
 
             /** @var ListElement $element */
@@ -132,15 +132,15 @@ class MemcachedRepository implements ListRepository
     {
         $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
 
-        for ($i=1; $i<=$number; $i++){
+        for ($i=1; $i<=$number; $i++) {
             $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
             $chunk = $this->memcached->get($chunkNumber);
 
-            if(array_key_exists($elementUuid, $chunk)){
+            if (array_key_exists($elementUuid, $chunk)) {
                 unset($chunk[(string) $elementUuid]);
                 $this->memcached->replace($chunkNumber, $chunk);
 
-                if($this->_existsElementInIndex($elementUuid)){
+                if ($this->_existsElementInIndex($elementUuid)) {
                     $indexStatistics = $this->getIndex();
                     unset($indexStatistics[(string) $elementUuid]);
 
@@ -183,8 +183,8 @@ class MemcachedRepository implements ListRepository
         $collection = [];
         $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
 
-        for ($i=1; $i<=$number; $i++){
-            if(empty($collection)){
+        for ($i=1; $i<=$number; $i++) {
+            if (empty($collection)) {
                 $collection = $this->memcached->get($listUuid.self::SEPARATOR.self::CHUNK.'-1');
             } else {
                 $collection = array_merge($collection, $this->memcached->get($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
@@ -265,11 +265,11 @@ class MemcachedRepository implements ListRepository
     {
         $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
 
-        for ($i=1; $i<=$number; $i++){
+        for ($i=1; $i<=$number; $i++) {
             $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
             $chunk = $this->memcached->get($chunkNumber);
 
-            if(array_key_exists($elementUuid, $chunk)){
+            if (array_key_exists($elementUuid, $chunk)) {
                 $element = $this->findElement($listUuid, $elementUuid);
                 $objMerged = (object) array_merge((array) $element, (array) $data);
                 $arrayOfElements = $this->memcached->get($listUuid);
@@ -286,7 +286,7 @@ class MemcachedRepository implements ListRepository
                     $ttl
                 );
 
-                if($this->_existsElementInIndex($elementUuid)){
+                if ($this->_existsElementInIndex($elementUuid)) {
                     $indexStatistics = $this->getIndex();
                     $indexStatistics[(string) $elementUuid] = serialize([
                         'created_on' => new \DateTimeImmutable(),

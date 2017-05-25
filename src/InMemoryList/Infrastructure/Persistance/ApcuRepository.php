@@ -53,9 +53,9 @@ class ApcuRepository implements ListRepository
         );
 
         // persist in memory array in chunks
-        foreach (array_chunk($arrayOfElements, self::CHUNKSIZE, true) as $chunkNumber => $item){
+        foreach (array_chunk($arrayOfElements, self::CHUNKSIZE, true) as $chunkNumber => $item) {
             $arrayToPersist = [];
-            foreach ($item as $key => $element){
+            foreach ($item as $key => $element) {
                 $arrayToPersist[$key] = $element;
             }
 
@@ -67,7 +67,7 @@ class ApcuRepository implements ListRepository
         }
 
         // add elements to general index
-        if($index){
+        if ($index) {
             $arrayOfElementsForStatistics = [];
 
             /** @var ListElement $element */
@@ -122,16 +122,16 @@ class ApcuRepository implements ListRepository
     {
         $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
 
-        for ($i=1; $i<=$number; $i++){
+        for ($i=1; $i<=$number; $i++) {
             $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
             $chunk = apcu_fetch($chunkNumber);
 
-            if(array_key_exists($elementUuid, $chunk)){
+            if (array_key_exists($elementUuid, $chunk)) {
                 unset($chunk[(string) $elementUuid]);
                 apcu_delete($chunkNumber);
                 apcu_store($chunkNumber, $chunk);
 
-                if($this->_existsElementInIndex($elementUuid)){
+                if ($this->_existsElementInIndex($elementUuid)) {
                     $indexStatistics = $this->getIndex();
                     unset($indexStatistics[(string) $elementUuid]);
 
@@ -175,8 +175,8 @@ class ApcuRepository implements ListRepository
         $collection = [];
         $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
 
-        for ($i=1; $i<=$number; $i++){
-            if(empty($collection)){
+        for ($i=1; $i<=$number; $i++) {
+            if (empty($collection)) {
                 $collection = apcu_fetch($listUuid.self::SEPARATOR.self::CHUNK.'-1');
             } else {
                 $collection = array_merge($collection, apcu_fetch($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
@@ -259,11 +259,11 @@ class ApcuRepository implements ListRepository
     {
         $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
 
-        for ($i=1; $i<=$number; $i++){
+        for ($i=1; $i<=$number; $i++) {
             $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
             $chunk = apcu_fetch($chunkNumber);
 
-            if(array_key_exists($elementUuid, $chunk)){
+            if (array_key_exists($elementUuid, $chunk)) {
                 $element = $this->findElement($listUuid, $elementUuid);
                 $objMerged = (object) array_merge((array) $element, (array) $data);
                 $arrayOfElements = apcu_fetch($listUuid);
@@ -281,7 +281,7 @@ class ApcuRepository implements ListRepository
                     $ttl
                 );
 
-                if($this->_existsElementInIndex($elementUuid)){
+                if ($this->_existsElementInIndex($elementUuid)) {
                     $indexStatistics = $this->getIndex();
                     $indexStatistics[(string) $elementUuid] = serialize([
                         'created_on' => new \DateTimeImmutable(),
