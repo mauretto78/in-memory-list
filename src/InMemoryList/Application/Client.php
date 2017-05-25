@@ -87,6 +87,32 @@ class Client
      */
     public function create(array $elements, array $parameters = [])
     {
+        try {
+            $this->_validateParameters($parameters);
+            $factory = new ListCollectionFactory();
+            $list = $factory->create(
+                $elements,
+                (isset($parameters['headers'])) ? $parameters['headers'] : [],
+                (isset($parameters['uuid'])) ? $parameters['uuid'] : null,
+                (isset($parameters['element-uuid'])) ? $parameters['element-uuid'] : null
+            );
+
+            return $this->repository->create(
+                $list,
+                (isset($parameters['ttl'])) ? $parameters['ttl'] : null,
+                (isset($parameters['index'])) ? $parameters['index'] : null
+            );
+        } catch (\Exception $exception) {
+            return $exception->getMessage();
+        }
+    }
+
+    /**
+     * @param $parameters
+     * @throws MalformedParametersException
+     */
+    private function _validateParameters($parameters)
+    {
         $allowedParameters = [
             'chunk',
             'element-uuid',
@@ -100,25 +126,6 @@ class Client
             if (!in_array($key, $allowedParameters)) {
                 throw new MalformedParametersException();
             }
-        }
-
-        try {
-            $factory = new ListCollectionFactory();
-            $list = $factory->create(
-                $elements,
-                (isset($parameters['headers'])) ? $parameters['headers'] : [],
-                (isset($parameters['uuid'])) ? $parameters['uuid'] : null,
-                (isset($parameters['element-uuid'])) ? $parameters['element-uuid'] : null
-            );
-
-            return $this->repository->create(
-                $list,
-                (isset($parameters['chunk'])) ? $parameters['chunk'] : 1000,
-                (isset($parameters['ttl'])) ? $parameters['ttl'] : null,
-                (isset($parameters['index'])) ? $parameters['index'] : null
-            );
-        } catch (\Exception $exception) {
-            return $exception->getMessage();
         }
     }
 

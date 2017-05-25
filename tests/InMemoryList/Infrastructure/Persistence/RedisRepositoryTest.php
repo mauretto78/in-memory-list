@@ -79,12 +79,13 @@ class RedisRepositoryTest extends TestCase
         $collection->addItem($fakeElement5);
 
         $this->repo->create($collection);
+        $this->repo->deleteElement(
+            (string) $collection->getUuid(),
+            (string) $fakeElement5->getUuid()
+        );
+
         $element1 = unserialize($this->repo->findElement($collection->getUuid(), $fakeUUid1->getUuid()));
-
-        var_dump($this->repo->findListByUuid($collection->getUuid()));
-        die();
-
-        $this->assertCount(5, $this->repo->findListByUuid($collection->getUuid()));
+        $this->assertCount(4, $this->repo->findListByUuid($collection->getUuid()));
         $this->assertArrayHasKey('id', $element1);
         $this->assertArrayHasKey('title', $element1);
         $this->assertArrayHasKey('category-id', $element1);

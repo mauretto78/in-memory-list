@@ -91,7 +91,10 @@ class MemcachedRepositoryTest extends TestCase
         );
 
         $list = $this->repo->findListByUuid($collection->getUuid());
-        $element1 = unserialize($this->repo->findElement($collection->getUuid(), $fakeElement1->getUuid()->getUuid()));
+        $element1 = unserialize($this->repo->findElement(
+            (string) $collection->getUuid(),
+            (string) $fakeElement1->getUuid()->getUuid())
+        );
 
         $this->assertCount(4, $list);
         $this->assertArrayHasKey('id', $element1);
@@ -125,10 +128,13 @@ class MemcachedRepositoryTest extends TestCase
         $this->repo->create($collection, null, true);
 
         $list = $this->repo->findListByUuid($collection->getUuid());
-        $element = $this->repo->findElement($collection->getUuid(), $fakeUuid1->getUuid());
+        $element = unserialize(
+            (string) $this->repo->findElement($collection->getUuid(),
+            (string) $fakeUuid1->getUuid())
+        );
 
         $this->assertCount(10, $list);
-        $this->assertInstanceOf(stdClass::class, unserialize($element));
+        $this->assertInstanceOf(stdClass::class, $element);
         $this->assertEquals($this->repo->getHeaders($collection->getUuid()), $headers);
         $this->assertCount(10, $this->repo->getIndex());
         $this->assertArrayHasKey($fakeUuid1->getUuid(), $this->repo->getIndex());

@@ -65,10 +65,10 @@ class MemcachedRepository implements ListRepository
         );
 
         // persist in memory array in chunks
-        foreach (array_chunk($arrayOfElements, $chunkSize) as $chunkNumber => $item){
+        foreach (array_chunk($arrayOfElements, self::CHUNKSIZE, true) as $chunkNumber => $item){
             $arrayToPersist = [];
-            foreach ($item as $key => $value){
-                $arrayToPersist[$key] = serialize($value);
+            foreach ($item as $key => $element){
+                $arrayToPersist[$key] = $element;
             }
 
             $this->memcached->set(
@@ -116,27 +116,40 @@ class MemcachedRepository implements ListRepository
      */
     public function delete($listUuid)
     {
-        $this->memcached->delete($listUuid);
+        $list = $this->findListByUuid($listUuid);
+
+        foreach ($list as $elementUuid => $element) {
+            $this->deleteElement($listUuid, $elementUuid);
+        }
     }
 
     /**
      * @param $listUuid
      * @param $elementUuid
-     *
-     * @throws ListElementDoesNotExistsException
+     * @return mixed
      */
     public function deleteElement($listUuid, $elementUuid)
     {
-        $arrayToReplace = $this->findListByUuid($listUuid);
-        unset($arrayToReplace[(string) $elementUuid]);
+        $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
 
-        $this->memcached->replace($listUuid, $arrayToReplace);
+        for ($i=1; $i<=$number; $i++){
+            $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
+            $chunk = $this->memcached->get($chunkNumber);
 
-        if($this->_existsElementInIndex($elementUuid)){
-            $indexStatistics = $this->getIndex();
-            unset($indexStatistics[(string) $elementUuid]);
+            if(array_key_exists($elementUuid, $chunk)){
+                unset($chunk[(string) $elementUuid]);
+                $this->memcached->replace($chunkNumber, $chunk);
 
-            $this->memcached->replace(ListRepository::INDEX, $indexStatistics);
+                if($this->_existsElementInIndex($elementUuid)){
+                    $indexStatistics = $this->getIndex();
+                    unset($indexStatistics[(string) $elementUuid]);
+
+                    $this->memcached->replace(ListRepository::INDEX, $indexStatistics);
+                }
+
+                $this->memcached->decrement($this->getCounter($listUuid));
+                break;
+            }
         }
     }
 
@@ -148,7 +161,7 @@ class MemcachedRepository implements ListRepository
      */
     public function existsElement($listUuid, $elementUuid)
     {
-        return @isset($this->memcached->get($listUuid)[$elementUuid]);
+        return @$this->findListByUuid($listUuid)[$elementUuid];
     }
 
     /**
@@ -167,7 +180,18 @@ class MemcachedRepository implements ListRepository
      */
     public function findListByUuid($listUuid)
     {
-        return $this->memcached->get($listUuid);
+        $collection = [];
+        $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
+
+        for ($i=1; $i<=$number; $i++){
+            if(empty($collection)){
+                $collection = $this->memcached->get($listUuid.self::SEPARATOR.self::CHUNK.'-1');
+            } else {
+                array_merge($collection, $this->memcached->get($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
+            }
+        }
+
+        return $collection;
     }
 
     /**
@@ -180,11 +204,11 @@ class MemcachedRepository implements ListRepository
      */
     public function findElement($listUuid, $elementUuid)
     {
-        if (!$this->existsElement($listUuid, $elementUuid)) {
+        if (!$element = $this->existsElement($listUuid, $elementUuid)) {
             throw new ListElementDoesNotExistsException('Cannot retrieve the element '.$elementUuid.' from the collection in memory.');
         }
 
-        return $this->memcached->get($listUuid)[(string) $elementUuid];
+        return $element;
     }
 
     /**
@@ -193,6 +217,15 @@ class MemcachedRepository implements ListRepository
     public function flush()
     {
         $this->memcached->flush();
+    }
+
+    /**
+     * @param $listUuid
+     * @return mixed
+     */
+    public function getCounter($listUuid)
+    {
+        return $this->memcached->get($listUuid.self::SEPARATOR.self::COUNTER);
     }
 
     /**

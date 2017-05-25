@@ -37,38 +37,55 @@ class ApcuRepository implements ListRepository
             throw new ListAlreadyExistsException('List '.$listUuid.' already exists in memory.');
         }
 
+        // create arrayOfElements
         $arrayOfElements = [];
-        $arrayOfElementsForStatistics = [];
 
         /** @var ListElement $element */
         foreach ($list->getItems() as $element) {
-            $listElementUuid = $element->getUuid();
-            $body = $element->getBody();
-
-            $arrayOfElements[(string)$listElementUuid] = $body;
-            $arrayOfElementsForStatistics[(string)$listElementUuid] = serialize([
-                'created_on' => new \DateTimeImmutable(),
-                'ttl' => $ttl,
-                'size' => strlen($body)
-            ]);
+            $arrayOfElements[(string) $element->getUuid()] = $element->getBody();
         }
 
-        // list index
+        // set counter
         apcu_store(
-            (string)$list->getUuid(),
-            $arrayOfElements,
+            (string)$list->getUuid().self::SEPARATOR.self::COUNTER,
+            count($list->getItems()),
             $ttl
         );
 
+        // persist in memory array in chunks
+        foreach (array_chunk($arrayOfElements, self::CHUNKSIZE, true) as $chunkNumber => $item){
+            $arrayToPersist = [];
+            foreach ($item as $key => $element){
+                $arrayToPersist[$key] = $element;
+            }
+
+            apcu_store(
+                (string)$list->getUuid().self::SEPARATOR.'chunk-'.($chunkNumber+1),
+                $arrayToPersist,
+                $ttl
+            );
+        }
+
         // add elements to general index
         if($index){
+            $arrayOfElementsForStatistics = [];
+
+            /** @var ListElement $element */
+            foreach ($list->getItems() as $element) {
+                $arrayOfElementsForStatistics[(string) $element->getUuid()] = serialize([
+                    'created_on' => new \DateTimeImmutable(),
+                    'ttl' => $ttl,
+                    'size' => strlen($element->getBody())
+                ]);
+            }
+
             apcu_store(
                 ListRepository::INDEX,
                 $arrayOfElementsForStatistics
             );
         }
 
-        // headers
+        // set headers
         if ($list->getHeaders()) {
             apcu_store(
                 (string)$list->getUuid().self::SEPARATOR.self::HEADERS,
@@ -87,7 +104,11 @@ class ApcuRepository implements ListRepository
      */
     public function delete($listUuid)
     {
-        apcu_delete($listUuid);
+        $list = $this->findListByUuid($listUuid);
+
+        foreach ($list as $elementUuid => $element) {
+            $this->deleteElement($listUuid, $elementUuid);
+        }
     }
 
     /**
@@ -97,22 +118,28 @@ class ApcuRepository implements ListRepository
      */
     public function deleteElement($listUuid, $elementUuid, $ttl = null)
     {
-        $arrayToReplace = $this->findListByUuid($listUuid);
-        unset($arrayToReplace[(string) $elementUuid]);
+        $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
 
-        $this->delete($listUuid);
+        for ($i=1; $i<=$number; $i++){
+            $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
+            $chunk = apcu_fetch($chunkNumber);
 
-        apcu_store(
-            (string)$listUuid,
-            $arrayToReplace,
-            $ttl
-        );
+            if(array_key_exists($elementUuid, $chunk)){
+                unset($chunk[(string) $elementUuid]);
+                apcu_delete($chunkNumber);
+                apcu_store($chunkNumber, $chunk);
 
-        if($this->_existsElementInIndex($elementUuid)){
-            $indexStatistics = $this->getIndex();
-            unset($indexStatistics[(string) $elementUuid]);
+                if($this->_existsElementInIndex($elementUuid)){
+                    $indexStatistics = $this->getIndex();
+                    unset($indexStatistics[(string) $elementUuid]);
 
-            apcu_store(ListRepository::INDEX, $indexStatistics);
+                    apcu_delete(ListRepository::INDEX);
+                    apcu_store(ListRepository::INDEX, $indexStatistics);
+                }
+
+                apcu_dec($this->getCounter($listUuid));
+                break;
+            }
         }
     }
 
@@ -124,7 +151,7 @@ class ApcuRepository implements ListRepository
      */
     public function existsElement($listUuid, $elementUuid)
     {
-        return @isset(apcu_fetch($listUuid)[$elementUuid]);
+        return @$this->findListByUuid($listUuid)[$elementUuid];
     }
 
     /**
@@ -143,7 +170,18 @@ class ApcuRepository implements ListRepository
      */
     public function findListByUuid($listUuid)
     {
-        return apcu_fetch($listUuid);
+        $collection = [];
+        $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
+
+        for ($i=1; $i<=$number; $i++){
+            if(empty($collection)){
+                $collection = apcu_fetch($listUuid.self::SEPARATOR.self::CHUNK.'-1');
+            } else {
+                array_merge($collection, apcu_fetch($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
+            }
+        }
+
+        return $collection;
     }
 
     /**
@@ -156,11 +194,11 @@ class ApcuRepository implements ListRepository
      */
     public function findElement($listUuid, $elementUuid)
     {
-        if (!$this->existsElement($listUuid, $elementUuid)) {
+        if (!$element = $this->existsElement($listUuid, $elementUuid)) {
             throw new ListElementDoesNotExistsException('Cannot retrieve the element '.$elementUuid.' from the collection in memory.');
         }
 
-        return apcu_fetch($listUuid)[(string) $elementUuid];
+        return $element;
     }
 
     /**
@@ -169,6 +207,16 @@ class ApcuRepository implements ListRepository
     public function flush()
     {
         apcu_clear_cache();
+    }
+
+    /**
+     * @param $listUuid
+     *
+     * @return mixed
+     */
+    public function getCounter($listUuid)
+    {
+        return apcu_fetch($listUuid.self::SEPARATOR.self::COUNTER);
     }
 
     /**

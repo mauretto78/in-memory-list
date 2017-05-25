@@ -106,16 +106,16 @@ class ClientTest extends TestCase
 
     /**
      * @test
-     * @expectedException \InMemoryList\Application\Exceptions\MalformedParametersException
-     * @expectedExceptionMessage Malformed parameters array provided to Client create function.
      */
-    public function it_throws_MalformedParametersException_if_attempt_to_provide_a_wrong_parameters_array_when_create_list()
+    public function it_catch_MalformedParametersException_if_attempt_to_provide_a_wrong_parameters_array_when_create_list()
     {
         $client = new Client();
         $collection = $client->create($this->parsedArrayFromJson, [
             'not-allowed-key' => 'not-allowed-value',
             'uuid' => 'fake list'
         ]);
+
+        $this->assertEquals($collection, 'Malformed parameters array provided to Client create function.');
     }
 
     /**

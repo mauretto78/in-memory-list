@@ -40,6 +40,7 @@ interface ListRepository
     /**
      * @param $listUuid
      * @param $elementUuid
+     * @return mixed
      */
     public function deleteElement($listUuid, $elementUuid);
 

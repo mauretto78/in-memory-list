@@ -91,6 +91,7 @@ class RedisRepository implements ListRepository
             }
         }
 
+        // set headers
         if ($list->getHeaders()) {
             foreach ($list->getHeaders() as $key => $header) {
                 $this->client->hset(
@@ -126,13 +127,26 @@ class RedisRepository implements ListRepository
     /**
      * @param $listUuid
      * @param $elementUuid
+     * @return mixed
      */
     public function deleteElement($listUuid, $elementUuid)
     {
-        $this->client->hdel($listUuid, $elementUuid);
+        $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
 
-        if($this->_existsElementInIndex($elementUuid)){
-            $this->_removeElementToIndex($elementUuid);
+        for ($i=1; $i<=$number; $i++){
+            $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
+            $chunk = $this->client->hgetall($chunkNumber);
+
+            if(array_key_exists($elementUuid, $chunk)){
+                $this->client->hdel($chunkNumber, $elementUuid);
+
+                if($this->_existsElementInIndex($elementUuid)){
+                    $this->_removeElementToIndex($elementUuid);
+                }
+
+                $this->client->decr($this->getCounter($listUuid));
+                break;
+            }
         }
     }
 
@@ -140,11 +154,11 @@ class RedisRepository implements ListRepository
      * @param $listUuid
      * @param $elementUuid
      *
-     * @return bool
+     * @return mixed
      */
     public function existsElement($listUuid, $elementUuid)
     {
-        return @isset($this->findListByUuid($listUuid)[$elementUuid]);
+        return @$this->findListByUuid($listUuid)[$elementUuid];
     }
 
     /**
@@ -155,7 +169,7 @@ class RedisRepository implements ListRepository
     public function findListByUuid($listUuid)
     {
         $collection = [];
-        $number = ceil(count($this->client->get($listUuid.self::SEPARATOR.self::COUNTER)) / self::CHUNKSIZE);
+        $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
 
         for ($i=1; $i<=$number; $i++){
             if(empty($collection)){
@@ -178,11 +192,11 @@ class RedisRepository implements ListRepository
      */
     public function findElement($listUuid, $elementUuid)
     {
-        if (!$this->existsElement($listUuid, $elementUuid)) {
+        if (!$element = $this->existsElement($listUuid, $elementUuid)) {
             throw new ListElementDoesNotExistsException('Cannot retrieve the element '.$elementUuid.' from the collection in memory.');
         }
 
-        return $this->client->hget($listUuid, $elementUuid);
+        return $element;
     }
 
     /**
@@ -191,6 +205,15 @@ class RedisRepository implements ListRepository
     public function flush()
     {
         $this->client->flushall();
+    }
+
+    /**
+     * @param $listUuid
+     * @return mixed
+     */
+    public function getCounter($listUuid)
+    {
+        return $this->client->get($listUuid.self::SEPARATOR.self::COUNTER);
     }
 
     /**
