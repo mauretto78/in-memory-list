@@ -13,19 +13,23 @@ use InMemoryList\Domain\Model\ListCollection;
 
 interface ListRepository
 {
-    const HASH_SEPARATOR = ':';
-    const HEADERS_SEPARATOR = '#';
+    const CHUNK = 'chunk';
+    const CHUNKSIZE = 1000;
+    const COUNTER = 'counter';
+    const HEADERS = 'headers';
     const INDEX = 'index';
+    const SEPARATOR = ':';
     const STATISTICS = 'statistics';
 
     /**
      * @param ListCollection $list
-     * @param null           $ttl
-     * @param null           $index
+     * @param null $ttl
+     * @param null $index
+     * @param null $chunkSize
      *
      * @return mixed
      */
-    public function create(ListCollection $list, $ttl = null, $index = null);
+    public function create(ListCollection $list, $ttl = null, $index = null, $chunkSize = null);
 
     /**
      * @param $listUuid
@@ -37,6 +41,7 @@ interface ListRepository
     /**
      * @param $listUuid
      * @param $elementUuid
+     * @return mixed
      */
     public function deleteElement($listUuid, $elementUuid);
 
@@ -67,6 +72,13 @@ interface ListRepository
      * @return mixed
      */
     public function flush();
+
+    /**
+     * @param $listUuid
+     *
+     * @return mixed
+     */
+    public function getCounter($listUuid);
 
     /**
      * @param $listUuid

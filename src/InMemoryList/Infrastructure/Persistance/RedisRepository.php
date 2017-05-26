@@ -21,6 +21,11 @@ use Predis\Client;
 class RedisRepository implements ListRepository
 {
     /**
+     * @var int
+     */
+    private $chunkSize;
+
+    /**
      * @var Client
      */
     private $client;
@@ -33,51 +38,74 @@ class RedisRepository implements ListRepository
     public function __construct(Client $client)
     {
         $this->client = $client;
+        $this->chunkSize = self::CHUNKSIZE;
     }
 
     /**
      * @param ListCollection $list
      * @param null $ttl
      * @param null $index
+     * @param null $chunkSize
      *
      * @return mixed
      *
      * @throws ListAlreadyExistsException
      */
-    public function create(ListCollection $list, $ttl = null, $index = null)
+    public function create(ListCollection $list, $ttl = null, $index = null, $chunkSize = null)
     {
+        if ($chunkSize and is_int($chunkSize)) {
+            $this->chunkSize = $chunkSize;
+        }
+
         $listUuid = $list->getUuid();
 
         if ($this->findListByUuid($listUuid)) {
             throw new ListAlreadyExistsException('List '.$list->getUuid().' already exists in memory.');
         }
 
-        /** @var ListElement $element */
-        foreach ($list->getItems() as $element) {
-            $listElementUuid = $element->getUuid();
-            $body = $element->getBody();
+        // set counter
+        $this->client->set(
+            (string)$list->getUuid().self::SEPARATOR.self::COUNTER,
+            count($list->getItems())
+        );
 
-            $this->client->hset(
-                (string)$list->getUuid(),
-                (string)$listElementUuid,
-                (string)$body
-            );
+        // persist in memory array in chunks
+        foreach (array_chunk($list->getItems(), $this->chunkSize) as $chunkNumber => $item) {
+            foreach ($item as $key => $element) {
+                $listChunkUuid = $list->getUuid().self::SEPARATOR.self::CHUNK.'-'.($chunkNumber+1);
+                $elementUuid = $element->getUuid();
+                $body = $element->getBody();
 
-            // add elements to general index
-            if ($index) {
-                $this->_addOrUpdateElementToIndex($listElementUuid, strlen($body), $ttl);
-            }
+                $this->client->hset(
+                    (string)$listChunkUuid,
+                    (string)$elementUuid,
+                    (string)$body
+                );
 
-            // set ttl
-            if ($ttl) {
-                $this->client->expire($listElementUuid, $ttl);
+                // add elements to general index
+                if ($index) {
+                    $this->_addOrUpdateElementToIndex(
+                        $elementUuid,
+                        strlen($body),
+                        $ttl
+                    );
+                }
+
+                // set ttl
+                if ($ttl) {
+                    $this->client->expire(
+                        (string)$listChunkUuid,
+                        $ttl
+                    );
+                }
             }
         }
 
+        // set headers
         if ($list->getHeaders()) {
             foreach ($list->getHeaders() as $key => $header) {
                 $this->client->hset(
-                    $listUuid.self::HEADERS_SEPARATOR.'headers',
+                    $listUuid.self::SEPARATOR.self::HEADERS,
                     $key,
                     $header
                 );
@@ -108,13 +136,26 @@ class RedisRepository implements ListRepository
     /**
      * @param $listUuid
      * @param $elementUuid
+     * @return mixed
      */
     public function deleteElement($listUuid, $elementUuid)
     {
-        $this->client->hdel($listUuid, $elementUuid);
+        $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
 
-        if ($this->_existsElementInIndex($elementUuid)) {
-            $this->_removeElementToIndex($elementUuid);
+        for ($i=1; $i<=$number; $i++) {
+            $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
+            $chunk = $this->client->hgetall($chunkNumber);
+
+            if (array_key_exists($elementUuid, $chunk)) {
+                $this->client->hdel($chunkNumber, $elementUuid);
+
+                if ($this->_existsElementInIndex($elementUuid)) {
+                    $this->_removeElementToIndex($elementUuid);
+                }
+
+                $this->client->decr($this->getCounter($listUuid));
+                break;
+            }
         }
     }
 
@@ -122,11 +163,11 @@ class RedisRepository implements ListRepository
      * @param $listUuid
      * @param $elementUuid
      *
-     * @return bool
+     * @return mixed
      */
     public function existsElement($listUuid, $elementUuid)
     {
-        return @isset($this->findListByUuid($listUuid)[$elementUuid]);
+        return @$this->findListByUuid($listUuid)[$elementUuid];
     }
 
     /**
@@ -136,7 +177,18 @@ class RedisRepository implements ListRepository
      */
     public function findListByUuid($listUuid)
     {
-        return $this->client->hgetall($listUuid);
+        $collection = [];
+        $number = ceil($this->getCounter($listUuid) / $this->chunkSize);
+
+        for ($i=1; $i<=$number; $i++) {
+            if (empty($collection)) {
+                $collection = $this->client->hgetall($listUuid.self::SEPARATOR.self::CHUNK.'-1');
+            } else {
+                $collection = array_merge($collection, $this->client->hgetall($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
+            }
+        }
+
+        return $collection;
     }
 
     /**
@@ -149,11 +201,11 @@ class RedisRepository implements ListRepository
      */
     public function findElement($listUuid, $elementUuid)
     {
-        if (!$this->existsElement($listUuid, $elementUuid)) {
+        if (!$element = $this->existsElement($listUuid, $elementUuid)) {
             throw new ListElementDoesNotExistsException('Cannot retrieve the element '.$elementUuid.' from the collection in memory.');
         }
 
-        return $this->client->hget($listUuid, $elementUuid);
+        return $element;
     }
 
     /**
@@ -166,12 +218,21 @@ class RedisRepository implements ListRepository
 
     /**
      * @param $listUuid
+     * @return mixed
+     */
+    public function getCounter($listUuid)
+    {
+        return $this->client->get($listUuid.self::SEPARATOR.self::COUNTER);
+    }
+
+    /**
+     * @param $listUuid
      *
      * @return array
      */
     public function getHeaders($listUuid)
     {
-        return $this->client->hgetall($listUuid.self::HEADERS_SEPARATOR.'headers');
+        return $this->client->hgetall($listUuid.self::SEPARATOR.self::HEADERS);
     }
 
     /**
@@ -233,23 +294,44 @@ class RedisRepository implements ListRepository
      * @param $listUuid
      * @param $elementUuid
      * @param array $data
+     * @param null $ttl
      *
      * @return mixed
      */
-    public function updateElement($listUuid, $elementUuid, array $data = [])
+    public function updateElement($listUuid, $elementUuid, array $data = [], $ttl = null)
     {
-        $element = $this->findElement($listUuid, $elementUuid);
-        $objMerged = (object) array_merge((array) $element, (array) $data);
-        $updatedElement = new ListElement(
-            new ListElementUuid($elementUuid),
-            $objMerged
-        );
+        $number = ceil($this->getCounter($listUuid) / $this->chunkSize);
 
-        $this->client->hset(
-            $listUuid,
-            $elementUuid,
-            $updatedElement->getBody()
-        );
+        for ($i=1; $i<=$number; $i++) {
+            $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
+            $chunk = $this->client->hgetall($chunkNumber);
+
+            if (array_key_exists($elementUuid, $chunk)) {
+                $element = $this->findElement($listUuid, $elementUuid);
+                $objMerged = (object) array_merge((array) $element, (array) $data);
+                $updatedElement = new ListElement(
+                    new ListElementUuid($elementUuid),
+                    $objMerged
+                );
+                $body = $updatedElement->getBody();
+
+                $this->client->hset(
+                    $chunkNumber,
+                    $elementUuid,
+                    $body
+                );
+
+                if ($this->_existsElementInIndex($elementUuid)) {
+                    $this->_addOrUpdateElementToIndex(
+                        $elementUuid,
+                        strlen($body),
+                        $ttl
+                    );
+                }
+
+                break;
+            }
+        }
     }
 
     /**
@@ -269,7 +351,7 @@ class RedisRepository implements ListRepository
         }
 
         foreach ($list as $elementUuid => $element) {
-            if ($this->_existsElementInIndex($elementUuid)) {
+            if($this->_existsElementInIndex($elementUuid)){
                 $this->_addOrUpdateElementToIndex($elementUuid, $ttl);
             }
         }

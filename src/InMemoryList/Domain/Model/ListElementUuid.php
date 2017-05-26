@@ -9,6 +9,8 @@
  */
 namespace InMemoryList\Domain\Model;
 
+use InMemoryList\Domain\Model\Contracts\ListRepository;
+use InMemoryList\Domain\Model\Exceptions\ListElementNotAllowedUuidException;
 use Ramsey\Uuid\Uuid;
 
 class ListElementUuid
@@ -30,9 +32,25 @@ class ListElementUuid
 
     /**
      * @param null $uuid
+     * @throws ListElementNotAllowedUuidException
      */
     public function _setUUid($uuid = null)
     {
+        $notAllowedNames = [
+            ListRepository::CHUNK,
+            ListRepository::COUNTER,
+            ListRepository::HEADERS,
+            ListRepository::INDEX,
+            ListRepository::SEPARATOR,
+            ListRepository::STATISTICS,
+        ];
+
+        foreach ($notAllowedNames as $notAllowedName) {
+            if (strpos($uuid, $notAllowedName) !== false) {
+                throw new ListElementNotAllowedUuidException('You can\'t assign "'. $uuid . '" as element uuid.');
+            }
+        }
+
         $this->uuid = str_replace(' ', '-', $uuid) ?: Uuid::uuid4()->toString();
     }
 

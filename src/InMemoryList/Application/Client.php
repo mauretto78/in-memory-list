@@ -60,13 +60,13 @@ class Client
 
     /**
      * @param $driver
-     * @param array $parameters
+     * @param array $config
      */
-    private function _setRepository($driver, array $parameters = [])
+    private function _setRepository($driver, array $config = [])
     {
         $repository = 'InMemoryList\Infrastructure\Persistance\\'.ucfirst($driver).'Repository';
         $driver = 'InMemoryList\Infrastructure\Drivers\\'.ucfirst($driver).'Driver';
-        $instance = (new $driver($parameters))->getInstance();
+        $instance = (new $driver($config))->getInstance();
 
         $this->repository = new $repository($instance);
     }
@@ -87,21 +87,8 @@ class Client
      */
     public function create(array $elements, array $parameters = [])
     {
-        $allowedParameters = [
-            'element-uuid',
-            'headers',
-            'index',
-            'ttl',
-            'uuid',
-        ];
-
-        foreach ($parameters as $key => $parameter) {
-            if (!in_array($key, $allowedParameters)) {
-                throw new MalformedParametersException();
-            }
-        }
-
         try {
+            $this->_validateParameters($parameters);
             $factory = new ListCollectionFactory();
             $list = $factory->create(
                 $elements,
@@ -113,10 +100,33 @@ class Client
             return $this->repository->create(
                 $list,
                 (isset($parameters['ttl'])) ? $parameters['ttl'] : null,
-                (isset($parameters['index'])) ? $parameters['index'] : null
+                (isset($parameters['index'])) ? $parameters['index'] : null,
+                (isset($parameters['chunk-size'])) ? $parameters['chunk-size'] : null
             );
         } catch (\Exception $exception) {
             return $exception->getMessage();
+        }
+    }
+
+    /**
+     * @param $parameters
+     * @throws MalformedParametersException
+     */
+    private function _validateParameters($parameters)
+    {
+        $allowedParameters = [
+            'chunk-size',
+            'element-uuid',
+            'headers',
+            'index',
+            'ttl',
+            'uuid',
+        ];
+
+        foreach ($parameters as $key => $parameter) {
+            if (!in_array($key, $allowedParameters)) {
+                throw new MalformedParametersException();
+            }
         }
     }
 
@@ -166,6 +176,14 @@ class Client
     public function flush()
     {
         $this->repository->flush();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCounter($listUuid)
+    {
+        return $this->repository->getCounter($listUuid);
     }
 
     /**

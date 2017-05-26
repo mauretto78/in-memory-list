@@ -16,7 +16,7 @@ class ListCollectionUuidTest extends TestCase
     /**
      * @test
      * @expectedException \InMemoryList\Domain\Model\Exceptions\ListCollectionNotAllowedUuidException
-     * @expectedExceptionMessage You can't use statistics in your uuid.
+     * @expectedExceptionMessage You can't assign "statistics" as list uuid.
      */
     public function it_throws_ListCollectionNotAllowedUuidException_if_attempt_to_create_a_ListCollectionUuid_with_an_not_allowed_name()
     {

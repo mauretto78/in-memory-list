@@ -21,57 +21,92 @@ use Predis\Client;
 class ApcuRepository implements ListRepository
 {
     /**
+     * @var int
+     */
+    private $chunkSize;
+
+    /**
+     * ApcuRepository constructor.
+     */
+    public function __construct()
+    {
+        $this->chunkSize = self::CHUNKSIZE;
+    }
+
+    /**
      * @param ListCollection $list
      * @param null $ttl
      * @param null $index
+     * @param null $chunkSize
      *
      * @return mixed
      *
      * @throws ListAlreadyExistsException
      */
-    public function create(ListCollection $list, $ttl = null, $index = null)
+    public function create(ListCollection $list, $ttl = null, $index = null, $chunkSize = null)
     {
+        if ($chunkSize and is_int($chunkSize)) {
+            $this->chunkSize = $chunkSize;
+        }
+
         $listUuid = $list->getUuid();
 
         if ($this->findListByUuid($listUuid)) {
             throw new ListAlreadyExistsException('List '.$listUuid.' already exists in memory.');
         }
 
+        // create arrayOfElements
         $arrayOfElements = [];
-        $arrayOfElementsForStatistics = [];
 
         /** @var ListElement $element */
         foreach ($list->getItems() as $element) {
-            $listElementUuid = $element->getUuid();
-            $body = $element->getBody();
-
-            $arrayOfElements[(string)$listElementUuid] = $body;
-            $arrayOfElementsForStatistics[(string)$listElementUuid] = serialize([
-                'created_on' => new \DateTimeImmutable(),
-                'ttl' => $ttl,
-                'size' => strlen($body)
-            ]);
+            $arrayOfElements[(string) $element->getUuid()] = $element->getBody();
         }
 
-        // list index
+        // set counter
         apcu_store(
-            (string)$list->getUuid(),
-            $arrayOfElements,
+            (string)$list->getUuid().self::SEPARATOR.self::COUNTER,
+            count($list->getItems()),
             $ttl
         );
 
+        // persist in memory array in chunks
+        foreach (array_chunk($arrayOfElements, self::CHUNKSIZE, true) as $chunkNumber => $item) {
+            $arrayToPersist = [];
+            foreach ($item as $key => $element) {
+                $arrayToPersist[$key] = $element;
+            }
+
+            apcu_store(
+                (string)$list->getUuid().self::SEPARATOR.'chunk-'.($chunkNumber+1),
+                $arrayToPersist,
+                $ttl
+            );
+        }
+
         // add elements to general index
         if ($index) {
+            $arrayOfElementsForStatistics = [];
+
+            /** @var ListElement $element */
+            foreach ($list->getItems() as $element) {
+                $arrayOfElementsForStatistics[(string) $element->getUuid()] = serialize([
+                    'created_on' => new \DateTimeImmutable(),
+                    'ttl' => $ttl,
+                    'size' => strlen($element->getBody())
+                ]);
+            }
+
             apcu_store(
                 ListRepository::INDEX,
                 $arrayOfElementsForStatistics
             );
         }
 
-        // headers
+        // set headers
         if ($list->getHeaders()) {
             apcu_store(
-                (string)$list->getUuid().self::HEADERS_SEPARATOR.'headers',
+                (string)$list->getUuid().self::SEPARATOR.self::HEADERS,
                 $list->getHeaders(),
                 $ttl
             );
@@ -87,32 +122,44 @@ class ApcuRepository implements ListRepository
      */
     public function delete($listUuid)
     {
-        apcu_delete($listUuid);
+        $list = $this->findListByUuid($listUuid);
+
+        foreach ($list as $elementUuid => $element) {
+            $this->deleteElement($listUuid, $elementUuid);
+        }
     }
 
     /**
      * @param $listUuid
      * @param $elementUuid
      * @param null $ttl
+     *
+     * @return mixed
      */
     public function deleteElement($listUuid, $elementUuid, $ttl = null)
     {
-        $arrayToReplace = $this->findListByUuid($listUuid);
-        unset($arrayToReplace[(string) $elementUuid]);
+        $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
 
-        $this->delete($listUuid);
+        for ($i=1; $i<=$number; $i++) {
+            $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
+            $chunk = apcu_fetch($chunkNumber);
 
-        apcu_store(
-            (string)$listUuid,
-            $arrayToReplace,
-            $ttl
-        );
+            if (array_key_exists($elementUuid, $chunk)) {
+                unset($chunk[(string) $elementUuid]);
+                apcu_delete($chunkNumber);
+                apcu_store($chunkNumber, $chunk);
 
-        if ($this->_existsElementInIndex($elementUuid)) {
-            $indexStatistics = $this->getIndex();
-            unset($indexStatistics[(string) $elementUuid]);
+                if ($this->_existsElementInIndex($elementUuid)) {
+                    $indexStatistics = $this->getIndex();
+                    unset($indexStatistics[(string) $elementUuid]);
 
-            apcu_store(ListRepository::INDEX, $indexStatistics);
+                    apcu_delete(ListRepository::INDEX);
+                    apcu_store(ListRepository::INDEX, $indexStatistics);
+                }
+
+                apcu_dec($this->getCounter($listUuid));
+                break;
+            }
         }
     }
 
@@ -124,7 +171,7 @@ class ApcuRepository implements ListRepository
      */
     public function existsElement($listUuid, $elementUuid)
     {
-        return @isset(apcu_fetch($listUuid)[$elementUuid]);
+        return @$this->findListByUuid($listUuid)[$elementUuid];
     }
 
     /**
@@ -143,7 +190,18 @@ class ApcuRepository implements ListRepository
      */
     public function findListByUuid($listUuid)
     {
-        return apcu_fetch($listUuid);
+        $collection = [];
+        $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
+
+        for ($i=1; $i<=$number; $i++) {
+            if (empty($collection)) {
+                $collection = apcu_fetch($listUuid.self::SEPARATOR.self::CHUNK.'-1');
+            } else {
+                $collection = array_merge($collection, apcu_fetch($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
+            }
+        }
+
+        return $collection;
     }
 
     /**
@@ -156,11 +214,11 @@ class ApcuRepository implements ListRepository
      */
     public function findElement($listUuid, $elementUuid)
     {
-        if (!$this->existsElement($listUuid, $elementUuid)) {
+        if (!$element = $this->existsElement($listUuid, $elementUuid)) {
             throw new ListElementDoesNotExistsException('Cannot retrieve the element '.$elementUuid.' from the collection in memory.');
         }
 
-        return apcu_fetch($listUuid)[(string) $elementUuid];
+        return $element;
     }
 
     /**
@@ -174,11 +232,21 @@ class ApcuRepository implements ListRepository
     /**
      * @param $listUuid
      *
+     * @return mixed
+     */
+    public function getCounter($listUuid)
+    {
+        return apcu_fetch($listUuid.self::SEPARATOR.self::COUNTER);
+    }
+
+    /**
+     * @param $listUuid
+     *
      * @return array
      */
     public function getHeaders($listUuid)
     {
-        return apcu_fetch($listUuid.self::HEADERS_SEPARATOR.'headers');
+        return apcu_fetch($listUuid.self::SEPARATOR.'headers');
     }
 
     /**
@@ -207,42 +275,47 @@ class ApcuRepository implements ListRepository
      */
     public function updateElement($listUuid, $elementUuid, array $data = [], $ttl = null)
     {
-        $element = $this->findElement($listUuid, $elementUuid);
-        $arrayStatistics = $this->getStatistics();
+        $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
 
-        $objMerged = (object) array_merge((array) $element, (array) $data);
-        $arrayOfElements = apcu_fetch($listUuid);
-        $updatedElement = new ListElement(
-            new ListElementUuid($elementUuid),
-            $objMerged
-        );
-        $arrayOfElements[(string) $elementUuid] = $updatedElement->getBody();
-        $arrayStatistics[(string) $elementUuid] = serialize([
-            'created_on' => new \DateTimeImmutable(),
-            'ttl' => $ttl,
-            'size' => strlen($updatedElement->getBody())
-        ]);
+        for ($i=1; $i<=$number; $i++) {
+            $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
+            $chunk = apcu_fetch($chunkNumber);
 
-        $this->delete($listUuid);
+            if (array_key_exists($elementUuid, $chunk)) {
+                $element = $this->findElement($listUuid, $elementUuid);
+                $objMerged = (object) array_merge((array) $element, (array) $data);
+                $arrayOfElements = apcu_fetch($listUuid);
+                $updatedElement = new ListElement(
+                    new ListElementUuid($elementUuid),
+                    $objMerged
+                );
+                $body = $updatedElement->getBody();
+                $arrayOfElements[(string) $elementUuid] = $body;
 
-        apcu_store(
-            (string)$listUuid,
-            $arrayOfElements,
-            $ttl
-        );
+                apcu_delete($chunkNumber);
+                apcu_store(
+                    (string)$chunkNumber,
+                    $arrayOfElements,
+                    $ttl
+                );
 
-        if ($this->_existsElementInIndex($elementUuid)) {
-            $indexStatistics = $this->getIndex();
-            $indexStatistics[(string) $elementUuid] = serialize([
-                'created_on' => new \DateTimeImmutable(),
-                'ttl' => $ttl,
-                'size' => strlen($updatedElement->getBody())
-            ]);
+                if ($this->_existsElementInIndex($elementUuid)) {
+                    $indexStatistics = $this->getIndex();
+                    $indexStatistics[(string) $elementUuid] = serialize([
+                        'created_on' => new \DateTimeImmutable(),
+                        'ttl' => $ttl,
+                        'size' => strlen($body)
+                    ]);
 
-            apcu_store(
-                (string)ListRepository::INDEX,
-                $indexStatistics
-            );
+                    apcu_delete(ListRepository::INDEX);
+                    apcu_store(
+                        (string)ListRepository::INDEX,
+                        $indexStatistics
+                    );
+                }
+
+                break;
+            }
         }
     }
 

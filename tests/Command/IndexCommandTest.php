@@ -157,6 +157,7 @@ class IndexCommandTest extends TestCase
         $client->create(json_decode($this->array), [
             'uuid' => 'simple-list',
             'element-uuid' => 'id',
+            'ttl' => 3600,
             'index' => true
         ]);
 
