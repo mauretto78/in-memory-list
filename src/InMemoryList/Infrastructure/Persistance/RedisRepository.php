@@ -21,6 +21,11 @@ use Predis\Client;
 class RedisRepository implements ListRepository
 {
     /**
+     * @var int
+     */
+    private $chunkSize;
+
+    /**
      * @var Client
      */
     private $client;
@@ -33,19 +38,25 @@ class RedisRepository implements ListRepository
     public function __construct(Client $client)
     {
         $this->client = $client;
+        $this->chunkSize = self::CHUNKSIZE;
     }
 
     /**
      * @param ListCollection $list
      * @param null $ttl
      * @param null $index
+     * @param null $chunkSize
      *
      * @return mixed
      *
      * @throws ListAlreadyExistsException
      */
-    public function create(ListCollection $list, $ttl = null, $index = null)
+    public function create(ListCollection $list, $ttl = null, $index = null, $chunkSize = null)
     {
+        if($chunkSize and is_int($chunkSize)){
+            $this->chunkSize = $chunkSize;
+        }
+
         $listUuid = $list->getUuid();
 
         if ($this->findListByUuid($listUuid)) {
@@ -59,7 +70,7 @@ class RedisRepository implements ListRepository
         );
 
         // persist in memory array in chunks
-        foreach (array_chunk($list->getItems(), self::CHUNKSIZE) as $chunkNumber => $item) {
+        foreach (array_chunk($list->getItems(), $this->chunkSize) as $chunkNumber => $item) {
             foreach ($item as $key => $element) {
                 $listChunkUuid = $list->getUuid().self::SEPARATOR.self::CHUNK.'-'.($chunkNumber+1);
                 $elementUuid = $element->getUuid();
@@ -168,7 +179,7 @@ class RedisRepository implements ListRepository
     public function findListByUuid($listUuid)
     {
         $collection = [];
-        $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
+        $number = ceil($this->getCounter($listUuid) / $this->chunkSize);
 
         for ($i=1; $i<=$number; $i++) {
             if (empty($collection)) {
@@ -290,7 +301,7 @@ class RedisRepository implements ListRepository
      */
     public function updateElement($listUuid, $elementUuid, array $data = [], $ttl = null)
     {
-        $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
+        $number = ceil($this->getCounter($listUuid) / $this->chunkSize);
 
         for ($i=1; $i<=$number; $i++) {
             $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;

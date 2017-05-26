@@ -60,13 +60,13 @@ class Client
 
     /**
      * @param $driver
-     * @param array $parameters
+     * @param array $config
      */
-    private function _setRepository($driver, array $parameters = [])
+    private function _setRepository($driver, array $config = [])
     {
         $repository = 'InMemoryList\Infrastructure\Persistance\\'.ucfirst($driver).'Repository';
         $driver = 'InMemoryList\Infrastructure\Drivers\\'.ucfirst($driver).'Driver';
-        $instance = (new $driver($parameters))->getInstance();
+        $instance = (new $driver($config))->getInstance();
 
         $this->repository = new $repository($instance);
     }
@@ -100,7 +100,8 @@ class Client
             return $this->repository->create(
                 $list,
                 (isset($parameters['ttl'])) ? $parameters['ttl'] : null,
-                (isset($parameters['index'])) ? $parameters['index'] : null
+                (isset($parameters['index'])) ? $parameters['index'] : null,
+                (isset($parameters['chunk-size'])) ? $parameters['chunk-size'] : null
             );
         } catch (\Exception $exception) {
             return $exception->getMessage();
@@ -114,7 +115,7 @@ class Client
     private function _validateParameters($parameters)
     {
         $allowedParameters = [
-            'chunk',
+            'chunk-size',
             'element-uuid',
             'headers',
             'index',

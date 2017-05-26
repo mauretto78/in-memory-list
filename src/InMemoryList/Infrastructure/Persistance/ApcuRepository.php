@@ -21,16 +21,34 @@ use Predis\Client;
 class ApcuRepository implements ListRepository
 {
     /**
+     * @var int
+     */
+    private $chunkSize;
+
+    /**
+     * ApcuRepository constructor.
+     */
+    public function __construct()
+    {
+        $this->chunkSize = self::CHUNKSIZE;
+    }
+
+    /**
      * @param ListCollection $list
      * @param null $ttl
      * @param null $index
+     * @param null $chunkSize
      *
      * @return mixed
      *
      * @throws ListAlreadyExistsException
      */
-    public function create(ListCollection $list, $ttl = null, $index = null)
+    public function create(ListCollection $list, $ttl = null, $index = null, $chunkSize = null)
     {
+        if($chunkSize and is_int($chunkSize)){
+            $this->chunkSize = $chunkSize;
+        }
+
         $listUuid = $list->getUuid();
 
         if ($this->findListByUuid($listUuid)) {

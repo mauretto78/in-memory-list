@@ -20,6 +20,11 @@ use InMemoryList\Infrastructure\Persistance\Exceptions\ListElementDoesNotExistsE
 class MemcachedRepository implements ListRepository
 {
     /**
+     * @var int
+     */
+    private $chunkSize;
+
+    /**
      * @var \Memcached
      */
     private $memcached;
@@ -32,19 +37,25 @@ class MemcachedRepository implements ListRepository
     public function __construct(\Memcached $memcached)
     {
         $this->memcached = $memcached;
+        $this->chunkSize = self::CHUNKSIZE;
     }
 
     /**
      * @param ListCollection $list
      * @param null $ttl
      * @param null $index
+     * @param null $chunkSize
      *
      * @return mixed
      *
      * @throws ListAlreadyExistsException
      */
-    public function create(ListCollection $list, $ttl = null, $index = null)
+    public function create(ListCollection $list, $ttl = null, $index = null, $chunkSize = null)
     {
+        if($chunkSize and is_int($chunkSize)){
+            $this->chunkSize = $chunkSize;
+        }
+
         if ($this->findListByUuid($list->getUuid())) {
             throw new ListAlreadyExistsException('List '.$list->getUuid().' already exists in memory.');
         }
@@ -65,7 +76,7 @@ class MemcachedRepository implements ListRepository
         );
 
         // persist in memory array in chunks
-        foreach (array_chunk($arrayOfElements, self::CHUNKSIZE, true) as $chunkNumber => $item) {
+        foreach (array_chunk($arrayOfElements, $this->chunkSize, true) as $chunkNumber => $item) {
             $arrayToPersist = [];
             foreach ($item as $key => $element) {
                 $arrayToPersist[$key] = $element;

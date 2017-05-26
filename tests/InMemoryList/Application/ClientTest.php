@@ -15,11 +15,25 @@ use PHPUnit\Framework\TestCase;
 
 class ClientTest extends TestCase
 {
+    /**
+     * @var array
+     */
     private $parsedArrayFromJson;
+
+    /**
+     * @var array
+     */
+    private $memcached_parameters;
 
     public function setUp()
     {
         $this->parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
+        $this->memcached_parameters = [
+            [
+                'host' => 'localhost',
+                'port' => 11211
+            ],
+        ];
     }
 
     /**
@@ -176,7 +190,7 @@ class ClientTest extends TestCase
     /**
      * @test
      */
-    public function gfdfgfdgfd()
+    public function it_should_store_delete_and_retrieve_correctly_list_elements_in_chunks_from_redis()
     {
         $array = [];
         foreach (range(1, 5000) as $number) {
@@ -192,6 +206,7 @@ class ClientTest extends TestCase
         $client = new Client();
         $client->create(json_decode($apiArray), [
             'uuid' => 'range list',
+            'chunk-size' => 10
         ]);
 
         $this->assertEquals(5000, $client->getCounter('range-list'));
@@ -266,12 +281,13 @@ class ClientTest extends TestCase
             'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
         ];
 
-        $client = new Client('memcached', $memcached_parameters);
+        $client = new Client('memcached', $this->memcached_parameters);
         $client->flush();
         $client->create($this->parsedArrayFromJson, [
             'headers' => $headers,
             'uuid' => 'fake list',
             'element-uuid' => 'id',
+            'chunk-size' => 100,
             'index' => true
         ]);
         $client->deleteElement('fake-list', '7');
@@ -307,6 +323,31 @@ class ClientTest extends TestCase
     /**
      * @test
      */
+    public function it_should_store_delete_and_retrieve_correctly_list_elements_in_chunks_from_memcached()
+    {
+        $array = [];
+        foreach (range(1, 5000) as $number) {
+            $array[] = [
+                'id' => $number,
+                'name' => 'Name '.$number,
+                'email' => 'Email'.$number,
+            ];
+        }
+
+        $apiArray = json_encode($array);
+
+        $client = new Client('memcached', $this->memcached_parameters);
+        $client->create(json_decode($apiArray), [
+            'uuid' => 'range list',
+            'chunk-size' => 10
+        ]);
+
+        $this->assertEquals(5000, $client->getCounter('range-list'));
+    }
+
+    /**
+     * @test
+     */
     public function it_should_store_delete_and_retrieve_correctly_list_elements_from_apcu()
     {
         $headers = [
@@ -319,6 +360,7 @@ class ClientTest extends TestCase
         $client->create($this->parsedArrayFromJson, [
             'headers' => $headers,
             'uuid' => 'fake list',
+            'chunk-size' => 150,
             'element-uuid' => 'id'
         ]);
         $client->deleteElement('fake-list', '7');
@@ -345,5 +387,30 @@ class ClientTest extends TestCase
         $this->assertEquals('mauretto1978@yahoo.it', $element2->email);
 
         $client->delete('fake-list');
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_store_delete_and_retrieve_correctly_list_elements_in_chunks_from_apcu()
+    {
+        $array = [];
+        foreach (range(1, 5000) as $number) {
+            $array[] = [
+                'id' => $number,
+                'name' => 'Name '.$number,
+                'email' => 'Email'.$number,
+            ];
+        }
+
+        $apiArray = json_encode($array);
+
+        $client = new Client('apcu');
+        $client->create(json_decode($apiArray), [
+            'uuid' => 'range list',
+            'chunk-size' => 10
+        ]);
+
+        $this->assertEquals(5000, $client->getCounter('range-list'));
     }
 }
