@@ -45,7 +45,7 @@ class ApcuRepository implements ListRepository
      */
     public function create(ListCollection $list, $ttl = null, $index = null, $chunkSize = null)
     {
-        if($chunkSize and is_int($chunkSize)){
+        if ($chunkSize and is_int($chunkSize)) {
             $this->chunkSize = $chunkSize;
         }
 
