@@ -70,7 +70,7 @@ class RedisRepository implements ListRepository
         );
 
         // persist in memory array in chunks
-        foreach (array_chunk($list->getItems(), $this->chunkSize) as $chunkNumber => $item) {
+        foreach (array_chunk($list->getItems(), $this->chunkSize, true) as $chunkNumber => $item) {
             foreach ($item as $key => $element) {
                 $listChunkUuid = $list->getUuid().self::SEPARATOR.self::CHUNK.'-'.($chunkNumber+1);
                 $elementUuid = $element->getUuid();
@@ -112,7 +112,7 @@ class RedisRepository implements ListRepository
             }
 
             if ($ttl) {
-                $this->client->expire($listUuid.self::HEADERS_SEPARATOR.'headers', $ttl);
+                $this->client->expire($listUuid.self::SEPARATOR.self::HEADERS, $ttl);
             }
         }
 

@@ -98,9 +98,10 @@ Please refer to [official page](https://github.com/nrk/predis) for more details 
 When use `create` method to a generate a list, you can provide to it a parameters array. The allowed keys are:
 
 * `uuid` - uuid of list
-* `headers` - headers array for the list
 * `element-uuid` - uuid for the list elements
+* `headers` - headers array for the list
 * `index` - add the list elements to cache index or not
+* `chunk-size` - the chunks size in which the array will be splitted (integer)
 * `ttl` - time to live of the list (in seconds)
 
 ### uuid
@@ -204,6 +205,23 @@ $collection = $client->create($array, [
 ]);
 
 // now your list will be present in the cache index
+
+// ..
+```
+
+### chunk-size
+
+You can specify the number of elements of each chunk in which the original array will be splitted. The default value is `1000`.
+
+```php
+use InMemoryList\Application\Client;
+
+$client = new Client();
+$collection = $client->create($array, [
+    'uuid' => 'simple-array',
+    'element-uuid' => 'id',
+    'chunk-size' => 1500
+]);
 
 // ..
 ```
@@ -365,55 +383,13 @@ Each string in square brackets represents an array, so to get a multi-server con
 
 `iml:cache:statistics memcached [host=localhost,port=11211] [host=localhost,port=11222]`
 
-## Performance
-
-Consider this simple piece of code:
-
-```php
-$start = microtime(true);
-
-// create an array with n elements
-// example:
-// $from = 1
-// $to = 10000
-foreach (range($from, $to) as $number) {
-    $array[] = [
-        'id' => $number,
-        'name' => 'Name '.$number,
-        'email' => 'Email'.$number,
-    ];
-}
-
-$apiArray = json_encode($array);
-
-$client = new Client($driver, $parameters);
-$collection = $client->findListByUuid('range-list') ?:  $client->create(json_decode($apiArray), ['uuid' => 'range-list', 'element-uuid' => 'id']);
-
-foreach ($collection as $element) {
-    $item = $client->item($element);
-    echo '<p>';
-    echo '<strong>id</strong>: '.$item->id.'<br>';
-    echo '<strong>name</strong>: '.$item->name.'<br>';
-    echo '<strong>email</strong>: '.$item->email.'<br>';
-    echo '</p>';
-}
-
-echo ' ELAPSED TIME: '.$time_elapsed_secs = microtime(true) - $start;
-```
-
-A list with `n` elements is persisted. It was measured separately the time for displaying a simple `var_dump($collection)` and the whole list.
-
-Here are the results obtained:
-
-![Alt text](https://raw.githubusercontent.com/mauretto78/in-memory-list/master/examples/img/banchmark-1.jpg "Benchmark")
-
 ## Testing
 
 In order to run all the test, you need to install **all the drivers** on your machine:
 
-* APCU - [install via PECL](https://pecl.php.net/package/APCu)
-* MEMCACHED - [install via PECL](https://pecl.php.net/package/memcached)
-* REDIS - [official install guide](https://redis.io/topics/quickstart)
+* APCU - [(install via PECL)](https://pecl.php.net/package/APCu) 
+* MEMCACHED - [(install via PECL)](https://pecl.php.net/package/memcached) 
+* REDIS - [(official install guide)](https://redis.io/topics/quickstart)
 
 ## Built With
 
