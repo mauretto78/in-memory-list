@@ -5,13 +5,10 @@ set_time_limit(0);
 
 require __DIR__.'/../vendor/autoload.php';
 
-$app = new \Symfony\Component\Console\Application('In Memory List', 'v1.0');
+$app = new \Symfony\Component\Console\Application('In Memory List', 'v1.2');
 
 // add commands here
-$app->add(new \InMemoryList\Command\FlushCommand('redis', [
-    'host' => '127.0.0.1',
-    'port' => 6379,
-]));
+$app->add(new \InMemoryList\Command\FlushCommand());
 $app->add(new \InMemoryList\Command\IndexCommand());
 $app->add(new \InMemoryList\Command\StatisticsCommand());
 
