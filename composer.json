@@ -1,6 +1,5 @@
 {
     "name": "mauretto78/in-memory-list",
-    "version": "1.2.1",
     "type": "library",
     "description": "In Memory List",
     "keywords": ["apcu", "memcached", "redis", "cache", "list", "in-memory"],
