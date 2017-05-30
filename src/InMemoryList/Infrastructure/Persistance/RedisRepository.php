@@ -58,6 +58,7 @@ class RedisRepository implements ListRepository
         }
 
         $listUuid = $list->getUuid();
+        $counterUuid = (string)$list->getUuid() . self::SEPARATOR . self::COUNTER;
 
         if ($this->findListByUuid($listUuid)) {
             throw new ListAlreadyExistsException('List '.$list->getUuid().' already exists in memory.');
@@ -65,7 +66,7 @@ class RedisRepository implements ListRepository
 
         // set counter
         $this->client->set(
-            (string)$list->getUuid().self::SEPARATOR.self::COUNTER,
+            $counterUuid,
             count($list->getItems())
         );
 
@@ -95,6 +96,10 @@ class RedisRepository implements ListRepository
                 if ($ttl) {
                     $this->client->expire(
                         (string)$listChunkUuid,
+                        $ttl
+                    );
+                    $this->client->expire(
+                        (string)$counterUuid,
                         $ttl
                     );
                 }
@@ -250,8 +255,9 @@ class RedisRepository implements ListRepository
      */
     private function _addOrUpdateElementToIndex($elementUuid, $size, $ttl = null)
     {
+        $indexKey = ListRepository::INDEX;
         $this->client->hset(
-            ListRepository::INDEX,
+            $indexKey,
             $elementUuid,
             serialize([
                 'uuid' => $elementUuid,
@@ -260,6 +266,10 @@ class RedisRepository implements ListRepository
                 'size' => $size
             ])
         );
+
+        if($ttl){
+            $this->client->expire($indexKey, $ttl);
+        }
     }
 
     /**
