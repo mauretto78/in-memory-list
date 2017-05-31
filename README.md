@@ -243,6 +243,18 @@ $collection = $client->create($array, [
 // ..
 ```
 
+## Delete an element
+
+To delete an element in you list do this:
+
+```php
+// ..
+$client->deleteElement(
+    $listUuid, 
+    $elementUuid,
+);
+```
+
 ## Update an element
 
 To update an element in you list, you can simply do this:
@@ -297,6 +309,7 @@ You can use the following operators to perform your queries:
 * `>=`
 * `!=`
 * `ARRAY`
+* `ARRAY_INVERSED`
 * `CONTAINS` (case insensitive)
 
 ## Limit and Offset

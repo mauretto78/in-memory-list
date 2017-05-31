@@ -212,31 +212,36 @@ class QueryBuilderTest extends TestCase
         $qb8->addCriteria('name', ['Leanne Graham', 'Ervin Howell', 'Clementine Bauch'], 'ARRAY');
         $this->assertCount(3, $qb8->getResults());
 
-        // perform a concatenated query
+        // perform a ARRAY_INVERSED query
         $qb9 = new QueryBuilder($userCollection);
-        $qb9
+        $qb9->addCriteria('tags', 'pinapple', 'ARRAY_INVERSED');
+        $this->assertCount(9, $qb9->getResults());
+
+        // perform a concatenated query
+        $qb10 = new QueryBuilder($userCollection);
+        $qb10
             ->addCriteria('name', 'Clement', 'CONTAINS')
             ->addCriteria('id', '6', '>=')
         ;
-        $this->assertCount(1, $qb9->getResults());
+        $this->assertCount(1, $qb10->getResults());
 
         // perform a concatenated query with order by and check that first element of array is the expected one
-        $qb10 = new QueryBuilder($userCollection);
-        $qb10->orderBy('id', 'DESC');
-        $results = $qb10->getResults();
+        $qb11 = new QueryBuilder($userCollection);
+        $qb11->orderBy('id', 'DESC');
+        $results = $qb11->getResults();
         $firstResult = $this->client->item($results[0]);
         $this->assertEquals($firstResult->id, '10');
 
         // perform a concatenated query with order by and check that first element of array is the expected one
         $postCollection = $this->client->create($this->parsedPostsArray, [], 'post-list', 'id');
-        $qb11 = new QueryBuilder($postCollection);
-        $qb11->orderBy('userId');
-        $results = $qb11->getResults();
+        $qb12 = new QueryBuilder($postCollection);
+        $qb12->orderBy('userId');
+        $results = $qb12->getResults();
 
         // perform a concatenated query with limit
-        $qb12 = new QueryBuilder($userCollection);
-        $qb12->limit(0, 5);
-        $this->assertCount(5, $qb12->getResults());
+        $qb13 = new QueryBuilder($userCollection);
+        $qb13->limit(0, 5);
+        $this->assertCount(5, $qb13->getResults());
 
         $this->client->flush();
     }

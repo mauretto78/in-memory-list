@@ -20,7 +20,11 @@
       "name": "Romaguera-Crona",
       "catchPhrase": "Multi-layered client-server neural-net",
       "bs": "harness real-time e-markets"
-    }
+    },
+    "tags": [
+      "apple",
+      "pear"
+    ]
   },
   {
     "id": 2,
@@ -43,7 +47,12 @@
       "name": "Deckow-Crist",
       "catchPhrase": "Proactive didactic contingency",
       "bs": "synergize scalable supply-chains"
-    }
+    },
+    "tags": [
+      "apple",
+      "pinapple",
+      "pear"
+    ]
   },
   {
     "id": 3,
@@ -66,7 +75,12 @@
       "name": "Romaguera-Jacobson",
       "catchPhrase": "Face to face bifurcated interface",
       "bs": "e-enable strategic applications"
-    }
+    },
+    "tags": [
+      "apple",
+      "pinapple",
+      "pear"
+    ]
   },
   {
     "id": 4,
@@ -89,7 +103,12 @@
       "name": "Robel-Corkery",
       "catchPhrase": "Multi-tiered zero tolerance productivity",
       "bs": "transition cutting-edge web services"
-    }
+    },
+    "tags": [
+      "apple",
+      "pinapple",
+      "pear"
+    ]
   },
   {
     "id": 5,
@@ -112,7 +131,12 @@
       "name": "Keebler LLC",
       "catchPhrase": "User-centric fault-tolerant solution",
       "bs": "revolutionize end-to-end systems"
-    }
+    },
+    "tags": [
+      "apple",
+      "pinapple",
+      "pear"
+    ]
   },
   {
     "id": 6,
@@ -135,7 +159,12 @@
       "name": "Considine-Lockman",
       "catchPhrase": "Synchronised bottom-line interface",
       "bs": "e-enable innovative applications"
-    }
+    },
+    "tags": [
+      "apple",
+      "pinapple",
+      "pear"
+    ]
   },
   {
     "id": 7,
@@ -158,7 +187,12 @@
       "name": "Johns Group",
       "catchPhrase": "Configurable multimedia task-force",
       "bs": "generate enterprise e-tailers"
-    }
+    },
+    "tags": [
+      "apple",
+      "pinapple",
+      "pear"
+    ]
   },
   {
     "id": 8,
@@ -181,7 +215,12 @@
       "name": "Abernathy Group",
       "catchPhrase": "Implemented secondary concept",
       "bs": "e-enable extensible e-tailers"
-    }
+    },
+    "tags": [
+      "apple",
+      "pinapple",
+      "pear"
+    ]
   },
   {
     "id": 9,
@@ -204,7 +243,12 @@
       "name": "Yost and Sons",
       "catchPhrase": "Switchable contextually-based project",
       "bs": "aggregate real-time technologies"
-    }
+    },
+    "tags": [
+      "apple",
+      "pinapple",
+      "pear"
+    ]
   },
   {
     "id": 10,
@@ -227,6 +271,11 @@
       "name": "Hoeger LLC",
       "catchPhrase": "Centralized empowering task-force",
       "bs": "target end-to-end models"
-    }
+    },
+    "tags": [
+      "apple",
+      "pinapple",
+      "pear"
+    ]
   }
 ]
