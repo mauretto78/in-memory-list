@@ -65,13 +65,14 @@ class RedisRepository implements ListRepository
         }
 
         // set counter
+        $items = $list->getItems();
         $this->client->set(
             $counterUuid,
-            count($list->getItems())
+            (int)count($items)
         );
 
         // persist in memory array in chunks
-        foreach (array_chunk($list->getItems(), $this->chunkSize, true) as $chunkNumber => $item) {
+        foreach (array_chunk($items, $this->chunkSize, true) as $chunkNumber => $item) {
             foreach ($item as $key => $element) {
                 $listChunkUuid = $list->getUuid().self::SEPARATOR.self::CHUNK.'-'.($chunkNumber+1);
                 $elementUuid = $element->getUuid();
@@ -82,15 +83,6 @@ class RedisRepository implements ListRepository
                     (string)$elementUuid,
                     (string)$body
                 );
-
-                // add elements to general index
-                if ($index) {
-                    $this->_addOrUpdateElementToIndex(
-                        $elementUuid,
-                        strlen($body),
-                        $ttl
-                    );
-                }
 
                 // set ttl
                 if ($ttl) {
@@ -104,6 +96,11 @@ class RedisRepository implements ListRepository
                     );
                 }
             }
+        }
+
+        // add list to general index
+        if ($index) {
+            $this->_addOrUpdateListToIndex($listUuid, count($items), $ttl);
         }
 
         // set headers
@@ -133,6 +130,10 @@ class RedisRepository implements ListRepository
     {
         $list = $this->findListByUuid($listUuid);
 
+        if ($this->_existsListInIndex($listUuid)) {
+            $this->_removeListFromIndex($listUuid);
+        }
+
         foreach ($list as $elementUuid => $element) {
             $this->deleteElement($listUuid, $elementUuid);
         }
@@ -145,6 +146,9 @@ class RedisRepository implements ListRepository
      */
     public function deleteElement($listUuid, $elementUuid)
     {
+        echo '1';
+        die();
+
         $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
 
         for ($i=1; $i<=$number; $i++) {
@@ -153,12 +157,14 @@ class RedisRepository implements ListRepository
 
             if (array_key_exists($elementUuid, $chunk)) {
                 $this->client->hdel($chunkNumber, $elementUuid);
+                $this->client->decr($listUuid.self::SEPARATOR.self::COUNTER);
 
-                if ($this->_existsElementInIndex($elementUuid)) {
-                    $this->_removeElementToIndex($elementUuid);
+                if ($this->_existsListInIndex((string)$listUuid)) {
+                    $prevIndex = $this->client->hget(ListRepository::INDEX, $listUuid);
+                    $prevIndex = unserialize($prevIndex);
+                    $this->_addOrUpdateListToIndex($listUuid, ($prevIndex['size'] - 1), $prevIndex['ttl']);
                 }
 
-                $this->client->decr($this->getCounter($listUuid));
                 break;
             }
         }
@@ -249,47 +255,51 @@ class RedisRepository implements ListRepository
     }
 
     /**
-     * @param $elementUuid
-     * @param $size
+     * @param $listUuid
+     * @param int $listCount
      * @param null $ttl
      */
-    private function _addOrUpdateElementToIndex($elementUuid, $size, $ttl = null)
+    private function _addOrUpdateListToIndex($listUuid, $listCount, $ttl = null)
     {
         $indexKey = ListRepository::INDEX;
         $this->client->hset(
             $indexKey,
-            $elementUuid,
+            $listUuid,
             serialize([
-                'uuid' => $elementUuid,
+                'uuid' => (string)$listUuid->getUuid(),
                 'created_on' => new \DateTimeImmutable(),
-                'ttl' => $ttl,
-                'size' => $size
+                'size' => $listCount,
+                'ttl' => $ttl
             ])
         );
 
         if($ttl){
             $this->client->expire($indexKey, $ttl);
         }
+
+        if($listCount === 0) {
+            $this->client->hdel($indexKey, $listUuid);
+        }
     }
 
     /**
-     * @param $elementUuid
+     * @param $listUuid
      */
-    private function _removeElementToIndex($elementUuid)
+    private function _removeListFromIndex($listUuid)
     {
         $this->client->hdel(
             ListRepository::INDEX,
-            $elementUuid
+            $listUuid
         );
     }
 
     /**
-     * @param $elementUuid
-     * @return string
+     * @param $listUuid
+     * @return bool
      */
-    private function _existsElementInIndex($elementUuid)
+    private function _existsListInIndex($listUuid)
     {
-        return (!$this->client->hget(ListRepository::INDEX, $elementUuid)) ? false : true;
+        return $this->client->hget(ListRepository::INDEX, $listUuid) !== null;
     }
 
     /**
@@ -304,11 +314,10 @@ class RedisRepository implements ListRepository
      * @param $listUuid
      * @param $elementUuid
      * @param array $data
-     * @param null $ttl
      *
      * @return mixed
      */
-    public function updateElement($listUuid, $elementUuid, array $data = [], $ttl = null)
+    public function updateElement($listUuid, $elementUuid, array $data = [])
     {
         $number = ceil($this->getCounter($listUuid) / $this->chunkSize);
 
@@ -331,14 +340,6 @@ class RedisRepository implements ListRepository
                     $body
                 );
 
-                if ($this->_existsElementInIndex($elementUuid)) {
-                    $this->_addOrUpdateElementToIndex(
-                        $elementUuid,
-                        strlen($body),
-                        $ttl
-                    );
-                }
-
                 break;
             }
         }
@@ -360,10 +361,8 @@ class RedisRepository implements ListRepository
             throw new ListDoesNotExistsException('List '.$listUuid.' does not exists in memory.');
         }
 
-        foreach ($list as $elementUuid => $element) {
-            if($this->_existsElementInIndex($elementUuid)){
-                $this->_addOrUpdateElementToIndex($elementUuid, $ttl);
-            }
+        if($this->_existsListInIndex($listUuid)){
+            $this->_addOrUpdateListToIndex($listUuid, $ttl);
         }
 
         $this->client->expire($listUuid, $ttl);

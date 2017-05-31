@@ -52,14 +52,14 @@ class IndexCommand extends BaseCommand
         $parameters = $this->convertparametersArray($input->getArgument('parameters')) ?: $this->defaultParameters;
 
         $cache = $this->createClient($driver, $parameters);
-        $statistics = $cache->getIndex();
+        $index = $cache->getIndex();
 
-        if ($statistics and count($statistics)) {
+        if ($index and count($index)) {
             $table = new Table($output);
-            $table->setHeaders(['#', 'Key', 'Created on', 'Expire', 'Ttl', 'Size']);
+            $table->setHeaders(['#', 'List', 'Created on', 'Expire', 'Ttl', 'Size']);
 
             $counter = 0;
-            foreach ($statistics as $key => $item) {
+            foreach ($index as $key => $item) {
                 $item = unserialize($item);
 
                 /** @var \DateTimeImmutable $created_on */
