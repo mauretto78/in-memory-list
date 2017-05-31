@@ -295,10 +295,11 @@ class ClientTest extends TestCase
         $client->deleteElement('fake-list', '9');
         $element1 = unserialize($client->findElement('fake-list', '1'));
         $element2 = unserialize($client->findElement('fake-list', '2'));
+        $index = unserialize($client->getIndex()['fake-list']);
 
         $this->assertInstanceOf(MemcachedRepository::class, $client->getRepository());
         $this->assertCount(7, $client->findListByUuid('fake-list'));
-        $this->assertCount(7, $client->getIndex());
+        $this->assertEquals(7, $index['size']);
         $this->assertEquals('Leanne Graham', $element1->name);
         $this->assertEquals('Ervin Howell', $element2->name);
         $this->assertEquals($client->getHeaders('fake-list'), $headers);

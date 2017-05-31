@@ -103,7 +103,24 @@ class MemcachedRepositoryTest extends TestCase
         $this->assertArrayHasKey('category', $element1);
         $this->assertArrayHasKey('rate', $element1);
 
-        $this->repo->delete($listUuid);
+        $this->repo->deleteElement(
+            (string) $collection->getUuid(),
+            (string) $fakeElement1->getUuid()
+        );
+        $this->repo->deleteElement(
+            (string) $collection->getUuid(),
+            (string) $fakeElement2->getUuid()
+        );
+        $this->repo->deleteElement(
+            (string) $collection->getUuid(),
+            (string) $fakeElement3->getUuid()
+        );
+        $this->repo->deleteElement(
+            (string) $collection->getUuid(),
+            (string) $fakeElement4->getUuid()
+        );
+
+        $this->assertEquals(0, $this->repo->getCounter($collection->getUuid()));
     }
 
     /**
@@ -133,14 +150,15 @@ class MemcachedRepositoryTest extends TestCase
             (string) $fakeUuid1->getUuid())
         );
 
+        $index = unserialize($this->repo->getIndex()[(string)$listUuid]);
+
         $this->assertCount(10, $list);
         $this->assertInstanceOf(stdClass::class, $element);
         $this->assertEquals($this->repo->getHeaders($collection->getUuid()), $headers);
-        $this->assertCount(10, $this->repo->getIndex());
-        $this->assertArrayHasKey($fakeUuid1->getUuid(), $this->repo->getIndex());
+        $this->assertEquals(10, $index['size']);
         $this->assertGreaterThan(0, $this->repo->getStatistics());
 
-        $this->repo->delete($listUuid);
+        $this->repo->delete((string)$listUuid);
     }
 
     /**

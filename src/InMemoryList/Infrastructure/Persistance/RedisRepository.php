@@ -130,10 +130,6 @@ class RedisRepository implements ListRepository
     {
         $list = $this->findListByUuid($listUuid);
 
-        if ($this->_existsListInIndex($listUuid)) {
-            $this->_removeListFromIndex($listUuid);
-        }
-
         foreach ($list as $elementUuid => $element) {
             $this->deleteElement($listUuid, $elementUuid);
         }
@@ -146,9 +142,6 @@ class RedisRepository implements ListRepository
      */
     public function deleteElement($listUuid, $elementUuid)
     {
-        echo '1';
-        die();
-
         $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
 
         for ($i=1; $i<=$number; $i++) {
@@ -156,10 +149,22 @@ class RedisRepository implements ListRepository
             $chunk = $this->client->hgetall($chunkNumber);
 
             if (array_key_exists($elementUuid, $chunk)) {
-                $this->client->hdel($chunkNumber, $elementUuid);
-                $this->client->decr($listUuid.self::SEPARATOR.self::COUNTER);
 
-                if ($this->_existsListInIndex((string)$listUuid)) {
+                // delete elements from chunk
+                $this->client->hdel($chunkNumber, $elementUuid);
+
+                // decr counter and delete counter and headers if counter = 0
+                $indexKey = $listUuid . self::SEPARATOR . self::COUNTER;
+                $counter = $this->client->decr($indexKey);
+                if($counter === 0){
+                    $this->client->del([
+                        $indexKey,
+                        $listUuid.self::SEPARATOR.self::HEADERS
+                    ]);
+                }
+
+                // update list index
+                if ($this->_existsListInIndex($listUuid)) {
                     $prevIndex = $this->client->hget(ListRepository::INDEX, $listUuid);
                     $prevIndex = unserialize($prevIndex);
                     $this->_addOrUpdateListToIndex($listUuid, ($prevIndex['size'] - 1), $prevIndex['ttl']);
@@ -266,7 +271,7 @@ class RedisRepository implements ListRepository
             $indexKey,
             $listUuid,
             serialize([
-                'uuid' => (string)$listUuid->getUuid(),
+                'uuid' => $listUuid,
                 'created_on' => new \DateTimeImmutable(),
                 'size' => $listCount,
                 'ttl' => $ttl
@@ -278,7 +283,7 @@ class RedisRepository implements ListRepository
         }
 
         if($listCount === 0) {
-            $this->client->hdel($indexKey, $listUuid);
+            $this->_removeListFromIndex($listUuid);
         }
     }
 

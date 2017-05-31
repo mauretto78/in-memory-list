@@ -32,31 +32,6 @@ class RedisRepositoryTest extends TestCase
     /**
      * @test
      */
-    public function dfsfdsfsdfsdsf()
-    {
-        $this->repo->flush();
-
-        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../../examples/files/users.json'));
-
-        $listUuid = new ListCollectionUuid();
-        $collection = new ListCollection($listUuid);
-        foreach ($parsedArrayFromJson as $element) {
-            $collection->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
-        }
-
-        $this->repo->create($collection, 3600, true);
-
-        $listUuid1 = $collection->getUuid();
-
-        $this->repo->deleteElement($listUuid1, '1');
-
-        echo $listUuid1;
-        $this->assertEquals(0, $this->repo->getCounter($listUuid1));
-    }
-
-    /**
-     * @test
-     */
     public function it_should_create_query_and_delete_the_list_from_redis()
     {
         $fakeElement1 = new ListElement($fakeUUid1 = new ListElementUuid(), [
@@ -103,7 +78,7 @@ class RedisRepositoryTest extends TestCase
         $collection->addItem($fakeElement4);
         $collection->addItem($fakeElement5);
 
-        $this->repo->create($collection);
+        $this->repo->create($collection, 3600, true);
         $this->repo->deleteElement(
             (string) $collection->getUuid(),
             (string) $fakeElement5->getUuid()
@@ -116,8 +91,26 @@ class RedisRepositoryTest extends TestCase
         $this->assertArrayHasKey('category-id', $element1);
         $this->assertArrayHasKey('category', $element1);
         $this->assertArrayHasKey('rate', $element1);
+        $this->assertEquals(4, $this->repo->getCounter($collection->getUuid()));
 
-        $this->repo->delete($listUuid);
+        $this->repo->deleteElement(
+            (string) $collection->getUuid(),
+            (string) $fakeElement1->getUuid()
+        );
+        $this->repo->deleteElement(
+            (string) $collection->getUuid(),
+            (string) $fakeElement2->getUuid()
+        );
+        $this->repo->deleteElement(
+            (string) $collection->getUuid(),
+            (string) $fakeElement3->getUuid()
+        );
+        $this->repo->deleteElement(
+            (string) $collection->getUuid(),
+            (string) $fakeElement4->getUuid()
+        );
+
+        $this->assertEquals(0, $this->repo->getCounter($collection->getUuid()));
     }
 
     /**
