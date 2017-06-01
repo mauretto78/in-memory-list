@@ -77,9 +77,9 @@ $client = new Client('memcached', $memcached_parameters);
 ```php
 use InMemoryList\Application\Client;
 
-// You have to use arrays
-// You can't use URI string like 'tcp://10.0.0.1:6379'
-// Redis, please refer to PRedis library documentation
+// you have to use arrays
+// you can't use URI string like 'tcp://10.0.0.1:6379'
+// please refer to PRedis library documentation
 $redis_parameters = [
     'scheme' => 'tcp',
     'host' => '127.0.0.1',
