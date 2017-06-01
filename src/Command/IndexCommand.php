@@ -55,6 +55,16 @@ class IndexCommand extends BaseCommand
         $index = $cache->getIndex();
 
         if ($index and count($index)) {
+
+            // check and remove empty list from index
+            foreach ($index as $key => $item) {
+                $item = unserialize($item);
+
+                if (!$cache->findListByUuid($item['uuid'])) {
+                    $cache->delete($item['uuid']);
+                }
+            }
+
             $table = new Table($output);
             $table->setHeaders(['#', 'List', 'Created on', 'Expire', 'Ttl', 'Size']);
 
@@ -75,7 +85,7 @@ class IndexCommand extends BaseCommand
                     $counter,
                     [
                         $counter+1,
-                        '<fg=yellow>'.$key.'</>',
+                        '<fg=yellow>'.$item['uuid'].'</>',
                         $created_on->format('Y-m-d H:i:s'),
                         $expire_date,
                         $item['ttl'],

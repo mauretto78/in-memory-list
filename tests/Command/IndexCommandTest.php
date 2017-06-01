@@ -120,6 +120,9 @@ class IndexCommandTest extends TestCase
         $commandTester->execute([
             'command' => $command->getName(),
             'driver' => 'memcached',
+            'parameters' => [
+                'host=localhost,port=11211',
+            ]
         ]);
 
         $output = $commandTester->getDisplay();

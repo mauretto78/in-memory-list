@@ -56,11 +56,10 @@ class MemcachedRepository implements ListRepository
             $this->chunkSize = $chunkSize;
         }
 
+        $listUuid = (string) $list->getUuid();
         if ($this->findListByUuid($list->getUuid())) {
             throw new ListAlreadyExistsException('List '.$list->getUuid().' already exists in memory.');
         }
-
-        $listUuid = (string) $list->getUuid();
 
         // create arrayOfElements
         $arrayOfElements = [];
@@ -146,7 +145,7 @@ class MemcachedRepository implements ListRepository
                 $headersKey = $listUuid . self::SEPARATOR . self::HEADERS;
                 $counter = $this->memcached->decrement($indexKey);
 
-                if($counter === 0){
+                if ($counter === 0) {
                     $this->memcached->delete($headersKey);
 
                     $index = $this->getIndex();
@@ -254,14 +253,6 @@ class MemcachedRepository implements ListRepository
     /**
      * @return array
      */
-    public function getStatistics()
-    {
-        return $this->memcached->getStats();
-    }
-
-    /**
-     * @return array
-     */
     public function getIndex()
     {
         return $this->memcached->get(ListRepository::INDEX);
@@ -282,17 +273,13 @@ class MemcachedRepository implements ListRepository
             'ttl' => $ttl
         ]);
 
-        if($this->_existsListInIndex($listUuid)){
+        if ($this->_existsListInIndex($listUuid)) {
             $this->memcached->replace($indexKey, [$listUuid => $indexArray]);
         } else {
             $this->memcached->set($indexKey, [$listUuid => $indexArray]);
         }
 
-        if($ttl){
-            $this->memcached->touch($indexKey, $ttl);
-        }
-
-        if($listCount === 0) {
+        if ($listCount === 0) {
             $this->_removeListFromIndex($listUuid);
         }
     }
@@ -306,6 +293,14 @@ class MemcachedRepository implements ListRepository
 
         unset($index[(string) $listUuid]);
         $this->memcached->replace(ListRepository::INDEX, $index);
+    }
+
+    /**
+     * @return array
+     */
+    public function getStatistics()
+    {
+        return $this->memcached->getStats();
     }
 
     /**

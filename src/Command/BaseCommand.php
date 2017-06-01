@@ -72,19 +72,21 @@ class BaseCommand extends Command
     protected function convertparametersArray(array $parameters = [])
     {
         $convertedparametersArray = [];
+        $array = [];
 
         foreach ($parameters as $param) {
-            $param = str_replace(['[',']'], '', $param);
             $param = explode(',', $param);
 
             if (count($param)) {
                 foreach ($param as $p) {
                     $p = explode('=', $p);
                     if (count($p)) {
-                        $convertedparametersArray[@$p[0]] = @$p[1];
+                        $array[@$p[0]] = @$p[1];
                     }
                 }
             }
+
+            $convertedparametersArray[] = $array;
         }
 
         return $convertedparametersArray;

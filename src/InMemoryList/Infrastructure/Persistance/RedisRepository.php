@@ -156,7 +156,7 @@ class RedisRepository implements ListRepository
                 // decr counter and delete counter and headers if counter = 0
                 $indexKey = $listUuid . self::SEPARATOR . self::COUNTER;
                 $counter = $this->client->decr($indexKey);
-                if($counter === 0){
+                if ($counter === 0) {
                     $this->client->del([
                         $indexKey,
                         $listUuid.self::SEPARATOR.self::HEADERS
@@ -278,11 +278,7 @@ class RedisRepository implements ListRepository
             ])
         );
 
-        if($ttl){
-            $this->client->expire($indexKey, $ttl);
-        }
-
-        if($listCount === 0) {
+        if ($listCount === 0) {
             $this->_removeListFromIndex($listUuid);
         }
     }
@@ -366,7 +362,7 @@ class RedisRepository implements ListRepository
             throw new ListDoesNotExistsException('List '.$listUuid.' does not exists in memory.');
         }
 
-        if($this->_existsListInIndex($listUuid)){
+        if ($this->_existsListInIndex($listUuid)) {
             $this->_addOrUpdateListToIndex($listUuid, $ttl);
         }
 

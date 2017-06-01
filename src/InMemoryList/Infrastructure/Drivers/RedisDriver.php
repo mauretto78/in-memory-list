@@ -67,9 +67,17 @@ class RedisDriver implements DriverInterface
             'weight',
         ];
 
-        foreach ($config as $key => $item) {
-            if (!in_array($key, $allowedConfigKeys)) {
-                throw new RedisMalformedConfigException();
+        foreach ($config as $param => $server) {
+            if (is_array($server)) {
+                foreach ($server as $key => $item) {
+                    if (!in_array($key, $allowedConfigKeys)) {
+                        throw new RedisMalformedConfigException();
+                    }
+                }
+            } else {
+                if (!in_array($param, $allowedConfigKeys)) {
+                    throw new RedisMalformedConfigException();
+                }
             }
         }
 
@@ -77,6 +85,7 @@ class RedisDriver implements DriverInterface
     }
 
     /**
+     * @codeCoverageIgnore
      * @return bool
      */
     public function check()
@@ -101,12 +110,22 @@ class RedisDriver implements DriverInterface
      */
     public function connect()
     {
-        $this->instance = new Redis(array_merge([
-            'host' => '127.0.0.1',
-            'port' => 6379,
-            'password' => null,
-            'database' => null,
-        ], $this->config));
+        $servers = $this->config ?: [];
+
+        if (count($servers) === 1) {
+            $servers = $servers[0];
+        }
+
+        if (count($servers) === 0) {
+            $servers = [
+                'host' => '127.0.0.1',
+                'port' => 6379,
+                'password' => null,
+                'database' => null,
+            ];
+        }
+
+        $this->instance = new Redis($servers);
 
         return true;
     }

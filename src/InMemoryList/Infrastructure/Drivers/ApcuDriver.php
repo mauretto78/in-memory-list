@@ -29,6 +29,7 @@ class ApcuDriver implements DriverInterface
     }
 
     /**
+     * @codeCoverageIgnore
      * @return bool
      */
     public function check()

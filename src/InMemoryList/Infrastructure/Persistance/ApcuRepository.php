@@ -49,8 +49,7 @@ class ApcuRepository implements ListRepository
             $this->chunkSize = $chunkSize;
         }
 
-        $listUuid = $list->getUuid();
-
+        $listUuid = (string) $list->getUuid();
         if ($this->findListByUuid($listUuid)) {
             throw new ListAlreadyExistsException('List '.$listUuid.' already exists in memory.');
         }
@@ -86,21 +85,7 @@ class ApcuRepository implements ListRepository
 
         // add elements to general index
         if ($index) {
-            $arrayOfElementsForStatistics = [];
-
-            /** @var ListElement $element */
-            foreach ($list->getItems() as $element) {
-                $arrayOfElementsForStatistics[(string) $element->getUuid()] = serialize([
-                    'created_on' => new \DateTimeImmutable(),
-                    'ttl' => $ttl,
-                    'size' => strlen($element->getBody())
-                ]);
-            }
-
-            apcu_store(
-                ListRepository::INDEX,
-                $arrayOfElementsForStatistics
-            );
+            $this->_addOrUpdateListToIndex($listUuid, count($list->getItems(), $ttl));
         }
 
         // set headers
@@ -145,19 +130,33 @@ class ApcuRepository implements ListRepository
             $chunk = apcu_fetch($chunkNumber);
 
             if (array_key_exists($elementUuid, $chunk)) {
+
+                // delete elements from chunk
                 unset($chunk[(string) $elementUuid]);
                 apcu_delete($chunkNumber);
                 apcu_store($chunkNumber, $chunk);
 
-                if ($this->_existsElementInIndex($elementUuid)) {
-                    $indexStatistics = $this->getIndex();
-                    unset($indexStatistics[(string) $elementUuid]);
+                // decr counter and delete counter and headers if counter = 0
+                $indexKey = $listUuid . self::SEPARATOR . self::COUNTER;
+                $headersKey = $listUuid . self::SEPARATOR . self::HEADERS;
+                $counter = apcu_dec($indexKey);
 
-                    apcu_delete(ListRepository::INDEX);
-                    apcu_store(ListRepository::INDEX, $indexStatistics);
+                if ($counter === 0) {
+                    apcu_delete($headersKey);
+
+                    $index = $this->getIndex();
+                    unset($index[$listUuid]);
+                    apcu_delete($indexKey);
+                    apcu_store($indexKey, $index);
                 }
 
-                apcu_dec($this->getCounter($listUuid));
+                // update list index
+                if ($this->_existsListInIndex($listUuid)) {
+                    $prevIndex = apcu_store(ListRepository::INDEX)[$listUuid];
+                    $prevIndex = unserialize($prevIndex);
+                    $this->_addOrUpdateListToIndex($listUuid, ($prevIndex['size'] - 1), $prevIndex['ttl']);
+                }
+
                 break;
             }
         }
@@ -175,12 +174,12 @@ class ApcuRepository implements ListRepository
     }
 
     /**
-     * @param $elementUuid
-     * @return string
+     * @param $listUuid
+     * @return bool
      */
-    private function _existsElementInIndex($elementUuid)
+    private function _existsListInIndex($listUuid)
     {
-        return (isset(apcu_fetch(ListRepository::INDEX)[$elementUuid]));
+        return (isset(apcu_fetch(ListRepository::INDEX)[$listUuid]));
     }
 
     /**
@@ -258,6 +257,49 @@ class ApcuRepository implements ListRepository
     }
 
     /**
+     * @param $listUuid
+     * @param int $listCount
+     * @param null $ttl
+     */
+    private function _addOrUpdateListToIndex($listUuid, $listCount, $ttl = null)
+    {
+        $indexKey = ListRepository::INDEX;
+        $indexArray = serialize([
+            'uuid' => $listUuid,
+            'created_on' => new \DateTimeImmutable(),
+            'size' => $listCount,
+            'ttl' => $ttl
+        ]);
+
+        if ($this->_existsListInIndex($listUuid)) {
+            $index = $this->getIndex();
+            $index[] = $indexArray;
+
+            apcu_delete($indexKey);
+            apcu_store($indexKey, $index);
+        } else {
+            apcu_store($indexKey, [$listUuid => $indexArray]);
+        }
+
+        if ($listCount === 0) {
+            $this->_removeListFromIndex($listUuid);
+        }
+    }
+
+    /**
+     * @param $listUuid
+     */
+    private function _removeListFromIndex($listUuid)
+    {
+        $indexKey = ListRepository::INDEX;
+        $index = $this->getIndex();
+        unset($index[(string) $listUuid]);
+
+        apcu_delete($indexKey);
+        apcu_store($indexKey, $index);
+    }
+
+    /**
      * @return array
      */
     public function getStatistics()
@@ -298,21 +340,6 @@ class ApcuRepository implements ListRepository
                     $arrayOfElements,
                     $ttl
                 );
-
-                if ($this->_existsElementInIndex($elementUuid)) {
-                    $indexStatistics = $this->getIndex();
-                    $indexStatistics[(string) $elementUuid] = serialize([
-                        'created_on' => new \DateTimeImmutable(),
-                        'ttl' => $ttl,
-                        'size' => strlen($body)
-                    ]);
-
-                    apcu_delete(ListRepository::INDEX);
-                    apcu_store(
-                        (string)ListRepository::INDEX,
-                        $indexStatistics
-                    );
-                }
 
                 break;
             }
