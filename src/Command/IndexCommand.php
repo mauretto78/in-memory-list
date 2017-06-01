@@ -52,14 +52,24 @@ class IndexCommand extends BaseCommand
         $parameters = $this->convertparametersArray($input->getArgument('parameters')) ?: $this->defaultParameters;
 
         $cache = $this->createClient($driver, $parameters);
-        $statistics = $cache->getIndex();
+        $index = $cache->getIndex();
 
-        if ($statistics and count($statistics)) {
+        if ($index and count($index)) {
+
+            // check and remove empty list from index
+            foreach ($index as $key => $item) {
+                $item = unserialize($item);
+
+                if (!$cache->findListByUuid($item['uuid'])) {
+                    $cache->delete($item['uuid']);
+                }
+            }
+
             $table = new Table($output);
-            $table->setHeaders(['#', 'Key', 'Created on', 'Expire', 'Ttl', 'Size']);
+            $table->setHeaders(['#', 'List', 'Created on', 'Expire', 'Ttl', 'Size']);
 
             $counter = 0;
-            foreach ($statistics as $key => $item) {
+            foreach ($index as $key => $item) {
                 $item = unserialize($item);
 
                 /** @var \DateTimeImmutable $created_on */
@@ -75,7 +85,7 @@ class IndexCommand extends BaseCommand
                     $counter,
                     [
                         $counter+1,
-                        '<fg=yellow>'.$key.'</>',
+                        '<fg=yellow>'.$item['uuid'].'</>',
                         $created_on->format('Y-m-d H:i:s'),
                         $expire_date,
                         $item['ttl'],

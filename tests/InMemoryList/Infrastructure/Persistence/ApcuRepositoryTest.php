@@ -91,7 +91,24 @@ class ApcuRepositoryTest extends TestCase
         $this->assertArrayHasKey('category', $element1);
         $this->assertArrayHasKey('rate', $element1);
 
-        $this->repo->delete((string)$listUuid);
+        $this->repo->deleteElement(
+            (string) $collection->getUuid(),
+            (string) $fakeElement1->getUuid()
+        );
+        $this->repo->deleteElement(
+            (string) $collection->getUuid(),
+            (string) $fakeElement2->getUuid()
+        );
+        $this->repo->deleteElement(
+            (string) $collection->getUuid(),
+            (string) $fakeElement3->getUuid()
+        );
+        $this->repo->deleteElement(
+            (string) $collection->getUuid(),
+            (string) $fakeElement4->getUuid()
+        );
+
+        $this->assertEquals(0, $this->repo->getCounter($collection->getUuid()));
     }
 
     /**
@@ -116,18 +133,18 @@ class ApcuRepositoryTest extends TestCase
         $this->repo->create($collection, null, true);
 
         $list = $this->repo->findListByUuid($collection->getUuid());
-        $element = $this->repo->findElement($collection->getUuid(), $fakeUuid1->getUuid());
+        $element = unserialize(
+            (string) $this->repo->findElement($collection->getUuid(),
+                (string) $fakeUuid1->getUuid())
+        );
+
+        $index = unserialize($this->repo->getIndex()[(string)$listUuid]);
 
         $this->assertCount(10, $list);
-        $this->assertInstanceOf(stdClass::class, unserialize($element));
+        $this->assertInstanceOf(stdClass::class, $element);
         $this->assertEquals($this->repo->getHeaders($collection->getUuid()), $headers);
-        $this->assertCount(10, $this->repo->getIndex());
-        $this->assertArrayHasKey($fakeUuid1->getUuid(), $this->repo->getIndex());
+        $this->assertEquals(10, $index['size']);
         $this->assertGreaterThan(0, $this->repo->getStatistics());
-
-        $statisticsElement1 = $this->repo->getIndex()[$fakeUuid1->getUuid()];
-        $created_on = unserialize($statisticsElement1)['created_on'];
-        $this->assertInstanceOf(DateTimeImmutable::class, $created_on);
 
         $this->repo->delete((string)$listUuid);
     }

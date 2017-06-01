@@ -68,6 +68,7 @@ class MemcachedDriver implements DriverInterface
     }
 
     /**
+     * @codeCoverageIgnore
      * @return bool
      */
     public function check()

@@ -78,7 +78,7 @@ class RedisRepositoryTest extends TestCase
         $collection->addItem($fakeElement4);
         $collection->addItem($fakeElement5);
 
-        $this->repo->create($collection);
+        $this->repo->create($collection, 3600, true);
         $this->repo->deleteElement(
             (string) $collection->getUuid(),
             (string) $fakeElement5->getUuid()
@@ -91,8 +91,26 @@ class RedisRepositoryTest extends TestCase
         $this->assertArrayHasKey('category-id', $element1);
         $this->assertArrayHasKey('category', $element1);
         $this->assertArrayHasKey('rate', $element1);
+        $this->assertEquals(4, $this->repo->getCounter($collection->getUuid()));
 
-        $this->repo->delete($listUuid);
+        $this->repo->deleteElement(
+            (string) $collection->getUuid(),
+            (string) $fakeElement1->getUuid()
+        );
+        $this->repo->deleteElement(
+            (string) $collection->getUuid(),
+            (string) $fakeElement2->getUuid()
+        );
+        $this->repo->deleteElement(
+            (string) $collection->getUuid(),
+            (string) $fakeElement3->getUuid()
+        );
+        $this->repo->deleteElement(
+            (string) $collection->getUuid(),
+            (string) $fakeElement4->getUuid()
+        );
+
+        $this->assertEquals(0, $this->repo->getCounter($collection->getUuid()));
     }
 
     /**
@@ -137,16 +155,18 @@ class RedisRepositoryTest extends TestCase
 
         $this->repo->create($collection, 3600, true);
 
-        $list = $this->repo->findListByUuid($collection->getUuid());
-        $element = $this->repo->findElement($collection->getUuid(), $fakeUuid1->getUuid());
+        $listUuid1 = $collection->getUuid();
+        $list = $this->repo->findListByUuid($listUuid1);
+        $element = $this->repo->findElement($listUuid1, $fakeUuid1->getUuid());
+        $listInTheIndex = $this->repo->getIndex()[$listUuid1->getUuid()];
 
         $this->assertCount(10, $list);
         $this->assertInstanceOf(stdClass::class, unserialize($element));
-        $this->assertEquals($this->repo->getHeaders($collection->getUuid()), $headers);
-        $this->assertArrayHasKey('expires', $this->repo->getHeaders($collection->getUuid()));
-        $this->assertArrayHasKey('hash', $this->repo->getHeaders($collection->getUuid()));
-        $this->assertCount(10, $this->repo->getIndex());
-        $this->assertArrayHasKey($fakeUuid1->getUuid(), $this->repo->getIndex());
+        $this->assertEquals($this->repo->getHeaders($listUuid1), $headers);
+        $this->assertArrayHasKey('expires', $this->repo->getHeaders($listUuid1));
+        $this->assertArrayHasKey('hash', $this->repo->getHeaders($listUuid1));
+        $this->assertEquals(10, unserialize($listInTheIndex)['size']);
+        $this->assertArrayHasKey($listUuid1->getUuid(), $this->repo->getIndex());
 
         $this->repo->updateTtl($listUuid, 7200);
         $this->repo->delete($listUuid);
