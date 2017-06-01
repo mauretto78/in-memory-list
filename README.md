@@ -77,7 +77,9 @@ $client = new Client('memcached', $memcached_parameters);
 ```php
 use InMemoryList\Application\Client;
 
-// Redis, please refer to PRedis library
+// You have to use arrays
+// You can't use URI string like 'tcp://10.0.0.1:6379'
+// Redis, please refer to PRedis library documentation
 $redis_parameters = [
     'scheme' => 'tcp',
     'host' => '127.0.0.1',
@@ -390,11 +392,11 @@ $console->add(new \InMemoryList\Command\FlushCommand('redis', [
 
 If you prefer you can use this syntax on command line:
 
-`iml:cache:COMMAND DRIVER [key=value,key2=value2,key3=value3]`
+`iml:cache:COMMAND DRIVER key=value,key2=value2,key3=value3`
 
-Each string in square brackets represents an array, so to get a multi-server connection you have to pass arrays separated by space. Example:
+Each string represents an array, so to get a multi-server connection you have to pass arrays separated by space. Example:
 
-`iml:cache:statistics memcached [host=localhost,port=11211] [host=localhost,port=11222]`
+`iml:cache:statistics memcached host=localhost,port=11211 host=localhost,port=11222`
 
 ## Testing
 
