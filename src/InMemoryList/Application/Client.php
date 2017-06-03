@@ -100,7 +100,6 @@ class Client
             return $this->repository->create(
                 $list,
                 (isset($parameters['ttl'])) ? $parameters['ttl'] : null,
-                (isset($parameters['index'])) ? $parameters['index'] : null,
                 (isset($parameters['chunk-size'])) ? $parameters['chunk-size'] : null
             );
         } catch (\Exception $exception) {
@@ -118,7 +117,6 @@ class Client
             'chunk-size',
             'element-uuid',
             'headers',
-            'index',
             'ttl',
             'uuid',
         ];

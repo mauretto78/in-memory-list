@@ -10,6 +10,7 @@
 namespace InMemoryList\Domain\Model\Contracts;
 
 use InMemoryList\Domain\Model\ListCollection;
+use InMemoryList\Domain\Model\ListElement;
 
 interface ListRepository
 {
@@ -24,12 +25,11 @@ interface ListRepository
     /**
      * @param ListCollection $list
      * @param null $ttl
-     * @param null $index
      * @param null $chunkSize
      *
      * @return mixed
      */
-    public function create(ListCollection $list, $ttl = null, $index = null, $chunkSize = null);
+    public function create(ListCollection $list, $ttl = null, $chunkSize = null);
 
     /**
      * @param $listUuid
@@ -96,6 +96,9 @@ interface ListRepository
      * @return mixed
      */
     public function getStatistics();
+
+
+    public function pushElement($listUuid, ListElement $listElement);
 
     /**
      * @param $listUuid
