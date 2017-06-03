@@ -9,7 +9,7 @@
  */
 use InMemoryList\Application\Client;
 
-include __DIR__.'/shared.php';
+include __DIR__ . '/../tests/bootstrap.php';
 
 $simpleArray = json_encode([
     [
@@ -31,7 +31,7 @@ $headers = [
     'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
 ];
 
-$client = new Client();
+$client = new Client('redis', $config['redis_parameters']);
 $collection = $client->findListByUuid('simple-list-with-headers') ?:  $client->create(json_decode($simpleArray), ['uuid' => 'simple-list-with-headers', 'headers' => $headers]);
 
 // loop items

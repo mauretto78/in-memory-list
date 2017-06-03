@@ -1,11 +1,11 @@
 <?php
 
 use InMemoryList\Command\FlushCommand;
+use InMemoryList\Tests\BaseTestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
-use PHPUnit\Framework\TestCase;
 
-class FlushCommandTest extends TestCase
+class FlushCommandTest extends BaseTestCase
 {
     /**
      * @var Application
@@ -62,10 +62,7 @@ class FlushCommandTest extends TestCase
      */
     public function it_displays_correctly_redis_flush_message()
     {
-        $this->app->add(new FlushCommand('redis', [
-            'host' => '127.0.0.1',
-            'port' => 6379,
-        ]));
+        $this->app->add(new FlushCommand('redis', $this->redis_parameters));
         $command = $this->app->find('iml:cache:flush');
 
         $commandTester = new CommandTester($command);

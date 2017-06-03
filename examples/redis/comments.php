@@ -9,13 +9,13 @@
  */
 use InMemoryList\Application\Client;
 
-include __DIR__.'/../shared.php';
+include __DIR__ . '/../../tests/bootstrap.php';
 
 $start = microtime(true);
 $apiUrl = 'https://jsonplaceholder.typicode.com/comments';
 $apiArray = json_decode(file_get_contents($apiUrl));
 
-$client = new Client('redis', $redis_parameters);
+$client = new Client('redis', $config['redis_parameters']);
 $collection = $client->findListByUuid('comments-list') ?: $client->create($apiArray, ['uuid' => 'comments-list', 'element-uuid' => 'id']);
 
 // loop items

@@ -2,11 +2,12 @@
 
 use InMemoryList\Application\Client;
 use InMemoryList\Command\IndexCommand;
+use InMemoryList\Tests\BaseTestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use PHPUnit\Framework\TestCase;
 
-class IndexCommandTest extends TestCase
+class IndexCommandTest extends BaseTestCase
 {
     /**
      * @var Application

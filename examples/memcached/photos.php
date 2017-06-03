@@ -9,13 +9,13 @@
  */
 use InMemoryList\Application\Client;
 
-include __DIR__.'/../shared.php';
+include __DIR__ . '/../../tests/bootstrap.php';
 
 $start = microtime(true);
 $apiUrl = 'https://jsonplaceholder.typicode.com/photos';
 $apiArray = json_decode(file_get_contents($apiUrl));
 
-$client = new Client('memcached', $memcached_parameters);
+$client = new Client('memcached', $config['memcached_parameters']);
 $collection = $client->findListByUuid('photos-list') ?:  $client->create($apiArray, ['uuid' => 'photos-list', 'element-uuid' => 'id']);
 
 // loop items

@@ -9,7 +9,7 @@
  */
 use InMemoryList\Application\Client;
 
-include __DIR__.'/../shared.php';
+include __DIR__ . '/../../tests/bootstrap.php';
 
 $start = microtime(true);
 
@@ -28,7 +28,7 @@ foreach ($range as $number) {
 
 $apiArray = json_encode($array);
 
-$client = new Client('memcached', $memcached_parameters);
+$client = new Client('memcached', $config['memcached_parameters']);
 $collection = $client->findListByUuid('range-list') ?:  $client->create(json_decode($apiArray), ['uuid' => 'range-list', 'element-uuid' => 'id']);
 
 // loop items

@@ -9,18 +9,21 @@
  */
 
 use InMemoryList\Infrastructure\Drivers\MemcachedDriver;
-use PHPUnit\Framework\TestCase;
+use InMemoryList\Tests\BaseTestCase;
 
-class MemcachedDriverTest extends TestCase
+class MemcachedDriverTest extends BaseTestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+    }
+
     /**
      * @test
      */
     public function it_should_return_Memcached_instance_if_empty_config_array_is_provided()
     {
-        $memcached_parameters = [];
-
-        $driver = new MemcachedDriver($memcached_parameters);
+        $driver = new MemcachedDriver([]);
         $instance = $driver->getInstance();
         $driver->clear();
 
@@ -51,18 +54,7 @@ class MemcachedDriverTest extends TestCase
      */
     public function it_should_return_Memcached_instance_if_correct_config_array_is_provided()
     {
-        $memcached_parameters = [
-            [
-                'host' =>'127.0.0.1',
-                'port' => 11211,
-            ],
-            [
-                'host' =>'127.0.0.1',
-                'port' => 11221,
-            ],
-        ];
-
-        $driver = new MemcachedDriver($memcached_parameters);
+        $driver = new MemcachedDriver($this->memcached_parameters);
         $instance = $driver->getInstance();
         $driver->clear();
 

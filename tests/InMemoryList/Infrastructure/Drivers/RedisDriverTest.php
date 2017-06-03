@@ -9,10 +9,15 @@
  */
 
 use InMemoryList\Infrastructure\Drivers\RedisDriver;
-use PHPUnit\Framework\TestCase;
+use InMemoryList\Tests\BaseTestCase;
 
-class RedisDriverTest extends TestCase
+class RedisDriverTest extends BaseTestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+    }
+
     /**
      * @test
      * @expectedException \Predis\Connection\ConnectionException
@@ -56,16 +61,7 @@ class RedisDriverTest extends TestCase
      */
     public function it_should_return_PRedis_Client_instance_if_correct_config_array_is_provided()
     {
-        $redis_parameters = [
-            'scheme' => 'tcp',
-            'host' => '127.0.0.1',
-            'port' => 6379,
-            'options' => [
-                'profile' => '3.0',
-            ],
-        ];
-
-        $driver = new RedisDriver($redis_parameters);
+        $driver = new RedisDriver($this->redis_parameters);
         $instance = $driver->getInstance();
         $driver->clear();
 

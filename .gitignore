@@ -1,3 +1,4 @@
 .idea
+config/parameters.yml
 tests/coverage
 vendor

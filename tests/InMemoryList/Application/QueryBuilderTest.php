@@ -9,9 +9,9 @@
  */
 use InMemoryList\Application\Client;
 use InMemoryList\Application\QueryBuilder;
-use PHPUnit\Framework\TestCase;
+use InMemoryList\Tests\BaseTestCase;
 
-class QueryBuilderTest extends TestCase
+class QueryBuilderTest extends BaseTestCase
 {
     /**
      * @var array
@@ -30,7 +30,8 @@ class QueryBuilderTest extends TestCase
 
     public function setUp()
     {
-        $this->client = new Client();
+        parent::setUp();
+        $this->client = new Client('redis', $this->redis_parameters);
         $this->parsedPostsArray = json_decode(file_get_contents(__DIR__.'/../../../examples/files/posts.json'));
         $this->parsedUserArray = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
     }

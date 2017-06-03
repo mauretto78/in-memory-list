@@ -12,9 +12,9 @@ use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Domain\Model\ListCollectionUuid;
 use InMemoryList\Infrastructure\Persistance\MemcachedRepository;
-use PHPUnit\Framework\TestCase;
+use InMemoryList\Tests\BaseTestCase;
 
-class MemcachedRepositoryTest extends TestCase
+class MemcachedRepositoryTest extends BaseTestCase
 {
     /**
      * @var MemcachedRepository
@@ -26,11 +26,7 @@ class MemcachedRepositoryTest extends TestCase
         parent::setUp();
 
         $memcached = new Memcached();
-        $memcached->addServers(
-            [
-                ['localhost', 11211],
-            ]
-        );
+        $memcached->addServers($this->memcached_parameters);
 
         $this->repo = new MemcachedRepository($memcached);
     }
