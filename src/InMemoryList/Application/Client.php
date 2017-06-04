@@ -12,6 +12,8 @@ namespace InMemoryList\Application;
 use InMemoryList\Application\Exceptions\MalformedParametersException;
 use InMemoryList\Application\Exceptions\NotSupportedDriverException;
 use InMemoryList\Domain\Model\Contracts\ListRepository;
+use InMemoryList\Domain\Model\ListElement;
+use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Infrastructure\Domain\Model\ListCollectionFactory;
 
 class Client
@@ -193,11 +195,12 @@ class Client
     }
 
     /**
+     * @param null $listUuid
      * @return mixed
      */
-    public function getIndex()
+    public function getIndex($listUuid = null)
     {
-        return $this->repository->getIndex();
+        return $this->repository->getIndex($listUuid);
     }
 
     /**
@@ -208,6 +211,11 @@ class Client
         return $this->repository->getStatistics();
     }
 
+    public function getTtl($listUuid)
+    {
+        return $this->repository->getTtl($listUuid);
+    }
+
     /**
      * @param $string
      *
@@ -216,6 +224,16 @@ class Client
     public function item($string)
     {
         return unserialize($string);
+    }
+
+    public function pushElement($listUuid, $elementUuid, array $data = [])
+    {
+        $newElement = new ListElement(
+            new ListElementUuid($elementUuid),
+            $data
+        );
+
+        return $this->repository->pushElement($listUuid, $newElement);
     }
 
     /**

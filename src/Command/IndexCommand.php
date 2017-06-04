@@ -66,7 +66,7 @@ class IndexCommand extends BaseCommand
             }
 
             $table = new Table($output);
-            $table->setHeaders(['#', 'List', 'Created on', 'Expire', 'Ttl', 'Size']);
+            $table->setHeaders(['#', 'List', 'Created on', 'Ttl', 'Items']);
 
             $counter = 0;
             foreach ($index as $key => $item) {
@@ -74,21 +74,13 @@ class IndexCommand extends BaseCommand
 
                 /** @var \DateTimeImmutable $created_on */
                 $created_on = $item['created_on'];
-
-                if ($item['ttl'] and $item['ttl'] > 0) {
-                    $expire_date = $created_on->add(new \DateInterval('PT'.$item['ttl'].'S'))->format('Y-m-d H:i:s');
-                } else {
-                    $expire_date = '--';
-                }
-
                 $table->setRow(
                     $counter,
                     [
                         $counter+1,
                         '<fg=yellow>'.$item['uuid'].'</>',
                         $created_on->format('Y-m-d H:i:s'),
-                        $expire_date,
-                        $item['ttl'],
+                        $cache->getTtl($item['uuid']),
                         $item['size'],
                     ]
                 );

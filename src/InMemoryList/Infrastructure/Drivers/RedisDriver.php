@@ -29,6 +29,7 @@ class RedisDriver implements DriverInterface
 
     /**
      * RedisDriver constructor.
+     * @codeCoverageIgnore
      * @param array $config
      * @throws RedisDriverCheckException
      */

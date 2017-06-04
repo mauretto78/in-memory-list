@@ -36,14 +36,13 @@ class ApcuRepository implements ListRepository
     /**
      * @param ListCollection $list
      * @param null $ttl
-     * @param null $index
      * @param null $chunkSize
      *
      * @return mixed
      *
      * @throws ListAlreadyExistsException
      */
-    public function create(ListCollection $list, $ttl = null, $index = null, $chunkSize = null)
+    public function create(ListCollection $list, $ttl = null, $chunkSize = null)
     {
         if ($chunkSize and is_int($chunkSize)) {
             $this->chunkSize = $chunkSize;
@@ -84,9 +83,7 @@ class ApcuRepository implements ListRepository
         }
 
         // add elements to general index
-        if ($index) {
-            $this->_addOrUpdateListToIndex($listUuid, count($list->getItems(), $ttl));
-        }
+        $this->_addOrUpdateListToIndex($listUuid, count($list->getItems(), $ttl));
 
         // set headers
         if ($list->getHeaders()) {
@@ -137,25 +134,19 @@ class ApcuRepository implements ListRepository
                 apcu_store($chunkNumber, $chunk);
 
                 // decr counter and delete counter and headers if counter = 0
-                $indexKey = $listUuid . self::SEPARATOR . self::COUNTER;
+                $counterKey = $listUuid . self::SEPARATOR . self::COUNTER;
                 $headersKey = $listUuid . self::SEPARATOR . self::HEADERS;
-                $counter = apcu_dec($indexKey);
+                $counter = apcu_dec($counterKey);
 
                 if ($counter === 0) {
                     apcu_delete($headersKey);
-
-                    $index = $this->getIndex();
-                    unset($index[$listUuid]);
-                    apcu_delete($indexKey);
-                    apcu_store($indexKey, $index);
+                    apcu_delete($counterKey);
                 }
 
                 // update list index
-                if ($this->_existsListInIndex($listUuid)) {
-                    $prevIndex = apcu_store(ListRepository::INDEX)[$listUuid];
-                    $prevIndex = unserialize($prevIndex);
-                    $this->_addOrUpdateListToIndex($listUuid, ($prevIndex['size'] - 1), $prevIndex['ttl']);
-                }
+                $prevIndex = apcu_store(ListRepository::INDEX)[$listUuid];
+                $prevIndex = unserialize($prevIndex);
+                $this->_addOrUpdateListToIndex($listUuid, ($prevIndex['size'] - 1), $prevIndex['ttl']);
 
                 break;
             }
@@ -249,11 +240,17 @@ class ApcuRepository implements ListRepository
     }
 
     /**
-     * @return array
+     * @param null $listUuid
+     * @return mixed
      */
-    public function getIndex()
+    public function getIndex($listUuid = null)
     {
-        return apcu_fetch(ListRepository::INDEX);
+        $indexKey = ListRepository::INDEX;
+        if ($listUuid) {
+            return apcu_fetch($indexKey)[$listUuid];
+        }
+
+        return apcu_fetch($indexKey);
     }
 
     /**
@@ -309,6 +306,16 @@ class ApcuRepository implements ListRepository
 
     /**
      * @param $listUuid
+     * @param ListElement $listElement
+     * @return mixed
+     */
+    public function pushElement($listUuid, ListElement $listElement)
+    {
+        // TODO: Implement pushElement() method.
+    }
+
+    /**
+     * @param $listUuid
      * @param $elementUuid
      * @param array $data
      * @param null $ttl
@@ -354,7 +361,34 @@ class ApcuRepository implements ListRepository
      *
      * @throws ListDoesNotExistsException
      */
-    public function updateTtl($listUuid, $ttl = null)
+    public function updateTtl($listUuid, $ttl)
     {
+        $list = $this->findListByUuid($listUuid);
+
+        if (!$list) {
+            throw new ListDoesNotExistsException('List '.$listUuid.' does not exists in memory.');
+        }
+
+        $this->_addOrUpdateListToIndex($listUuid, $ttl);
+        apcu_delete($listUuid);
+        apcu_store($listUuid, $list, $ttl);
+    }
+
+    /**
+     * @param $listUuid
+     * @return mixed
+     */
+    public function getTtl($listUuid)
+    {
+        $index = unserialize($this->getIndex($listUuid));
+        if ($index['ttl'] and $index['ttl'] > 0) {
+            $now = new \DateTime('NOW');
+            $expire_date = $index['created_on']->add(new \DateInterval('PT'.$index['ttl'].'S'));
+            $diffSeconds =  $expire_date->getTimestamp() - $now->getTimestamp();
+
+            return  $diffSeconds;
+        }
+
+        return 0;
     }
 }

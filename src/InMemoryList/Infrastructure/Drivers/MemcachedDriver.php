@@ -30,6 +30,7 @@ class MemcachedDriver implements DriverInterface
 
     /**
      * MemcachedDriver constructor.
+     * @codeCoverageIgnore
      * @param array $config
      * @throws MemcachedDriverCheckException
      */

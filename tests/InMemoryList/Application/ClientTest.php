@@ -176,13 +176,23 @@ class ClientTest extends BaseTestCase
 
         $apiArray = json_encode($array);
 
-        $client = new Client();
+        $client = new Client('redis', $this->redis_parameters);
         $client->create(json_decode($apiArray), [
             'uuid' => 'range list',
             'chunk-size' => 10
         ]);
 
-        $this->assertEquals(5000, $client->getCounter('range-list'));
+        $client->pushElement(
+            'range-list',
+            5001,
+            [
+                'id' => 5001,
+                'name' => 'Name 5001',
+                'email' => 'Email 5001',
+            ]
+        );
+
+        $this->assertEquals(5001, $client->getCounter('range-list'));
     }
 
     /**
@@ -253,8 +263,7 @@ class ClientTest extends BaseTestCase
             'headers' => $headers,
             'uuid' => 'fake list',
             'element-uuid' => 'id',
-            'chunk-size' => 100,
-            'index' => true
+            'chunk-size' => 100
         ]);
         $client->deleteElement('fake-list', '7');
         $client->deleteElement('fake-list', '8');

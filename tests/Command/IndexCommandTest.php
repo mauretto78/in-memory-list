@@ -65,8 +65,7 @@ class IndexCommandTest extends BaseTestCase
         $client = new Client('apcu');
         $client->create(json_decode($this->array), [
             'uuid' => 'simple-list',
-            'element-uuid' => 'id',
-            'index' => true
+            'element-uuid' => 'id'
         ]);
 
         $command = $this->app->find('iml:cache:index');
@@ -111,8 +110,7 @@ class IndexCommandTest extends BaseTestCase
         $client = new Client('memcached');
         $client->create(json_decode($this->array), [
             'uuid' => 'simple-list',
-            'element-uuid' => 'id',
-            'index' => true
+            'element-uuid' => 'id'
         ]);
 
         $command = $this->app->find('iml:cache:index');
@@ -128,7 +126,8 @@ class IndexCommandTest extends BaseTestCase
 
         $output = $commandTester->getDisplay();
 
-        $this->assertContains('1', $output);
+        $this->assertContains('simple-list', $output);
+        $this->assertContains('0', $output);
         $this->assertContains('2', $output);
 
         $client->flush();
@@ -161,8 +160,7 @@ class IndexCommandTest extends BaseTestCase
         $client->create(json_decode($this->array), [
             'uuid' => 'simple-list',
             'element-uuid' => 'id',
-            'ttl' => 3600,
-            'index' => true
+            'ttl' => 3600
         ]);
 
         $command = $this->app->find('iml:cache:index');
@@ -178,7 +176,8 @@ class IndexCommandTest extends BaseTestCase
 
         $output = $commandTester->getDisplay();
 
-        $this->assertContains('1', $output);
+        $this->assertContains('simple-list', $output);
+        $this->assertContains('3600', $output);
         $this->assertContains('2', $output);
 
         $client->flush();

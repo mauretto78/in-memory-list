@@ -88,16 +88,27 @@ interface ListRepository
     public function getHeaders($listUuid);
 
     /**
+     * @param null $listUuid
      * @return mixed
      */
-    public function getIndex();
+    public function getIndex($listUuid = null);
 
     /**
      * @return mixed
      */
     public function getStatistics();
 
+    /**
+     * @param $listUuid
+     * @return mixed
+     */
+    public function getTtl($listUuid);
 
+    /**
+     * @param $listUuid
+     * @param ListElement $listElement
+     * @return mixed
+     */
     public function pushElement($listUuid, ListElement $listElement);
 
     /**
@@ -111,9 +122,9 @@ interface ListRepository
 
     /**
      * @param $listUuid
-     * @param null $ttl
+     * @param $ttl
      *
      * @return mixed
      */
-    public function updateTtl($listUuid, $ttl = null);
+    public function updateTtl($listUuid, $ttl);
 }
