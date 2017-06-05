@@ -206,6 +206,14 @@ class Client
     /**
      * @return mixed
      */
+    public function getNumberOfChunks($listUuid)
+    {
+        return $this->repository->getNumberOfChunks($listUuid);
+    }
+
+    /**
+     * @return mixed
+     */
     public function getStatistics()
     {
         return $this->repository->getStatistics();

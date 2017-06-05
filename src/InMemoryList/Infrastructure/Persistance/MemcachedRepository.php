@@ -17,7 +17,7 @@ use InMemoryList\Infrastructure\Persistance\Exceptions\ListAlreadyExistsExceptio
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListDoesNotExistsException;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListElementDoesNotExistsException;
 
-class MemcachedRepository implements ListRepository
+class MemcachedRepository extends AbstractRepository implements ListRepository
 {
     /**
      * @var int
@@ -55,8 +55,8 @@ class MemcachedRepository implements ListRepository
             $this->chunkSize = $chunkSize;
         }
 
-        $listUuid = (string) $list->getUuid();
-        if ($this->findListByUuid($list->getUuid())) {
+        $listUuid = (string)$list->getUuid();
+        if ($this->findListByUuid($listUuid)) {
             throw new ListAlreadyExistsException('List '.$list->getUuid().' already exists in memory.');
         }
 
@@ -68,15 +68,9 @@ class MemcachedRepository implements ListRepository
             $arrayOfElements[(string) $element->getUuid()] = $element->getBody();
         }
 
-        // set counter
-        $this->memcached->set(
-            $listUuid.self::SEPARATOR.self::COUNTER,
-            (integer)count($list->getItems()),
-            $ttl
-        );
-
         // persist in memory array in chunks
-        foreach (array_chunk($arrayOfElements, $this->chunkSize, true) as $chunkNumber => $item) {
+        $arrayChunks = array_chunk($arrayOfElements, $this->chunkSize, true);
+        foreach ($arrayChunks as $chunkNumber => $item) {
             $arrayToPersist = [];
             foreach ($item as $key => $element) {
                 $arrayToPersist[$key] = $element;
@@ -89,8 +83,13 @@ class MemcachedRepository implements ListRepository
             );
         }
 
-        // add list to general index
-        $this->_addOrUpdateListToIndex($listUuid, count($list->getItems(), $ttl));
+        // add list to index
+        $this->_addOrUpdateListToIndex(
+            $listUuid,
+            (int)count($list->getItems()),
+            (int)count($arrayChunks),
+            $ttl
+        );
 
         // set headers
         if ($list->getHeaders()) {
@@ -106,28 +105,14 @@ class MemcachedRepository implements ListRepository
 
     /**
      * @param $listUuid
-     *
-     * @return mixed
-     */
-    public function delete($listUuid)
-    {
-        $list = $this->findListByUuid($listUuid);
-
-        foreach ($list as $elementUuid => $element) {
-            $this->deleteElement($listUuid, $elementUuid);
-        }
-    }
-
-    /**
-     * @param $listUuid
      * @param $elementUuid
      * @return mixed
      */
     public function deleteElement($listUuid, $elementUuid)
     {
-        $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
+        $numberOfChunks = $this->getNumberOfChunks($listUuid);
 
-        for ($i=1; $i<=$number; $i++) {
+        for ($i=1; $i<=$numberOfChunks; $i++) {
             $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
             $chunk = $this->memcached->get($chunkNumber);
 
@@ -137,45 +122,25 @@ class MemcachedRepository implements ListRepository
                 unset($chunk[(string) $elementUuid]);
                 $this->memcached->replace($chunkNumber, $chunk);
 
-                // decr counter and delete counter and headers if counter = 0
-                $indexKey = $listUuid . self::SEPARATOR . self::INDEX;
-                $counterKey = $listUuid . self::SEPARATOR . self::COUNTER;
-                $headersKey = $listUuid . self::SEPARATOR . self::HEADERS;
-                $counter = $this->memcached->decrement($counterKey);
-
-                if ($counter === 0) {
-                    $this->memcached->delete($headersKey);
-                    $this->memcached->delete($counterKey);
-                }
-
                 // update list index
-                $prevIndex = $this->memcached->get(ListRepository::INDEX)[$listUuid];
-                $prevIndex = unserialize($prevIndex);
-                $this->_addOrUpdateListToIndex($listUuid, ($prevIndex['size'] - 1), $prevIndex['ttl']);
+                $prevIndex = unserialize($this->getIndex($listUuid));
+                $this->_addOrUpdateListToIndex(
+                    $listUuid,
+                    ($prevIndex['size'] - 1),
+                    $numberOfChunks,
+                    $prevIndex['ttl']
+                );
+
+                // delete headers if counter = 0
+                $headersKey = $listUuid . self::SEPARATOR . self::HEADERS;
+
+                if ($this->getCounter($listUuid) === 0) {
+                    $this->memcached->delete($headersKey);
+                }
 
                 break;
             }
         }
-    }
-
-    /**
-     * @param $listUuid
-     * @param $elementUuid
-     *
-     * @return bool
-     */
-    public function existsElement($listUuid, $elementUuid)
-    {
-        return @$this->findListByUuid($listUuid)[$elementUuid];
-    }
-
-    /**
-     * @param $listUuid
-     * @return bool
-     */
-    private function _existsListInIndex($listUuid)
-    {
-        return (isset($this->memcached->get(ListRepository::INDEX)[$listUuid]));
     }
 
     /**
@@ -186,9 +151,9 @@ class MemcachedRepository implements ListRepository
     public function findListByUuid($listUuid)
     {
         $collection = [];
-        $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
+        $numberOfChunks = $this->getNumberOfChunks($listUuid);
 
-        for ($i=1; $i<=$number; $i++) {
+        for ($i=1; $i<=$numberOfChunks; $i++) {
             if (empty($collection)) {
                 $collection = $this->memcached->get($listUuid.self::SEPARATOR.self::CHUNK.'-1');
             } else {
@@ -200,37 +165,11 @@ class MemcachedRepository implements ListRepository
     }
 
     /**
-     * @param $listUuid
-     * @param $elementUuid
-     *
-     * @return mixed
-     *
-     * @throws ListElementDoesNotExistsException
-     */
-    public function findElement($listUuid, $elementUuid)
-    {
-        if (!$element = $this->existsElement($listUuid, $elementUuid)) {
-            throw new ListElementDoesNotExistsException('Cannot retrieve the element '.$elementUuid.' from the collection in memory.');
-        }
-
-        return $element;
-    }
-
-    /**
      * @return mixed
      */
     public function flush()
     {
         $this->memcached->flush();
-    }
-
-    /**
-     * @param $listUuid
-     * @return mixed
-     */
-    public function getCounter($listUuid)
-    {
-        return $this->memcached->get($listUuid.self::SEPARATOR.self::COUNTER);
     }
 
     /**
@@ -259,16 +198,18 @@ class MemcachedRepository implements ListRepository
 
     /**
      * @param $listUuid
-     * @param int $listCount
+     * @param $size
+     * @param $numberOfChunks
      * @param null $ttl
      */
-    private function _addOrUpdateListToIndex($listUuid, $listCount, $ttl = null)
+    private function _addOrUpdateListToIndex($listUuid, $size, $numberOfChunks, $ttl = null)
     {
         $indexKey = ListRepository::INDEX;
         $indexArray = serialize([
             'uuid' => $listUuid,
             'created_on' => new \DateTimeImmutable(),
-            'size' => $listCount,
+            'size' => $size,
+            'chunks' => $numberOfChunks,
             'ttl' => $ttl
         ]);
 
@@ -278,7 +219,7 @@ class MemcachedRepository implements ListRepository
             $this->memcached->set($indexKey, [$listUuid => $indexArray]);
         }
 
-        if ($listCount === 0) {
+        if ($size === 0) {
             $this->_removeListFromIndex($listUuid);
         }
     }
@@ -363,25 +304,13 @@ class MemcachedRepository implements ListRepository
             throw new ListDoesNotExistsException('List '.$listUuid.' does not exists in memory.');
         }
 
-        $this->_addOrUpdateListToIndex($listUuid, $ttl);
+        $this->_addOrUpdateListToIndex(
+            $listUuid,
+            $this->getCounter($listUuid),
+            $this->getNumberOfChunks($listUuid),
+            $ttl
+        );
+
         $this->memcached->touch($listUuid, $ttl);
-    }
-
-    /**
-     * @param $listUuid
-     * @return mixed
-     */
-    public function getTtl($listUuid)
-    {
-        $index = unserialize($this->getIndex($listUuid));
-        if ($index['ttl'] and $index['ttl'] > 0) {
-            $now = new \DateTime('NOW');
-            $expire_date = $index['created_on']->add(new \DateInterval('PT'.$index['ttl'].'S'));
-            $diffSeconds =  $expire_date->getTimestamp() - $now->getTimestamp();
-
-            return  $diffSeconds;
-        }
-
-        return 0;
     }
 }

@@ -80,36 +80,40 @@ class MemcachedRepositoryTest extends BaseTestCase
         $collection->addItem($fakeElement4);
         $collection->addItem($fakeElement5);
 
-        $this->repo->create($collection, 3600, true);
+        $this->repo->create($collection, 3600);
         $this->repo->deleteElement(
-            (string) $collection->getUuid(),
-            (string) $fakeElement5->getUuid()
+            (string)$collection->getUuid(),
+            (string)$fakeElement5->getUuid()
         );
 
-        $element1 = unserialize($this->repo->findElement($collection->getUuid(), $fakeUUid1->getUuid()));
-        $this->assertCount(4, $this->repo->findListByUuid($collection->getUuid()));
+        $element1 = unserialize($this->repo->findElement(
+            (string)$collection->getUuid(),
+            (string)$fakeUUid1->getUuid())
+        );
+
+        $this->assertCount(4, $this->repo->findListByUuid((string)$collection->getUuid()));
         $this->assertArrayHasKey('id', $element1);
         $this->assertArrayHasKey('title', $element1);
         $this->assertArrayHasKey('category-id', $element1);
         $this->assertArrayHasKey('category', $element1);
         $this->assertArrayHasKey('rate', $element1);
-        $this->assertEquals(4, $this->repo->getCounter($collection->getUuid()));
+        $this->assertEquals(4, $this->repo->getCounter((string)$collection->getUuid()));
 
         $this->repo->deleteElement(
-            (string) $collection->getUuid(),
-            (string) $fakeElement1->getUuid()
+            (string)$collection->getUuid(),
+            (string)$fakeElement1->getUuid()
         );
         $this->repo->deleteElement(
-            (string) $collection->getUuid(),
-            (string) $fakeElement2->getUuid()
+            (string)$collection->getUuid(),
+            (string)$fakeElement2->getUuid()
         );
         $this->repo->deleteElement(
-            (string) $collection->getUuid(),
-            (string) $fakeElement3->getUuid()
+            (string)$collection->getUuid(),
+            (string)$fakeElement3->getUuid()
         );
         $this->repo->deleteElement(
-            (string) $collection->getUuid(),
-            (string) $fakeElement4->getUuid()
+            (string)$collection->getUuid(),
+            (string)$fakeElement4->getUuid()
         );
 
         $this->assertEquals(0, $this->repo->getCounter($collection->getUuid()));
@@ -134,12 +138,12 @@ class MemcachedRepositoryTest extends BaseTestCase
         }
         $collection->setHeaders($headers);
 
-        $this->repo->create($collection, null, true);
+        $this->repo->create($collection, 1200);
 
-        $list = $this->repo->findListByUuid($collection->getUuid());
+        $list = $this->repo->findListByUuid((string)$collection->getUuid());
         $element = unserialize(
-            (string) $this->repo->findElement($collection->getUuid(),
-            (string) $fakeUuid1->getUuid())
+            (string)$this->repo->findElement((string)$collection->getUuid(),
+            (string)$fakeUuid1->getUuid())
         );
 
         $index = unserialize($this->repo->getIndex()[(string)$listUuid]);
@@ -149,6 +153,7 @@ class MemcachedRepositoryTest extends BaseTestCase
         $this->assertEquals($this->repo->getHeaders($collection->getUuid()), $headers);
         $this->assertEquals(10, $index['size']);
         $this->assertGreaterThan(0, $this->repo->getStatistics());
+        $this->assertEquals(1200, $this->repo->getTtl((string)$collection->getUuid()));
 
         $this->repo->delete((string)$listUuid);
     }

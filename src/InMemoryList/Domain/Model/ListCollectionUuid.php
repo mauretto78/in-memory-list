@@ -38,7 +38,6 @@ class ListCollectionUuid
     {
         $notAllowedNames = [
             ListRepository::CHUNK,
-            ListRepository::COUNTER,
             ListRepository::HEADERS,
             ListRepository::INDEX,
             ListRepository::SEPARATOR,

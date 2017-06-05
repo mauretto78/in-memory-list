@@ -66,7 +66,7 @@ class IndexCommand extends BaseCommand
             }
 
             $table = new Table($output);
-            $table->setHeaders(['#', 'List', 'Created on', 'Ttl', 'Items']);
+            $table->setHeaders(['#', 'List', 'Created on', 'Chunks', 'Ttl', 'Items']);
 
             $counter = 0;
             foreach ($index as $key => $item) {
@@ -80,6 +80,7 @@ class IndexCommand extends BaseCommand
                         $counter+1,
                         '<fg=yellow>'.$item['uuid'].'</>',
                         $created_on->format('Y-m-d H:i:s'),
+                        $cache->getNumberOfChunks($item['uuid']),
                         $cache->getTtl($item['uuid']),
                         $item['size'],
                     ]

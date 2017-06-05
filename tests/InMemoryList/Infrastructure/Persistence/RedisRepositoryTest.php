@@ -85,13 +85,13 @@ class RedisRepositoryTest extends BaseTestCase
         $collection->addItem($fakeElement4);
         $collection->addItem($fakeElement5);
 
-        $this->repo->create($collection, 3600, true);
+        $this->repo->create($collection, 3600);
         $this->repo->deleteElement(
-            (string) $collection->getUuid(),
-            (string) $fakeElement5->getUuid()
+            (string)$collection->getUuid(),
+            (string)$fakeElement5->getUuid()
         );
         $this->repo->pushElement(
-            (string) $collection->getUuid(),
+            (string)$collection->getUuid(),
             $fakeElement6
         );
 
@@ -105,24 +105,24 @@ class RedisRepositoryTest extends BaseTestCase
         $this->assertEquals(5, $this->repo->getCounter($collection->getUuid()));
 
         $this->repo->deleteElement(
-            (string) $collection->getUuid(),
-            (string) $fakeElement1->getUuid()
+            (string)$collection->getUuid(),
+            (string)$fakeElement1->getUuid()
         );
         $this->repo->deleteElement(
-            (string) $collection->getUuid(),
-            (string) $fakeElement2->getUuid()
+            (string)$collection->getUuid(),
+            (string)$fakeElement2->getUuid()
         );
         $this->repo->deleteElement(
-            (string) $collection->getUuid(),
-            (string) $fakeElement3->getUuid()
+            (string)$collection->getUuid(),
+            (string)$fakeElement3->getUuid()
         );
         $this->repo->deleteElement(
-            (string) $collection->getUuid(),
-            (string) $fakeElement4->getUuid()
+            (string)$collection->getUuid(),
+            (string)$fakeElement4->getUuid()
         );
         $this->repo->deleteElement(
-            (string) $collection->getUuid(),
-            (string) $fakeElement6->getUuid()
+            (string)$collection->getUuid(),
+            (string)$fakeElement6->getUuid()
         );
 
         $this->assertEquals(0, $this->repo->getCounter($collection->getUuid()));

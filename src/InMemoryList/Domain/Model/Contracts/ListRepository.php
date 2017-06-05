@@ -16,7 +16,6 @@ interface ListRepository
 {
     const CHUNK = 'chunk';
     const CHUNKSIZE = 1000;
-    const COUNTER = 'counter';
     const HEADERS = 'headers';
     const INDEX = 'index';
     const SEPARATOR = ':';
@@ -92,6 +91,13 @@ interface ListRepository
      * @return mixed
      */
     public function getIndex($listUuid = null);
+
+    /**
+     * @param $listUuid
+     *
+     * @return mixed
+     */
+    public function getNumberOfChunks($listUuid);
 
     /**
      * @return mixed

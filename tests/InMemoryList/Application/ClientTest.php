@@ -72,6 +72,7 @@ class ClientTest extends BaseTestCase
     public function it_catch_CollectionAlreadyExistsException_if_attempt_to_persist_duplicate_collection_from_memcached()
     {
         $client = new Client('memcached', $this->memcached_parameters);
+        $client->flush();
         $collection = $client->create($this->parsedArrayFromJson, [
             'uuid' => 'fake list'
         ]);
@@ -141,6 +142,7 @@ class ClientTest extends BaseTestCase
             'uuid' => 'fake list',
             'element-uuid' => 'id'
         ]);
+
         $client->findElement('fake list', '132131312');
     }
 
