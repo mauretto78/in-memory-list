@@ -181,6 +181,14 @@ class Client
     /**
      * @return mixed
      */
+    public function getChunkSize($listUuid)
+    {
+        return $this->repository->getChunkSize($listUuid);
+    }
+
+    /**
+     * @return mixed
+     */
     public function getCounter($listUuid)
     {
         return $this->repository->getCounter($listUuid);

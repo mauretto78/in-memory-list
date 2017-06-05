@@ -77,6 +77,13 @@ interface ListRepository
      *
      * @return mixed
      */
+    public function getChunkSize($listUuid);
+
+    /**
+     * @param $listUuid
+     *
+     * @return mixed
+     */
     public function getCounter($listUuid);
 
     /**

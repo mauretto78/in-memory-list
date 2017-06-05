@@ -21,19 +21,6 @@ use Predis\Client;
 class ApcuRepository extends AbstractRepository implements ListRepository
 {
     /**
-     * @var int
-     */
-    private $chunkSize;
-
-    /**
-     * ApcuRepository constructor.
-     */
-    public function __construct()
-    {
-        $this->chunkSize = self::CHUNKSIZE;
-    }
-
-    /**
      * @param ListCollection $list
      * @param null $ttl
      * @param null $chunkSize
@@ -44,8 +31,8 @@ class ApcuRepository extends AbstractRepository implements ListRepository
      */
     public function create(ListCollection $list, $ttl = null, $chunkSize = null)
     {
-        if ($chunkSize and is_int($chunkSize)) {
-            $this->chunkSize = $chunkSize;
+        if (!$chunkSize and !is_int($chunkSize)) {
+            $chunkSize = self::CHUNKSIZE;
         }
 
         $listUuid = (string) $list->getUuid();
@@ -62,7 +49,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
         }
 
         // persist in memory array in chunks
-        $arrayChunks = array_chunk($arrayOfElements, $this->chunkSize, true);
+        $arrayChunks = array_chunk($arrayOfElements, $chunkSize, true);
         foreach ($arrayChunks as $chunkNumber => $item) {
             $arrayToPersist = [];
             foreach ($item as $key => $element) {
@@ -81,6 +68,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
             (string)$listUuid,
             (int)count($list->getItems()),
             (int)count($arrayChunks),
+            (int)$chunkSize,
             $ttl
         );
 
@@ -106,6 +94,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
     public function deleteElement($listUuid, $elementUuid, $ttl = null)
     {
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
+        $chunkSize = $this->getChunkSize($listUuid);
 
         for ($i=1; $i<=$numberOfChunks; $i++) {
             $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
@@ -124,6 +113,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
                     $listUuid,
                     ($prevIndex['size'] - 1),
                     $numberOfChunks,
+                    $chunkSize,
                     $prevIndex['ttl']
                 );
 
@@ -198,9 +188,10 @@ class ApcuRepository extends AbstractRepository implements ListRepository
      * @param $listUuid
      * @param $size
      * @param $numberOfChunks
+     * @param $chunkSize
      * @param null $ttl
      */
-    private function _addOrUpdateListToIndex($listUuid, $size, $numberOfChunks, $ttl = null)
+    private function _addOrUpdateListToIndex($listUuid, $size, $numberOfChunks, $chunkSize, $ttl = null)
     {
         $indexKey = ListRepository::INDEX;
         $indexArray = serialize([
@@ -208,6 +199,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
             'created_on' => new \DateTimeImmutable(),
             'size' => $size,
             'chunks' => $numberOfChunks,
+            'chunk-size' => $chunkSize,
             'ttl' => $ttl
         ]);
 
@@ -254,7 +246,37 @@ class ApcuRepository extends AbstractRepository implements ListRepository
      */
     public function pushElement($listUuid, ListElement $listElement)
     {
-        // TODO: Implement pushElement() method.
+        $numberOfChunks = $this->getNumberOfChunks($listUuid);
+        $chunkSize = $this->getChunkSize($listUuid);
+        $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $numberOfChunks;
+
+        if($chunkSize - count(apcu_fetch($chunkNumber)) === 0){
+            ++$numberOfChunks;
+            $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $numberOfChunks;
+        }
+
+        $elementUuid = $listElement->getUuid();
+        $body = $listElement->getBody();
+
+        $chunkValues = apcu_fetch($chunkNumber);
+        $chunkValues[(string)$elementUuid] = (string)$body;
+
+        apcu_delete($chunkNumber);
+        apcu_store(
+            $chunkNumber,
+            $chunkValues,
+            ($this->getTtl($listUuid) !== -1) ? $this->getTtl($listUuid) : null
+        );
+
+        // update list index
+        $prevIndex = unserialize($this->getIndex($listUuid));
+        $this->_addOrUpdateListToIndex(
+            $listUuid,
+            ($prevIndex['size'] + 1),
+            $numberOfChunks,
+            $chunkSize,
+            ($this->getTtl($listUuid) !== -1) ? $this->getTtl($listUuid) : null
+        );
     }
 
     /**
@@ -267,9 +289,9 @@ class ApcuRepository extends AbstractRepository implements ListRepository
      */
     public function updateElement($listUuid, $elementUuid, array $data = [], $ttl = null)
     {
-        $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
+        $numberOfChunks = $this->getNumberOfChunks($listUuid);
 
-        for ($i=1; $i<=$number; $i++) {
+        for ($i=1; $i<=$numberOfChunks; $i++) {
             $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
             $chunk = apcu_fetch($chunkNumber);
 
@@ -316,6 +338,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
             $listUuid,
             $this->getCounter($listUuid),
             $this->getNumberOfChunks($listUuid),
+            $this->getChunkSize($listUuid),
             $ttl
         );
         apcu_delete($listUuid);

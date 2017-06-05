@@ -71,6 +71,13 @@ class MemcachedRepositoryTest extends BaseTestCase
             'category' => 'holiday',
             'rate' => 5,
         ]);
+        $fakeElement6 = new ListElement($fakeUUid5 = new ListElementUuid(), [
+            'id' => 128,
+            'title' => 'Veni vidi vici',
+            'category-id' => 29,
+            'category' => 'travel',
+            'rate' => 5,
+        ]);
 
         $listUuid = new ListCollectionUuid();
         $collection = new ListCollection($listUuid);
@@ -79,6 +86,8 @@ class MemcachedRepositoryTest extends BaseTestCase
         $collection->addItem($fakeElement3);
         $collection->addItem($fakeElement4);
         $collection->addItem($fakeElement5);
+
+        $collectionUuid = (string)$collection->getUuid();
 
         $this->repo->create($collection, 3600);
         $this->repo->deleteElement(
@@ -91,13 +100,20 @@ class MemcachedRepositoryTest extends BaseTestCase
             (string)$fakeUUid1->getUuid())
         );
 
-        $this->assertCount(4, $this->repo->findListByUuid((string)$collection->getUuid()));
+        $this->assertCount(4, $this->repo->findListByUuid($collectionUuid));
         $this->assertArrayHasKey('id', $element1);
         $this->assertArrayHasKey('title', $element1);
         $this->assertArrayHasKey('category-id', $element1);
         $this->assertArrayHasKey('category', $element1);
         $this->assertArrayHasKey('rate', $element1);
-        $this->assertEquals(4, $this->repo->getCounter((string)$collection->getUuid()));
+        $this->assertEquals(4, $this->repo->getCounter($collectionUuid));
+
+        $this->repo->pushElement(
+            (string)$collection->getUuid(),
+            $fakeElement6
+        );
+
+        $this->assertEquals(5, $this->repo->getCounter($collectionUuid));
 
         $this->repo->deleteElement(
             (string)$collection->getUuid(),
@@ -112,11 +128,15 @@ class MemcachedRepositoryTest extends BaseTestCase
             (string)$fakeElement3->getUuid()
         );
         $this->repo->deleteElement(
-            (string)$collection->getUuid(),
+            $collectionUuid,
             (string)$fakeElement4->getUuid()
         );
+        $this->repo->deleteElement(
+            $collectionUuid,
+            (string)$fakeElement6->getUuid()
+        );
 
-        $this->assertEquals(0, $this->repo->getCounter($collection->getUuid()));
+        $this->assertEquals(0, $this->repo->getCounter($collectionUuid));
     }
 
     /**

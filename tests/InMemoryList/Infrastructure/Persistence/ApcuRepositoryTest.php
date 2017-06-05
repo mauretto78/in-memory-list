@@ -66,6 +66,13 @@ class ApcuRepositoryTest extends TestCase
             'category' => 'holiday',
             'rate' => 5,
         ]);
+        $fakeElement6 = new ListElement($fakeUUid5 = new ListElementUuid(), [
+            'id' => 128,
+            'title' => 'Veni vidi vici',
+            'category-id' => 29,
+            'category' => 'travel',
+            'rate' => 5,
+        ]);
 
         $listUuid = new ListCollectionUuid();
         $collection = new ListCollection($listUuid);
@@ -75,14 +82,16 @@ class ApcuRepositoryTest extends TestCase
         $collection->addItem($fakeElement4);
         $collection->addItem($fakeElement5);
 
+        $collectionUuid = (string)$collection->getUuid();
+
         $this->repo->create($collection);
         $this->repo->deleteElement(
             (string)$collection->getUuid(),
             (string)$fakeElement5->getUuid()
         );
 
-        $list = $this->repo->findListByUuid($collection->getUuid());
-        $element1 = unserialize($this->repo->findElement($collection->getUuid(), $fakeElement1->getUuid()->getUuid()));
+        $list = $this->repo->findListByUuid($collectionUuid);
+        $element1 = unserialize($this->repo->findElement($collectionUuid, $fakeElement1->getUuid()->getUuid()));
 
         $this->assertCount(4, $list);
         $this->assertArrayHasKey('id', $element1);
@@ -90,30 +99,43 @@ class ApcuRepositoryTest extends TestCase
         $this->assertArrayHasKey('category-id', $element1);
         $this->assertArrayHasKey('category', $element1);
         $this->assertArrayHasKey('rate', $element1);
+        $this->assertEquals(4, $this->repo->getCounter($collectionUuid));
+
+        $this->repo->pushElement(
+            (string)$collection->getUuid(),
+            $fakeElement6
+        );
+
+        $this->assertEquals(5, $this->repo->getCounter($collectionUuid));
+
+        $this->repo->updateTtl((string)$listUuid, 2400);
+        $this->assertEquals(2400, $this->repo->getTtl($collectionUuid));
 
         $this->repo->deleteElement(
             (string)$collection->getUuid(),
             (string)$fakeElement1->getUuid()
         );
         $this->repo->deleteElement(
-            (string)$collection->getUuid(),
+            $collectionUuid,
             (string)$fakeElement2->getUuid()
         );
         $this->repo->deleteElement(
-            (string)$collection->getUuid(),
+            $collectionUuid,
             (string)$fakeElement3->getUuid()
         );
         $this->repo->deleteElement(
-            (string)$collection->getUuid(),
+            $collectionUuid,
             (string)$fakeElement4->getUuid()
         );
+        $this->repo->deleteElement(
+            $collectionUuid,
+            (string)$fakeElement6->getUuid()
+        );
 
-        $this->assertEquals(0, $this->repo->getCounter($collection->getUuid()));
+        $this->assertEquals(0, $this->repo->getCounter($collectionUuid));
     }
 
-    /**
-     * @test
-     */
+
     public function it_should_create_query_and_delete_a_parsed_json_list_from_apcu()
     {
         $headers = [

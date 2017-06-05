@@ -321,6 +321,19 @@ class ClientTest extends BaseTestCase
         ]);
 
         $this->assertEquals(5000, $client->getCounter('range-list'));
+        $this->assertEquals(10, $client->getChunkSize('range-list'));
+
+        $client->pushElement(
+            'range-list',
+            5001,
+            [
+                'id' => 5001,
+                'name' => 'Name 5001',
+                'email' => 'Email 5001',
+            ]
+        );
+
+        $this->assertEquals(5001, $client->getCounter('range-list'));
     }
 
     /**

@@ -20,11 +20,6 @@ use InMemoryList\Infrastructure\Persistance\Exceptions\ListElementDoesNotExistsE
 class MemcachedRepository extends AbstractRepository implements ListRepository
 {
     /**
-     * @var int
-     */
-    private $chunkSize;
-
-    /**
      * @var \Memcached
      */
     private $memcached;
@@ -37,7 +32,6 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
     public function __construct(\Memcached $memcached)
     {
         $this->memcached = $memcached;
-        $this->chunkSize = self::CHUNKSIZE;
     }
 
     /**
@@ -51,8 +45,8 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
      */
     public function create(ListCollection $list, $ttl = null, $chunkSize = null)
     {
-        if ($chunkSize and is_int($chunkSize)) {
-            $this->chunkSize = $chunkSize;
+        if (!$chunkSize and !is_int($chunkSize)) {
+            $chunkSize = self::CHUNKSIZE;
         }
 
         $listUuid = (string)$list->getUuid();
@@ -69,7 +63,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
         }
 
         // persist in memory array in chunks
-        $arrayChunks = array_chunk($arrayOfElements, $this->chunkSize, true);
+        $arrayChunks = array_chunk($arrayOfElements, $chunkSize, true);
         foreach ($arrayChunks as $chunkNumber => $item) {
             $arrayToPersist = [];
             foreach ($item as $key => $element) {
@@ -88,6 +82,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
             $listUuid,
             (int)count($list->getItems()),
             (int)count($arrayChunks),
+            (int)$chunkSize,
             $ttl
         );
 
@@ -111,6 +106,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
     public function deleteElement($listUuid, $elementUuid)
     {
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
+        $chunkSize = $this->getChunkSize($listUuid);
 
         for ($i=1; $i<=$numberOfChunks; $i++) {
             $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
@@ -128,6 +124,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
                     $listUuid,
                     ($prevIndex['size'] - 1),
                     $numberOfChunks,
+                    $chunkSize,
                     $prevIndex['ttl']
                 );
 
@@ -202,7 +199,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
      * @param $numberOfChunks
      * @param null $ttl
      */
-    private function _addOrUpdateListToIndex($listUuid, $size, $numberOfChunks, $ttl = null)
+    private function _addOrUpdateListToIndex($listUuid, $size, $numberOfChunks, $chunkSize, $ttl = null)
     {
         $indexKey = ListRepository::INDEX;
         $indexArray = serialize([
@@ -210,6 +207,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
             'created_on' => new \DateTimeImmutable(),
             'size' => $size,
             'chunks' => $numberOfChunks,
+            'chunk-size' => $chunkSize,
             'ttl' => $ttl
         ]);
 
@@ -250,7 +248,36 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
      */
     public function pushElement($listUuid, ListElement $listElement)
     {
-        // TODO: Implement pushElement() method.
+        $numberOfChunks = $this->getNumberOfChunks($listUuid);
+        $chunkSize = $this->getChunkSize($listUuid);
+        $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $numberOfChunks;
+
+        if($chunkSize - count($this->memcached->get($chunkNumber)) === 0){
+            ++$numberOfChunks;
+            $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $numberOfChunks;
+        }
+
+        $elementUuid = $listElement->getUuid();
+        $body = $listElement->getBody();
+
+        $chunkValues = $this->memcached->get($chunkNumber);
+        $chunkValues[(string)$elementUuid] = (string)$body;
+
+        $this->memcached->set(
+            (string)$chunkNumber,
+            $chunkValues,
+            $this->getTtl($listUuid)
+        );
+
+        // update list index
+        $prevIndex = unserialize($this->getIndex($listUuid));
+        $this->_addOrUpdateListToIndex(
+            $listUuid,
+            ($prevIndex['size'] + 1),
+            $numberOfChunks,
+            $chunkSize,
+            $this->getTtl($listUuid)
+        );
     }
 
     /**
@@ -308,6 +335,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
             $listUuid,
             $this->getCounter($listUuid),
             $this->getNumberOfChunks($listUuid),
+            $this->getChunkSize($listUuid),
             $ttl
         );
 

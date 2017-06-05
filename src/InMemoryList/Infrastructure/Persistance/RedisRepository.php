@@ -292,9 +292,9 @@ class RedisRepository extends AbstractRepository implements ListRepository
      */
     public function updateElement($listUuid, $elementUuid, array $data = [])
     {
-        $number = $this->getNumberOfChunks($listUuid);
+        $numberOfChunks = $this->getNumberOfChunks($listUuid);
 
-        for ($i=1; $i<=$number; $i++) {
+        for ($i=1; $i<=$numberOfChunks; $i++) {
             $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
             $chunk = $this->client->hgetall($chunkNumber);
 

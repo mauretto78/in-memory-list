@@ -135,6 +135,7 @@ class RedisRepositoryTest extends BaseTestCase
         );
 
         $this->assertEquals(0, $this->repo->getCounter($collection->getUuid()));
+        $this->assertEquals(0, $this->repo->getChunkSize($collection->getUuid()));
     }
 
     /**
