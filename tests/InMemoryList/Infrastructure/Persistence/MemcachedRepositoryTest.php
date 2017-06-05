@@ -155,6 +155,9 @@ class MemcachedRepositoryTest extends BaseTestCase
         $this->assertGreaterThan(0, $this->repo->getStatistics());
         $this->assertEquals(1200, $this->repo->getTtl((string)$collection->getUuid()));
 
+        $this->repo->updateTtl((string)$listUuid, 2400);
+        $this->assertEquals(2400, $this->repo->getTtl((string)$collection->getUuid()));
+
         $this->repo->delete((string)$listUuid);
     }
 

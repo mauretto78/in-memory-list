@@ -81,6 +81,7 @@ class IndexCommand extends BaseCommand
                         '<fg=yellow>'.$item['uuid'].'</>',
                         $created_on->format('Y-m-d H:i:s'),
                         $cache->getNumberOfChunks($item['uuid']),
+                        //$cache->getChunkSize($item['uuid']),
                         $cache->getTtl($item['uuid']),
                         $item['size'],
                     ]

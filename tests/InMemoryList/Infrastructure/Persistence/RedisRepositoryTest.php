@@ -85,24 +85,33 @@ class RedisRepositoryTest extends BaseTestCase
         $collection->addItem($fakeElement4);
         $collection->addItem($fakeElement5);
 
+        $collectionUuid = (string)$collection->getUuid();
+
         $this->repo->create($collection, 3600);
         $this->repo->deleteElement(
-            (string)$collection->getUuid(),
+            $collectionUuid,
             (string)$fakeElement5->getUuid()
         );
-        $this->repo->pushElement(
-            (string)$collection->getUuid(),
-            $fakeElement6
+
+        $element1 = unserialize($this->repo->findElement(
+            $collectionUuid,
+            (string)$fakeUUid1->getUuid())
         );
 
-        $element1 = unserialize($this->repo->findElement($collection->getUuid(), $fakeUUid1->getUuid()));
-        $this->assertCount(5, $this->repo->findListByUuid($collection->getUuid()));
+        $this->assertCount(4, $this->repo->findListByUuid($collectionUuid));
         $this->assertArrayHasKey('id', $element1);
         $this->assertArrayHasKey('title', $element1);
         $this->assertArrayHasKey('category-id', $element1);
         $this->assertArrayHasKey('category', $element1);
         $this->assertArrayHasKey('rate', $element1);
-        $this->assertEquals(5, $this->repo->getCounter($collection->getUuid()));
+        $this->assertEquals(4, $this->repo->getCounter($collectionUuid));
+
+        $this->repo->pushElement(
+           (string)$collection->getUuid(),
+           $fakeElement6
+        );
+
+        $this->assertEquals(5, $this->repo->getCounter($collectionUuid));
 
         $this->repo->deleteElement(
             (string)$collection->getUuid(),

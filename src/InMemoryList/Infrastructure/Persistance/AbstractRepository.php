@@ -60,6 +60,22 @@ abstract class AbstractRepository
      *
      * @return mixed
      */
+    public function getChunkSize($listUuid)
+    {
+        if($this->_existsListInIndex($listUuid)){
+            $index = unserialize($this->getIndex($listUuid));
+
+            return $index['chunk-size'];
+        }
+
+        return 0;
+    }
+
+    /**
+     * @param $listUuid
+     *
+     * @return mixed
+     */
     public function getCounter($listUuid)
     {
         if($this->_existsListInIndex($listUuid)){
