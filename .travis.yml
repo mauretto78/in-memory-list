@@ -22,7 +22,7 @@ before_install:
   - phpenv config-add install/apc-$(phpenv version-name).ini
 
 before_script:
-  - cp config/parameters.yml.dist config/parameters.yml
+  - cp config/parameters.dist.yml config/parameters.yml
   - composer self-update
   - composer install --prefer-source --no-interaction --dev
 
