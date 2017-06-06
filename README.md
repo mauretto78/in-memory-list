@@ -93,7 +93,7 @@ $client = new Client('redis', $redis_parameters);
 // ..
 ```
 
-Please refer to [official page](https://github.com/nrk/predis) for more details on PRedis connection.
+Refer to [official page](https://github.com/nrk/predis) for more details on PRedis connection.
 
 ## Parameters
 
@@ -102,7 +102,6 @@ When use `create` method to a generate a list, you can provide to it a parameter
 * `uuid` - uuid of list
 * `element-uuid` - uuid for the list elements
 * `headers` - headers array for the list
-* `index` - add the list elements to cache index or not
 * `chunk-size` - the chunks size in which the array will be splitted (integer)
 * `ttl` - time to live of the list (in seconds)
 
@@ -192,25 +191,6 @@ $item1 = $client->item($collection['1']);
 
 Please note that the uuid **must be a string**. 
 
-### index
-
-You can specify if you want to include the list in the cache index:
-
-```php
-use InMemoryList\Application\Client;
-
-$client = new Client();
-$collection = $client->create($array, [
-    'uuid' => 'simple-array',
-    'element-uuid' => 'id',
-    'index' => true
-]);
-
-// now your list will be present in the cache index
-
-// ..
-```
-
 ### chunk-size
 
 You can specify the number of elements of each chunk in which the original array will be splitted. The default value is `1000`.
@@ -254,6 +234,23 @@ To delete an element in you list do this:
 $client->deleteElement(
     $listUuid, 
     $elementUuid,
+);
+```
+
+## Push an element
+
+To push an element in you list, you must provide the list uuid, the element uuid and element data as array. See this example:
+
+```php
+// ..
+$client->pushElement(
+    'fake-list-uuid',
+    5001,
+    [
+        'id' => 5001,
+        'name' => 'Name 5001',
+        'email' => 'Email 5001',
+    ]
 );
 ```
 
@@ -405,6 +402,22 @@ In order to run all the test, you need to install **all the drivers** on your ma
 * APCU - [(install via PECL)](https://pecl.php.net/package/APCu) 
 * MEMCACHED - [(install via PECL)](https://pecl.php.net/package/memcached) 
 * REDIS - [(official install guide)](https://redis.io/topics/quickstart)
+
+Once installed all the drivers, create a file called `config/parameters.yml` and paste in the content of `config/parameters.dist.yml`. Finally, change your configuration if needed:
+
+```yaml
+redis_parameters:
+  scheme: 'tcp'
+  host: '127.0.0.1'
+  port: '6379'
+  options:
+    profile: '3.2'
+
+memcached_parameters:
+  -
+    host: 'localhost'
+    port: '11211'
+```
 
 ## Built With
 

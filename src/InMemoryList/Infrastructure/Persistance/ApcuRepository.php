@@ -249,6 +249,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
         $chunkSize = $this->getChunkSize($listUuid);
         $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $numberOfChunks;
+        $ttl = ($this->getTtl($listUuid) > 0) ? $this->getTtl($listUuid) : null;
 
         if($chunkSize - count(apcu_fetch($chunkNumber)) === 0){
             ++$numberOfChunks;
@@ -265,7 +266,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
         apcu_store(
             $chunkNumber,
             $chunkValues,
-            ($this->getTtl($listUuid) !== -1) ? $this->getTtl($listUuid) : null
+            $ttl
         );
 
         // update list index
@@ -275,7 +276,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
             ($prevIndex['size'] + 1),
             $numberOfChunks,
             $chunkSize,
-            ($this->getTtl($listUuid) !== -1) ? $this->getTtl($listUuid) : null
+            $ttl
         );
     }
 
@@ -283,20 +284,25 @@ class ApcuRepository extends AbstractRepository implements ListRepository
      * @param $listUuid
      * @param $elementUuid
      * @param array $data
-     * @param null $ttl
      *
      * @return mixed
      */
-    public function updateElement($listUuid, $elementUuid, array $data = [], $ttl = null)
+    public function updateElement($listUuid, $elementUuid, array $data = [])
     {
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
+        $ttl = ($this->getTtl($listUuid) > 0) ? $this->getTtl($listUuid) : null;
 
         for ($i=1; $i<=$numberOfChunks; $i++) {
             $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
             $chunk = apcu_fetch($chunkNumber);
 
             if (array_key_exists($elementUuid, $chunk)) {
-                $element = $this->findElement($listUuid, $elementUuid);
+
+                $element = $this->findElement(
+                    (string)$listUuid,
+                    (string)$elementUuid)
+                ;
+
                 $objMerged = (object) array_merge((array) $element, (array) $data);
                 $arrayOfElements = apcu_fetch($listUuid);
                 $updatedElement = new ListElement(
@@ -328,20 +334,25 @@ class ApcuRepository extends AbstractRepository implements ListRepository
      */
     public function updateTtl($listUuid, $ttl)
     {
-        $list = $this->findListByUuid($listUuid);
-
-        if (!$list) {
+        if (!$list = $this->findListByUuid($listUuid)) {
             throw new ListDoesNotExistsException('List '.$listUuid.' does not exists in memory.');
         }
 
-        $this->_addOrUpdateListToIndex(
-            $listUuid,
-            $this->getCounter($listUuid),
-            $this->getNumberOfChunks($listUuid),
-            $this->getChunkSize($listUuid),
+        $ttl = ($ttl > 0) ? $ttl : null;
+
+        apcu_delete((string)$listUuid);
+        apcu_store(
+            (string)$listUuid,
+            $list,
             $ttl
         );
-        apcu_delete($listUuid);
-        apcu_store($listUuid, $list, $ttl);
+
+        $this->_addOrUpdateListToIndex(
+            (string)$listUuid,
+            $this->getCounter((string)$listUuid),
+            $this->getNumberOfChunks((string)$listUuid),
+            $this->getChunkSize((string)$listUuid),
+            $ttl
+        );
     }
 }

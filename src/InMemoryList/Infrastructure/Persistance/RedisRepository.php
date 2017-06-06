@@ -328,9 +328,7 @@ class RedisRepository extends AbstractRepository implements ListRepository
      */
     public function updateTtl($listUuid, $ttl)
     {
-        $list = $this->findListByUuid($listUuid);
-
-        if (!$list) {
+        if (!$list = $this->findListByUuid($listUuid)) {
             throw new ListDoesNotExistsException('List '.$listUuid.' does not exists in memory.');
         }
 
