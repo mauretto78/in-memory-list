@@ -70,7 +70,7 @@ class ClientTest extends BaseTestCase
      */
     public function it_catch_CollectionAlreadyExistsException_if_attempt_to_persist_duplicate_collection()
     {
-        foreach ($this->clients as $client){
+        foreach ($this->clients as $client) {
             $collection = $client->create($this->parsedArrayFromJson, [
                 'uuid' => 'fake list'
             ]);
@@ -87,7 +87,7 @@ class ClientTest extends BaseTestCase
      */
     public function it_catch_MalformedParametersException_if_attempt_to_provide_a_wrong_parameters_array_when_create_list()
     {
-        foreach ($this->clients as $client){
+        foreach ($this->clients as $client) {
             $collection = $client->create($this->parsedArrayFromJson, [
                 'not-allowed-key' => 'not-allowed-value',
                 'uuid' => 'fake list'
@@ -104,7 +104,7 @@ class ClientTest extends BaseTestCase
      */
     public function it_throws_NotExistListElementException_if_attempt_to_find_a_not_existing_element_in_collection_from_redis()
     {
-        foreach ($this->clients as $client){
+        foreach ($this->clients as $client) {
             $client->flush();
             $client->create($this->parsedArrayFromJson, [
                 'uuid' => 'fake list',
@@ -119,7 +119,7 @@ class ClientTest extends BaseTestCase
      */
     public function it_should_store_delete_and_retrieve_correctly_list_elements_in_chunks()
     {
-        foreach ($this->clients as $client){
+        foreach ($this->clients as $client) {
             $array = [];
             foreach (range(1, 5000) as $number) {
                 $array[] = [
@@ -155,7 +155,7 @@ class ClientTest extends BaseTestCase
      */
     public function it_should_store_delete_and_retrieve_correctly_list_elements()
     {
-        foreach ($this->clients as $client){
+        foreach ($this->clients as $client) {
             $headers = [
                 'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',
                 'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',

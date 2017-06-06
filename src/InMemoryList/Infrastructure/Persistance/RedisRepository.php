@@ -258,7 +258,7 @@ class RedisRepository extends AbstractRepository implements ListRepository
         $chunkSize = $this->getChunkSize($listUuid);
         $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $number;
 
-        if(($chunkSize - count($this->client->hgetall($chunkNumber))) === 0){
+        if (($chunkSize - count($this->client->hgetall($chunkNumber))) === 0) {
             ++$number;
             $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $number;
         }

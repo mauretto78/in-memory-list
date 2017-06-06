@@ -252,7 +252,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
         $chunkSize = $this->getChunkSize($listUuid);
         $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $numberOfChunks;
 
-        if($chunkSize - count($this->memcached->get($chunkNumber)) === 0){
+        if ($chunkSize - count($this->memcached->get($chunkNumber)) === 0) {
             ++$numberOfChunks;
             $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $numberOfChunks;
         }

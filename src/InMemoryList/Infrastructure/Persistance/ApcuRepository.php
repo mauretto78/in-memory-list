@@ -251,7 +251,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
         $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $numberOfChunks;
         $ttl = ($this->getTtl($listUuid) > 0) ? $this->getTtl($listUuid) : null;
 
-        if($chunkSize - count(apcu_fetch($chunkNumber)) === 0){
+        if ($chunkSize - count(apcu_fetch($chunkNumber)) === 0) {
             ++$numberOfChunks;
             $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $numberOfChunks;
         }
@@ -297,7 +297,6 @@ class ApcuRepository extends AbstractRepository implements ListRepository
             $chunk = apcu_fetch($chunkNumber);
 
             if (array_key_exists($elementUuid, $chunk)) {
-
                 $element = $this->findElement(
                     (string)$listUuid,
                     (string)$elementUuid)

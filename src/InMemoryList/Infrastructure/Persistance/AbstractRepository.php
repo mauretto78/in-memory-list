@@ -62,7 +62,7 @@ abstract class AbstractRepository
      */
     public function getChunkSize($listUuid)
     {
-        if($this->_existsListInIndex($listUuid)){
+        if ($this->_existsListInIndex($listUuid)) {
             $index = unserialize($this->getIndex($listUuid));
 
             return $index['chunk-size'];
@@ -78,7 +78,7 @@ abstract class AbstractRepository
      */
     public function getCounter($listUuid)
     {
-        if($this->_existsListInIndex($listUuid)){
+        if ($this->_existsListInIndex($listUuid)) {
             $index = unserialize($this->getIndex($listUuid));
 
             return $index['size'];
@@ -105,7 +105,7 @@ abstract class AbstractRepository
      */
     public function getNumberOfChunks($listUuid)
     {
-        if($this->_existsListInIndex($listUuid)){
+        if ($this->_existsListInIndex($listUuid)) {
             $index = unserialize($this->getIndex($listUuid));
 
             return $index['chunks'];

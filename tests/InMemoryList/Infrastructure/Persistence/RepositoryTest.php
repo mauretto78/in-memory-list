@@ -49,7 +49,7 @@ class RepositoryTest extends BaseTestCase
     public function it_should_create_query_and_delete_the_list()
     {
         /** @var ListRepository $repo */
-        foreach ($this->repos as $repo){
+        foreach ($this->repos as $repo) {
             $fakeElement1 = new ListElement($fakeUUid1 = new ListElementUuid(), [
                 'id' => 123,
                 'title' => 'Lorem Ipsum',
@@ -166,7 +166,7 @@ class RepositoryTest extends BaseTestCase
         $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../../examples/files/users.json'));
 
         /** @var ListRepository $repo */
-        foreach ($this->repos as $repo){
+        foreach ($this->repos as $repo) {
             $listUuid = new ListCollectionUuid();
             $collection = new ListCollection($listUuid);
             foreach ($parsedArrayFromJson as $element) {
@@ -186,7 +186,7 @@ class RepositoryTest extends BaseTestCase
         $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../../examples/files/users.json'));
 
         /** @var ListRepository $repo */
-        foreach ($this->repos as $repo){
+        foreach ($this->repos as $repo) {
             $repo->flush();
 
             $headers = [
