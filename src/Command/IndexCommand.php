@@ -52,18 +52,9 @@ class IndexCommand extends BaseCommand
         $parameters = $this->convertparametersArray($input->getArgument('parameters')) ?: $this->defaultParameters;
 
         $cache = $this->createClient($driver, $parameters);
-        $index = $cache->getIndex();
+        $index = $cache->getIndex(null, true);
 
         if ($index and count($index)) {
-
-            // check and remove empty list from index
-            foreach ($index as $key => $item) {
-                $item = unserialize($item);
-
-                if (!$cache->findListByUuid($item['uuid'])) {
-                    $cache->delete($item['uuid']);
-                }
-            }
 
             $table = new Table($output);
             $table->setHeaders(['#', 'List', 'Created on', 'Chunks', 'Chunk size', 'Ttl', 'Items']);
@@ -71,6 +62,7 @@ class IndexCommand extends BaseCommand
             $counter = 0;
             foreach ($index as $key => $item) {
                 $item = unserialize($item);
+                $listUuid = $item['uuid'];
 
                 /** @var \DateTimeImmutable $created_on */
                 $created_on = $item['created_on'];
@@ -78,11 +70,11 @@ class IndexCommand extends BaseCommand
                     $counter,
                     [
                         $counter+1,
-                        '<fg=yellow>'.$item['uuid'].'</>',
+                        '<fg=yellow>'.$listUuid.'</>',
                         $created_on->format('Y-m-d H:i:s'),
-                        $cache->getNumberOfChunks($item['uuid']),
-                        $cache->getChunkSize($item['uuid']),
-                        $cache->getTtl($item['uuid']),
+                        $cache->getNumberOfChunks($listUuid),
+                        $cache->getChunkSize($listUuid),
+                        $cache->getTtl($listUuid),
                         $item['size'],
                     ]
                 );

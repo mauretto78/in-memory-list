@@ -144,6 +144,9 @@ class IndexCommandTest extends BaseTestCase
         $commandTester->execute([
             'command' => $command->getName(),
             'driver' => 'redis',
+            'parameters' => [
+                'host=127.0.0.1,port=6379'
+            ]
         ]);
 
         $output = $commandTester->getDisplay();

@@ -173,15 +173,24 @@ class ApcuRepository extends AbstractRepository implements ListRepository
      * @param null $listUuid
      * @return mixed
      */
-    public function getIndex($listUuid = null)
+    public function getIndex($listUuid = null, $flush = null)
     {
         $indexKey = ListRepository::INDEX;
+        $index = apcu_fetch($indexKey);
 
-        if ($listUuid) {
-            return apcu_fetch($indexKey)[(string)$listUuid];
+        if($flush and $index){
+            foreach ($index as $key => $item){
+                if(!$this->findListByUuid($key)){
+                    $this->removeListFromIndex($key);
+                }
+            }
         }
 
-        return apcu_fetch($indexKey);
+        if ($listUuid) {
+            return $index[(string)$listUuid];
+        }
+
+        return $index;
     }
 
     /**
@@ -214,21 +223,8 @@ class ApcuRepository extends AbstractRepository implements ListRepository
         }
 
         if ($size === 0) {
-            $this->_removeListFromIndex($listUuid);
+            $this->removeListFromIndex($listUuid);
         }
-    }
-
-    /**
-     * @param $listUuid
-     */
-    private function _removeListFromIndex($listUuid)
-    {
-        $indexKey = ListRepository::INDEX;
-        $index = $this->getIndex();
-        unset($index[(string) $listUuid]);
-
-        apcu_delete($indexKey);
-        apcu_store($indexKey, $index);
     }
 
     /**
@@ -280,6 +276,21 @@ class ApcuRepository extends AbstractRepository implements ListRepository
         );
     }
 
+    /**
+     * @param $listUuid
+     *
+     * @return mixed
+     */
+    public function removeListFromIndex($listUuid)
+    {
+        $indexKey = ListRepository::INDEX;
+        $index = $this->getIndex();
+        unset($index[(string) $listUuid]);
+
+        apcu_delete($indexKey);
+        apcu_store($indexKey, $index);
+    }
+    
     /**
      * @param $listUuid
      * @param $elementUuid

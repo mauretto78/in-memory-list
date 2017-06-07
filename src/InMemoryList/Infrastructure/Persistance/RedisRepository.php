@@ -171,19 +171,8 @@ class RedisRepository extends AbstractRepository implements ListRepository
         );
 
         if ($size === 0) {
-            $this->_removeListFromIndex((string)$listUuid);
+            $this->removeListFromIndex((string)$listUuid);
         }
-    }
-
-    /**
-     * @param $listUuid
-     */
-    private function _removeListFromIndex($listUuid)
-    {
-        $this->client->hdel(
-            ListRepository::INDEX,
-            $listUuid
-        );
     }
 
     /**
@@ -229,9 +218,18 @@ class RedisRepository extends AbstractRepository implements ListRepository
      * @param null $listUuid
      * @return array|string
      */
-    public function getIndex($listUuid = null)
+    public function getIndex($listUuid = null, $flush = null)
     {
         $indexKey = ListRepository::INDEX;
+
+        if($flush){
+            foreach ($this->client->hgetall($indexKey) as $key => $item){
+                if(!$this->findListByUuid($key)){
+                    $this->removeListFromIndex($key);
+                }
+            }
+        }
+
         if ($listUuid) {
             return $this->client->hget($indexKey, $listUuid);
         }
@@ -283,6 +281,19 @@ class RedisRepository extends AbstractRepository implements ListRepository
         );
     }
 
+    /**
+     * @param $listUuid
+     *
+     * @return mixed
+     */
+    public function removeListFromIndex($listUuid)
+    {
+        $this->client->hdel(
+            ListRepository::INDEX,
+            $listUuid
+        );
+    }
+    
     /**
      * @param $listUuid
      * @param $elementUuid
@@ -341,4 +352,5 @@ class RedisRepository extends AbstractRepository implements ListRepository
 
         $this->client->expire($listUuid, $ttl);
     }
+
 }

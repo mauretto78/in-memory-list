@@ -181,16 +181,28 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
 
     /**
      * @param null $listUuid
+     * @param null $flush
+     *
      * @return mixed
      */
-    public function getIndex($listUuid = null)
+    public function getIndex($listUuid = null, $flush = null)
     {
         $indexKey = ListRepository::INDEX;
-        if ($listUuid) {
-            return $this->memcached->get($indexKey)[$listUuid];
+        $index = $this->memcached->get($indexKey);
+
+        if($flush and $index){
+            foreach ($index as $key => $item){
+                if(!$this->findListByUuid($key)){
+                    $this->removeListFromIndex($key);
+                }
+            }
         }
 
-        return $this->memcached->get($indexKey);
+        if ($listUuid) {
+            return $index[$listUuid];
+        }
+
+        return $index;
     }
 
     /**
@@ -218,19 +230,8 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
         }
 
         if ($size === 0) {
-            $this->_removeListFromIndex($listUuid);
+            $this->removeListFromIndex($listUuid);
         }
-    }
-
-    /**
-     * @param $listUuid
-     */
-    private function _removeListFromIndex($listUuid)
-    {
-        $index = $this->getIndex();
-
-        unset($index[(string) $listUuid]);
-        $this->memcached->replace(ListRepository::INDEX, $index);
     }
 
     /**
@@ -280,6 +281,19 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
         );
     }
 
+    /**
+     * @param $listUuid
+     *
+     * @return mixed
+     */
+    public function removeListFromIndex($listUuid)
+    {
+        $index = $this->getIndex();
+
+        unset($index[(string) $listUuid]);
+        $this->memcached->replace(ListRepository::INDEX, $index);
+    }
+    
     /**
      * @param $listUuid
      * @param $elementUuid

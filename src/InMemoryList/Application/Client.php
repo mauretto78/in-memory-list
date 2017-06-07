@@ -204,11 +204,13 @@ class Client
 
     /**
      * @param null $listUuid
+     * @param null $flushall
+     *
      * @return mixed
      */
-    public function getIndex($listUuid = null)
+    public function getIndex($listUuid = null, $flushall = null)
     {
-        return $this->repository->getIndex($listUuid);
+        return $this->repository->getIndex($listUuid, $flushall);
     }
 
     /**
@@ -227,6 +229,10 @@ class Client
         return $this->repository->getStatistics();
     }
 
+    /**
+     * @param $listUuid
+     * @return mixed
+     */
     public function getTtl($listUuid)
     {
         return $this->repository->getTtl($listUuid);
@@ -242,6 +248,13 @@ class Client
         return unserialize($string);
     }
 
+    /**
+     * @param $listUuid
+     * @param $elementUuid
+     * @param array $data
+     *
+     * @return mixed
+     */
     public function pushElement($listUuid, $elementUuid, array $data = [])
     {
         $newElement = new ListElement(
@@ -250,6 +263,16 @@ class Client
         );
 
         return $this->repository->pushElement($listUuid, $newElement);
+    }
+
+    /**
+     * @param $listUuid
+     *
+     * @return mixed
+     */
+    public function removeListFromIndex($listUuid)
+    {
+        return $this->repository->removeListFromIndex($listUuid);
     }
 
     /**

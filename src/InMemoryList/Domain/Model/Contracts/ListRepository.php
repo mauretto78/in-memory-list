@@ -95,9 +95,10 @@ interface ListRepository
 
     /**
      * @param null $listUuid
+     * @param null $flush
      * @return mixed
      */
-    public function getIndex($listUuid = null);
+    public function getIndex($listUuid = null, $flush = null);
 
     /**
      * @param $listUuid
@@ -123,6 +124,13 @@ interface ListRepository
      * @return mixed
      */
     public function pushElement($listUuid, ListElement $listElement);
+
+    /**
+     * @param $listUuid
+     *
+     * @return mixed
+     */
+    public function removeListFromIndex($listUuid);
 
     /**
      * @param $listUuid

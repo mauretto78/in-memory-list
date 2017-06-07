@@ -199,6 +199,7 @@ class ClientTest extends BaseTestCase
 
             $client->updateTtl('fake-list', 7200);
 
+            $client->removeListFromIndex('fake list');
             $client->delete('fake list');
         }
     }
