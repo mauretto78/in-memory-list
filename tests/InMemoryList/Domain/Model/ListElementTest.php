@@ -24,12 +24,12 @@ class ListElementTest extends TestCase
             'test3' => 'Ipsum facium',
         ];
 
-        $cacheListElementUniquieId = new ListElementUuid();
-        $cacheListElement = new ListElement($cacheListElementUniquieId, $body);
+        $listElementUuid = new ListElementUuid();
+        $listElement = new ListElement($listElementUuid, $body);
 
-        $this->assertInstanceOf(ListElement::class, $cacheListElement);
-        $this->assertArrayHasKey('test', unserialize($cacheListElement->getBody()));
-        $this->assertArrayHasKey('test2', unserialize($cacheListElement->getBody()));
-        $this->assertArrayHasKey('test3', unserialize($cacheListElement->getBody()));
+        $this->assertInstanceOf(ListElement::class, $listElement);
+        $this->assertArrayHasKey('test', unserialize($listElement->getBody()));
+        $this->assertArrayHasKey('test2', unserialize($listElement->getBody()));
+        $this->assertArrayHasKey('test3', unserialize($listElement->getBody()));
     }
 }

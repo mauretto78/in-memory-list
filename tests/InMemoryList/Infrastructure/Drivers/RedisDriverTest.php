@@ -47,13 +47,13 @@ class RedisDriverTest extends BaseTestCase
      */
     public function it_throws_RedisMalformedConfigException_if_malformed_config_array_is_provided()
     {
-        $malformed_config_array = [
+        $badConfigArray = [
             'wrong' => 'param',
             'wrong2' => 'param2',
             'wrong3' => 'param3',
         ];
 
-        new RedisDriver($malformed_config_array);
+        new RedisDriver($badConfigArray);
     }
 
     /**

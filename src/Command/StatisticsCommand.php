@@ -53,7 +53,7 @@ class StatisticsCommand extends BaseCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $driver = $input->getArgument('driver') ?: $this->driver;
-        $parameters = $this->convertparametersArray($input->getArgument('parameters')) ?: $this->defaultParameters;
+        $parameters = $this->convertParametersArray($input->getArgument('parameters')) ?: $this->defaultParameters;
 
         $cache = $this->createClient($driver, $parameters);
         $statistics = $cache->getStatistics();

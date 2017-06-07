@@ -28,10 +28,9 @@ class ListCollectionUuidTest extends TestCase
      */
     public function it_should_create_the_entity()
     {
-        $imListElementCollectionUUId = new ListCollectionUuid();
-        $imListElementCollectionUUIdToString = $imListElementCollectionUUId;
+        $listCollectionUuid = new ListCollectionUuid();
 
-        $this->assertInstanceOf(ListCollectionUuid::class, $imListElementCollectionUUId);
-        $this->assertEquals($imListElementCollectionUUIdToString, $imListElementCollectionUUId->getUuid());
+        $this->assertInstanceOf(ListCollectionUuid::class, $listCollectionUuid);
+        $this->assertEquals((string)$listCollectionUuid, $listCollectionUuid->getUuid());
     }
 }

@@ -37,7 +37,7 @@ class MemcachedDriverTest extends BaseTestCase
      */
     public function it_throws_RedisMalformedConfigException_if_malformed_config_array_is_provided()
     {
-        $malformed_config_array = [
+        $badConfigArray = [
             [
                 'wrong' => 'param',
                 'wrong2' => 'param2',
@@ -45,7 +45,7 @@ class MemcachedDriverTest extends BaseTestCase
             ]
         ];
 
-        new MemcachedDriver($malformed_config_array);
+        new MemcachedDriver($badConfigArray);
     }
 
 

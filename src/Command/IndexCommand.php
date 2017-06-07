@@ -49,7 +49,7 @@ class IndexCommand extends BaseCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $driver = $input->getArgument('driver') ?: $this->driver;
-        $parameters = $this->convertparametersArray($input->getArgument('parameters')) ?: $this->defaultParameters;
+        $parameters = $this->convertParametersArray($input->getArgument('parameters')) ?: $this->defaultParameters;
 
         $cache = $this->createClient($driver, $parameters);
         $index = $cache->getIndex(null, true);

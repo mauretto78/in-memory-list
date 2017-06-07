@@ -69,9 +69,9 @@ class BaseCommand extends Command
      * @param array $parameters
      * @return array
      */
-    protected function convertparametersArray(array $parameters = [])
+    protected function convertParametersArray(array $parameters = [])
     {
-        $convertedparametersArray = [];
+        $convertedArray = [];
         $array = [];
 
         foreach ($parameters as $param) {
@@ -86,9 +86,9 @@ class BaseCommand extends Command
                 }
             }
 
-            $convertedparametersArray[] = $array;
+            $convertedArray[] = $array;
         }
 
-        return $convertedparametersArray;
+        return $convertedArray;
     }
 }
