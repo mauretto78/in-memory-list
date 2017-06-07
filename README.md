@@ -1,6 +1,7 @@
 # In-memory List
 
 [![Build Status](https://travis-ci.org/mauretto78/in-memory-list.svg?branch=master)](https://travis-ci.org/mauretto78/in-memory-list)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/84d8322496cb4a11bdc0ca01a4271b52)](https://www.codacy.com/app/mauretto78/in-memory-list?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mauretto78/in-memory-list&amp;utm_campaign=Badge_Grade)
 [![license](https://img.shields.io/github/license/mauretto78/in-memory-list.svg)]()
 [![Packagist](https://img.shields.io/packagist/v/mauretto78/in-memory-list.svg)]()
 

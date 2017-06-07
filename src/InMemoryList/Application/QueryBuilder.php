@@ -145,7 +145,7 @@ class QueryBuilder
     {
         $results = [];
         $singleQueryResults = [];
-        $i = 0;
+        $counter = 0;
 
         if (count($this->criteria)) {
             foreach ($this->criteria as $criterion) {
@@ -194,13 +194,13 @@ class QueryBuilder
                 );
 
                 // use array_intersect_key
-                if ($i > 0) {
-                    $results = array_intersect_key($singleQueryResults[$i], $singleQueryResults[$i - 1]);
+                if ($counter > 0) {
+                    $results = array_intersect_key($singleQueryResults[$counter], $singleQueryResults[$counter - 1]);
                 } else {
                     $results = $singleQueryResults[0];
                 }
 
-                ++$i;
+                ++$counter;
             }
         } else {
             $results = $this->collection;

@@ -17,10 +17,9 @@ class ListElementUuidTest extends TestCase
      */
     public function it_should_create_the_entity()
     {
-        $imListElementUUId = new ListElementUuid('12345');
-        $imListElementUUIdToString = $imListElementUUId;
+        $listElementUuid = new ListElementUuid('12345');
 
-        $this->assertInstanceOf(ListElementUuid::class, $imListElementUUId);
-        $this->assertEquals($imListElementUUIdToString, '12345');
+        $this->assertInstanceOf(ListElementUuid::class, $listElementUuid);
+        $this->assertEquals((string)$listElementUuid, '12345');
     }
 }
