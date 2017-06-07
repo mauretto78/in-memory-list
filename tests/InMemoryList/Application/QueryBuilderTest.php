@@ -58,9 +58,9 @@ class QueryBuilderTest extends BaseTestCase
             'element-uuid' => 'id'
         ]);
 
-        $qb = new QueryBuilder($this->client->findListByUuid('user-list'));
-        $qb->addCriteria('name', 'Ervin Howell', 'wrong operator');
-        $this->assertCount(1, $qb->getResults());
+        $queryBuilder = new QueryBuilder($this->client->findListByUuid('user-list'));
+        $queryBuilder->addCriteria('name', 'Ervin Howell', 'wrong operator');
+        $this->assertCount(1, $queryBuilder->getResults());
 
         $this->client->flush();
     }
@@ -77,9 +77,9 @@ class QueryBuilderTest extends BaseTestCase
             'uuid' => 'user list'
         ]);
 
-        $qb = new QueryBuilder($this->client->findListByUuid('user-list'));
-        $qb->addCriteria('not-existing-key', 'Ervin Howell');
-        $this->assertCount(1, $qb->getResults());
+        $queryBuilder = new QueryBuilder($this->client->findListByUuid('user-list'));
+        $queryBuilder->addCriteria('not-existing-key', 'Ervin Howell');
+        $this->assertCount(1, $queryBuilder->getResults());
 
         $this->client->flush();
     }
@@ -96,11 +96,11 @@ class QueryBuilderTest extends BaseTestCase
             'uuid' => 'user list'
         ]);
 
-        $qb = new QueryBuilder($this->client->findListByUuid('user-list'));
-        $qb
+        $queryBuilder = new QueryBuilder($this->client->findListByUuid('user-list'));
+        $queryBuilder
             ->addCriteria('name', 'Ervin Howell')
             ->orderBy('name', 'not wrong sorting operator');
-        $this->assertCount(1, $qb->getResults());
+        $this->assertCount(1, $queryBuilder->getResults());
 
         $this->client->flush();
     }
@@ -118,8 +118,8 @@ class QueryBuilderTest extends BaseTestCase
             'element-uuid' => 'id'
         ]);
 
-        $qb = new QueryBuilder($this->client->findListByUuid('user-list'));
-        $qb->limit(123, 'string');
+        $queryBuilder = new QueryBuilder($this->client->findListByUuid('user-list'));
+        $queryBuilder->limit(123, 'string');
 
         $this->client->flush();
     }
@@ -137,8 +137,8 @@ class QueryBuilderTest extends BaseTestCase
             'element-uuid' => 'id'
         ]);
 
-        $qb = new QueryBuilder($this->client->findListByUuid('user-list'));
-        $qb->limit('string', 13);
+        $queryBuilder = new QueryBuilder($this->client->findListByUuid('user-list'));
+        $queryBuilder->limit('string', 13);
 
         $this->client->flush();
     }
@@ -156,8 +156,8 @@ class QueryBuilderTest extends BaseTestCase
             'element-uuid' => 'id'
         ]);
 
-        $qb = new QueryBuilder($this->client->findListByUuid('user-list'));
-        $qb->limit(432, 13);
+        $queryBuilder = new QueryBuilder($this->client->findListByUuid('user-list'));
+        $queryBuilder->limit(432, 13);
 
         $this->client->flush();
     }
@@ -174,75 +174,75 @@ class QueryBuilderTest extends BaseTestCase
         ]);
 
         // perform a simple query
-        $qb = new QueryBuilder($userCollection);
-        $qb->addCriteria('name', 'Ervin Howell');
-        $this->assertCount(1, $qb->getResults());
+        $queryBuilder = new QueryBuilder($userCollection);
+        $queryBuilder->addCriteria('name', 'Ervin Howell');
+        $this->assertCount(1, $queryBuilder->getResults());
 
         // perform a > query
-        $qb2 = new QueryBuilder($userCollection);
-        $qb2->addCriteria('id', '3', '>');
-        $this->assertCount(7, $qb2->getResults());
+        $queryBuilder2 = new QueryBuilder($userCollection);
+        $queryBuilder2->addCriteria('id', '3', '>');
+        $this->assertCount(7, $queryBuilder2->getResults());
 
         // perform a < query
-        $qb3 = new QueryBuilder($userCollection);
-        $qb3->addCriteria('id', '3', '<');
-        $this->assertCount(2, $qb3->getResults());
+        $queryBuilder3 = new QueryBuilder($userCollection);
+        $queryBuilder3->addCriteria('id', '3', '<');
+        $this->assertCount(2, $queryBuilder3->getResults());
 
         // perform a <= query
-        $qb4 = new QueryBuilder($userCollection);
-        $qb4->addCriteria('id', '3', '<=');
-        $this->assertCount(3, $qb4->getResults());
+        $queryBuilder4 = new QueryBuilder($userCollection);
+        $queryBuilder4->addCriteria('id', '3', '<=');
+        $this->assertCount(3, $queryBuilder4->getResults());
 
         // perform a >= query
-        $qb5 = new QueryBuilder($userCollection);
-        $qb5->addCriteria('id', '3', '>=');
-        $this->assertCount(8, $qb5->getResults());
+        $queryBuilder5 = new QueryBuilder($userCollection);
+        $queryBuilder5->addCriteria('id', '3', '>=');
+        $this->assertCount(8, $queryBuilder5->getResults());
 
         // perform a != query
-        $qb6 = new QueryBuilder($userCollection);
-        $qb6->addCriteria('name', 'Ervin Howell', '!=');
-        $this->assertCount(9, $qb6->getResults());
+        $queryBuilder6 = new QueryBuilder($userCollection);
+        $queryBuilder6->addCriteria('name', 'Ervin Howell', '!=');
+        $this->assertCount(9, $queryBuilder6->getResults());
 
         // perform a CONTAINS query
-        $qb7 = new QueryBuilder($userCollection);
-        $qb7->addCriteria('name', 'clement', 'CONTAINS');
-        $this->assertCount(2, $qb7->getResults());
+        $queryBuilder7 = new QueryBuilder($userCollection);
+        $queryBuilder7->addCriteria('name', 'clement', 'CONTAINS');
+        $this->assertCount(2, $queryBuilder7->getResults());
 
         // perform a ARRAY query
-        $qb8 = new QueryBuilder($userCollection);
-        $qb8->addCriteria('name', ['Leanne Graham', 'Ervin Howell', 'Clementine Bauch'], 'ARRAY');
-        $this->assertCount(3, $qb8->getResults());
+        $queryBuilder8 = new QueryBuilder($userCollection);
+        $queryBuilder8->addCriteria('name', ['Leanne Graham', 'Ervin Howell', 'Clementine Bauch'], 'ARRAY');
+        $this->assertCount(3, $queryBuilder8->getResults());
 
         // perform a ARRAY_INVERSED query
-        $qb9 = new QueryBuilder($userCollection);
-        $qb9->addCriteria('tags', 'pinapple', 'ARRAY_INVERSED');
-        $this->assertCount(9, $qb9->getResults());
+        $queryBuilder9 = new QueryBuilder($userCollection);
+        $queryBuilder9->addCriteria('tags', 'pinapple', 'ARRAY_INVERSED');
+        $this->assertCount(9, $queryBuilder9->getResults());
 
         // perform a concatenated query
-        $qb10 = new QueryBuilder($userCollection);
-        $qb10
+        $queryBuilder10 = new QueryBuilder($userCollection);
+        $queryBuilder10
             ->addCriteria('name', 'Clement', 'CONTAINS')
             ->addCriteria('id', '6', '>=')
         ;
-        $this->assertCount(1, $qb10->getResults());
+        $this->assertCount(1, $queryBuilder10->getResults());
 
         // perform a concatenated query with order by and check that first element of array is the expected one
-        $qb11 = new QueryBuilder($userCollection);
-        $qb11->orderBy('id', 'DESC');
-        $results = $qb11->getResults();
+        $queryBuilder11 = new QueryBuilder($userCollection);
+        $queryBuilder11->orderBy('id', 'DESC');
+        $results = $queryBuilder11->getResults();
         $firstResult = $this->client->item($results[0]);
         $this->assertEquals($firstResult->id, '10');
 
         // perform a concatenated query with order by and check that first element of array is the expected one
         $postCollection = $this->client->create($this->parsedPostsArray, [], 'post-list', 'id');
-        $qb12 = new QueryBuilder($postCollection);
-        $qb12->orderBy('userId');
-        $results = $qb12->getResults();
+        $queryBuilder12 = new QueryBuilder($postCollection);
+        $queryBuilder12->orderBy('userId');
+        $results = $queryBuilder12->getResults();
 
         // perform a concatenated query with limit
-        $qb13 = new QueryBuilder($userCollection);
-        $qb13->limit(0, 5);
-        $this->assertCount(5, $qb13->getResults());
+        $queryBuilder13 = new QueryBuilder($userCollection);
+        $queryBuilder13->limit(0, 5);
+        $this->assertCount(5, $queryBuilder13->getResults());
 
         $this->client->flush();
     }

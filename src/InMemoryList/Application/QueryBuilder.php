@@ -96,9 +96,9 @@ class QueryBuilder
      */
     public function orderBy($key, $order = 'ASC')
     {
-        $allowedSortingOperators = ['ASC', 'DESC'];
+        $allowedOperators = ['ASC', 'DESC'];
 
-        if (!in_array($order, $allowedSortingOperators)) {
+        if (!in_array($order, $allowedOperators)) {
             throw new NotValidSortingOperatorException($order.' is not a valid sorting operator.');
         }
 
@@ -239,15 +239,15 @@ class QueryBuilder
     }
 
     /**
-     * @param $a
-     * @param $b
+     * @param $first
+     * @param $second
      *
      * @return int
      */
-    private function _compareStrings($a, $b)
+    private function _compareStrings($first, $second)
     {
-        $valueA = $this->_getListElementValueFromKey(unserialize($a), $this->orderBy['key']);
-        $valueB = $this->_getListElementValueFromKey(unserialize($b), $this->orderBy['key']);
+        $valueA = $this->_getListElementValueFromKey(unserialize($first), $this->orderBy['key']);
+        $valueB = $this->_getListElementValueFromKey(unserialize($second), $this->orderBy['key']);
 
         if ($valueA === $valueB) {
             return 0;
@@ -257,11 +257,11 @@ class QueryBuilder
     }
 
     /**
-     * @param callable $fn
+     * @param callable $function
      *
      * @return array|ø
      */
-    private function _filter(callable $fn)
+    private function _filter(callable $function)
     {
         return array_filter(
             array_map(
@@ -270,7 +270,7 @@ class QueryBuilder
                 },
                 $this->collection
             ),
-            $fn
+            $function
         );
     }
 }
