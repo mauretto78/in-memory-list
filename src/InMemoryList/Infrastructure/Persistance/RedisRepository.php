@@ -222,9 +222,9 @@ class RedisRepository extends AbstractRepository implements ListRepository
     {
         $indexKey = ListRepository::INDEX;
 
-        if($flush){
-            foreach ($this->client->hgetall($indexKey) as $key => $item){
-                if(!$this->findListByUuid($key)){
+        if ($flush) {
+            foreach ($this->client->hgetall($indexKey) as $key => $item) {
+                if (!$this->findListByUuid($key)) {
                     $this->removeListFromIndex($key);
                 }
             }
@@ -352,5 +352,4 @@ class RedisRepository extends AbstractRepository implements ListRepository
 
         $this->client->expire($listUuid, $ttl);
     }
-
 }

@@ -190,9 +190,9 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
         $indexKey = ListRepository::INDEX;
         $index = $this->memcached->get($indexKey);
 
-        if($flush and $index){
-            foreach ($index as $key => $item){
-                if(!$this->findListByUuid($key)){
+        if ($flush and $index) {
+            foreach ($index as $key => $item) {
+                if (!$this->findListByUuid($key)) {
                     $this->removeListFromIndex($key);
                 }
             }

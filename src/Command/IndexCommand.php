@@ -55,7 +55,6 @@ class IndexCommand extends BaseCommand
         $index = $cache->getIndex(null, true);
 
         if ($index and count($index)) {
-
             $table = new Table($output);
             $table->setHeaders(['#', 'List', 'Created on', 'Chunks', 'Chunk size', 'Ttl', 'Items']);
 
