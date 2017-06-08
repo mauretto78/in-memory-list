@@ -219,7 +219,7 @@ class RedisRepository extends AbstractRepository implements ListRepository
         $indexKey = ListRepository::INDEX;
 
         if ($flush) {
-            foreach ($this->client->hgetall($indexKey) as $key => $item) {
+            foreach(array_keys($this->client->hgetall($indexKey)) as $key) {
                 if (!$this->findListByUuid($key)) {
                     $this->removeListFromIndex($key);
                 }
@@ -335,7 +335,7 @@ class RedisRepository extends AbstractRepository implements ListRepository
      */
     public function updateTtl($listUuid, $ttl)
     {
-        if (!$list = $this->findListByUuid($listUuid)) {
+        if (!$this->findListByUuid($listUuid)) {
             throw new ListDoesNotExistsException('List '.$listUuid.' does not exists in memory.');
         }
 

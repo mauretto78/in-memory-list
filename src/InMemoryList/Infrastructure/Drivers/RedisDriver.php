@@ -70,7 +70,7 @@ class RedisDriver implements DriverInterface
 
         foreach ($config as $param => $server) {
             if (is_array($server)) {
-                foreach ($server as $key => $item) {
+                foreach(array_keys($server) as $key) {
                     if (!in_array($key, $allowedConfigKeys)) {
                         throw new RedisMalformedConfigException();
                     }

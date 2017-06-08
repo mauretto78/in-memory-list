@@ -174,7 +174,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
         $index = apcu_fetch($indexKey);
 
         if ($flush and $index) {
-            foreach ($index as $key => $item) {
+            foreach(array_keys($index) as $key) {
                 if (!$this->findListByUuid($key)) {
                     $this->removeListFromIndex($key);
                 }

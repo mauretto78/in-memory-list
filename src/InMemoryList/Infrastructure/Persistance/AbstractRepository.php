@@ -22,7 +22,7 @@ abstract class AbstractRepository
     {
         $list = $this->findListByUuid($listUuid);
 
-        foreach ($list as $elementUuid => $element) {
+        foreach(array_keys($list) as $elementUuid) {
             $this->deleteElement($listUuid, $elementUuid);
         }
     }

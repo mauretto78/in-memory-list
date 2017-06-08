@@ -123,7 +123,7 @@ class Client
             'uuid',
         ];
 
-        foreach ($parameters as $key => $parameter) {
+        foreach(array_keys($parameters) as $key) {
             if (!in_array($key, $allowedParameters)) {
                 throw new MalformedParametersException();
             }
