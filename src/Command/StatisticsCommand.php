@@ -19,11 +19,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 class StatisticsCommand extends BaseCommand
 {
     /**
-     * @var array
-     */
-    private $default;
-
-    /**
      * StatisticsCommand constructor.
      * @param null $driver
      * @param array $defaultParameters

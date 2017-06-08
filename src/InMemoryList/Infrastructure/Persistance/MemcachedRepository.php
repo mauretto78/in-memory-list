@@ -147,15 +147,11 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
      */
     public function findListByUuid($listUuid)
     {
-        $collection = [];
+        $collection = ($this->memcached->get($listUuid.self::SEPARATOR.self::CHUNK.'-1')) ?: [];
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
 
-        for ($i=1; $i<=$numberOfChunks; $i++) {
-            if (empty($collection)) {
-                $collection = $this->memcached->get($listUuid.self::SEPARATOR.self::CHUNK.'-1');
-            } else {
-                $collection = array_merge($collection, $this->memcached->get($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
-            }
+        for ($i=2; $i<=$numberOfChunks; $i++) {
+            $collection = array_merge($collection, $this->memcached->get($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
         }
 
         return $collection;

@@ -32,11 +32,6 @@ class QueryBuilder
     private $orderBy;
 
     /**
-     * @var array
-     */
-    private $list;
-
-    /**
      * IMListElementCollectionQueryBuilder constructor.
      *
      * @param $list
@@ -193,13 +188,7 @@ class QueryBuilder
                     }
                 );
 
-                // use array_intersect_key
-                if ($counter > 0) {
-                    $results = array_intersect_key($singleQueryResults[$counter], $singleQueryResults[$counter - 1]);
-                } else {
-                    $results = $singleQueryResults[0];
-                }
-
+                $results = $this->_returnSingleQueryResult($counter, $singleQueryResults);
                 ++$counter;
             }
         } else {
@@ -219,6 +208,21 @@ class QueryBuilder
         }
 
         return $results;
+    }
+
+    /**
+     * @param $counter
+     * @param $singleQueryResults
+     *
+     * @return array
+     */
+    private function _returnSingleQueryResult($counter, $singleQueryResults)
+    {
+        if ($counter > 0) {
+            return  array_intersect_key($singleQueryResults[$counter], $singleQueryResults[$counter - 1]);
+        }
+
+        return $singleQueryResults[0];
     }
 
     /**

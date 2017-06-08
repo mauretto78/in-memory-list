@@ -182,15 +182,11 @@ class RedisRepository extends AbstractRepository implements ListRepository
      */
     public function findListByUuid($listUuid)
     {
-        $collection = [];
+        $collection = $this->client->hgetall($listUuid.self::SEPARATOR.self::CHUNK.'-1');
         $number = $this->getNumberOfChunks($listUuid);
 
-        for ($i=1; $i<=$number; $i++) {
-            if (empty($collection)) {
-                $collection = $this->client->hgetall($listUuid.self::SEPARATOR.self::CHUNK.'-1');
-            } else {
-                $collection = array_merge($collection, $this->client->hgetall($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
-            }
+        for ($i=2; $i<=$number; $i++) {
+            $collection = array_merge($collection, $this->client->hgetall($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
         }
 
         return $collection;
