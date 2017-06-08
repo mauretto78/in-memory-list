@@ -87,11 +87,10 @@ class ApcuRepository extends AbstractRepository implements ListRepository
     /**
      * @param $listUuid
      * @param $elementUuid
-     * @param null $ttl
      *
      * @return mixed
      */
-    public function deleteElement($listUuid, $elementUuid, $ttl = null)
+    public function deleteElement($listUuid, $elementUuid)
     {
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
         $chunkSize = $this->getChunkSize($listUuid);
@@ -208,15 +207,16 @@ class ApcuRepository extends AbstractRepository implements ListRepository
             'ttl' => $ttl
         ]);
 
+        $indexArrayToUpdate = [(string)$listUuid => $indexArray];
+
         if ($this->_existsListInIndex($listUuid)) {
             $index = apcu_fetch((string)$indexKey);
             $index[$listUuid] = $indexArray;
-
+            $indexArrayToUpdate = $index;
             apcu_delete($indexKey);
-            apcu_store((string)$indexKey, $index);
-        } else {
-            apcu_store($indexKey, [(string)$listUuid => $indexArray]);
         }
+
+        apcu_store((string)$indexKey, $indexArrayToUpdate);
 
         if ($size === 0) {
             $this->removeListFromIndex($listUuid);

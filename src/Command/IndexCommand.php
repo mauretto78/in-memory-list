@@ -59,7 +59,7 @@ class IndexCommand extends BaseCommand
             $table->setHeaders(['#', 'List', 'Created on', 'Chunks', 'Chunk size', 'Ttl', 'Items']);
 
             $counter = 0;
-            foreach ($index as $key => $item) {
+            foreach ($index as $item) {
                 $item = unserialize($item);
                 $listUuid = $item['uuid'];
 

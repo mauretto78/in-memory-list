@@ -219,11 +219,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
             'ttl' => $ttl
         ]);
 
-        if ($this->_existsListInIndex($listUuid)) {
-            $this->memcached->replace($indexKey, [$listUuid => $indexArray]);
-        } else {
-            $this->memcached->set($indexKey, [$listUuid => $indexArray]);
-        }
+        ($this->_existsListInIndex($listUuid)) ? $this->memcached->replace($indexKey, [$listUuid => $indexArray]) : $this->memcached->set($indexKey, [$listUuid => $indexArray]);
 
         if ($size === 0) {
             $this->removeListFromIndex($listUuid);

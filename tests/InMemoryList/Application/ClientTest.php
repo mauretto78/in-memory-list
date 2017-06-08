@@ -71,7 +71,7 @@ class ClientTest extends BaseTestCase
     public function it_catch_CollectionAlreadyExistsException_if_attempt_to_persist_duplicate_collection()
     {
         foreach ($this->clients as $client) {
-            $collection = $client->create($this->parsedArrayFromJson, [
+            $client->create($this->parsedArrayFromJson, [
                 'uuid' => 'fake list'
             ]);
             $collection2 = $client->create($this->parsedArrayFromJson, [

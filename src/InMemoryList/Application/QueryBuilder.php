@@ -138,7 +138,7 @@ class QueryBuilder
      */
     public function getResults()
     {
-        $results = [];
+        $results = $this->collection;
         $singleQueryResults = [];
         $counter = 0;
 
@@ -191,8 +191,6 @@ class QueryBuilder
                 $results = $this->_returnSingleQueryResult($counter, $singleQueryResults);
                 ++$counter;
             }
-        } else {
-            $results = $this->collection;
         }
 
         if (count($this->orderBy)) {
@@ -209,6 +207,7 @@ class QueryBuilder
 
         return $results;
     }
+
 
     /**
      * @param $counter
