@@ -57,21 +57,21 @@ class RepositoryTest extends BaseTestCase
                 'category' => 'holiday',
                 'rate' => 4,
             ]);
-            $fakeElement2 = new ListElement($fakeUUid2 = new ListElementUuid(), [
+            $fakeElement2 = new ListElement(new ListElementUuid(), [
                 'id' => 124,
                 'title' => 'Neque porro quisquam',
                 'category-id' => 28,
                 'category' => 'last minute',
                 'rate' => 5,
             ]);
-            $fakeElement3 = new ListElement($fakeUUid3 = new ListElementUuid(), [
+            $fakeElement3 = new ListElement(new ListElementUuid(), [
                 'id' => 125,
                 'title' => 'Ipso facto',
                 'category-id' => 28,
                 'category' => 'last minute',
                 'rate' => 1,
             ]);
-            $fakeElement4 = new ListElement($fakeUUid4 = new ListElementUuid(), [
+            $fakeElement4 = new ListElement(new ListElementUuid(), [
                 'id' => 126,
                 'title' => 'Ipse dixit',
                 'category-id' => 27,
@@ -170,7 +170,7 @@ class RepositoryTest extends BaseTestCase
             $listUuid = new ListCollectionUuid();
             $collection = new ListCollection($listUuid);
             foreach ($parsedArrayFromJson as $element) {
-                $collection->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
+                $collection->addItem(new ListElement(new ListElementUuid(), $element));
             }
 
             $repo->create($collection, 3600);
