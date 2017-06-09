@@ -61,6 +61,14 @@ class Client
     }
 
     /**
+     * @return string
+     */
+    public function getDriver()
+    {
+        return $this->driver;
+    }
+
+    /**
      * @param $driver
      * @param array $config
      */
