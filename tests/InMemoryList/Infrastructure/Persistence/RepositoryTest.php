@@ -104,15 +104,9 @@ class RepositoryTest extends BaseTestCase
             $collectionUuid = (string)$collection->getUuid();
 
             $repo->create($collection, 3600);
-            $repo->deleteElement(
-                (string)$collection->getUuid(),
-                (string)$fakeElement5->getUuid()
-            );
+            $repo->deleteElement($collectionUuid, (string)$fakeElement5->getUuid());
 
-            $element1 = unserialize($repo->findElement(
-                (string)$collection->getUuid(),
-                (string)$fakeUUid1->getUuid())
-            );
+            $element1 = unserialize($repo->findElement((string)$collection->getUuid(), (string)$fakeUUid1->getUuid()));
 
             $this->assertCount(4, $repo->findListByUuid($collectionUuid));
             $this->assertArrayHasKey('id', $element1);
@@ -122,33 +116,15 @@ class RepositoryTest extends BaseTestCase
             $this->assertArrayHasKey('rate', $element1);
             $this->assertEquals(4, $repo->getCounter($collectionUuid));
 
-            $repo->pushElement(
-                (string)$collection->getUuid(),
-                $fakeElement6
-            );
+            $repo->pushElement($collectionUuid, $fakeElement6);
 
             $this->assertEquals(5, $repo->getCounter($collectionUuid));
 
-            $repo->deleteElement(
-                (string)$collection->getUuid(),
-                (string)$fakeElement1->getUuid()
-            );
-            $repo->deleteElement(
-                (string)$collection->getUuid(),
-                (string)$fakeElement2->getUuid()
-            );
-            $repo->deleteElement(
-                (string)$collection->getUuid(),
-                (string)$fakeElement3->getUuid()
-            );
-            $repo->deleteElement(
-                $collectionUuid,
-                (string)$fakeElement4->getUuid()
-            );
-            $repo->deleteElement(
-                $collectionUuid,
-                (string)$fakeElement6->getUuid()
-            );
+            $repo->deleteElement($collectionUuid, (string)$fakeElement1->getUuid());
+            $repo->deleteElement($collectionUuid, (string)$fakeElement2->getUuid());
+            $repo->deleteElement($collectionUuid, (string)$fakeElement3->getUuid());
+            $repo->deleteElement($collectionUuid, (string)$fakeElement4->getUuid());
+            $repo->deleteElement($collectionUuid, (string)$fakeElement6->getUuid());
 
             $this->assertEquals(0, $repo->getCounter($collectionUuid));
             $this->assertEquals(0, $repo->getNumberOfChunks($collectionUuid));
