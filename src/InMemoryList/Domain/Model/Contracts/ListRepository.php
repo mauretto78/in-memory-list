@@ -7,6 +7,7 @@
  *  For the full copyright and license information, please view the LICENSE
  *  file that was distributed with this source code.
  */
+
 namespace InMemoryList\Domain\Model\Contracts;
 
 use InMemoryList\Domain\Model\ListCollection;
@@ -23,8 +24,8 @@ interface ListRepository
 
     /**
      * @param ListCollection $list
-     * @param null $ttl
-     * @param null $chunkSize
+     * @param null           $ttl
+     * @param null           $chunkSize
      *
      * @return mixed
      */
@@ -40,6 +41,7 @@ interface ListRepository
     /**
      * @param $listUuid
      * @param $elementUuid
+     *
      * @return mixed
      */
     public function deleteElement($listUuid, $elementUuid);
@@ -96,6 +98,7 @@ interface ListRepository
     /**
      * @param null $listUuid
      * @param null $flush
+     *
      * @return mixed
      */
     public function getIndex($listUuid = null, $flush = null);
@@ -114,6 +117,7 @@ interface ListRepository
 
     /**
      * @param $listUuid
+     *
      * @return mixed
      */
     public function getTtl($listUuid);
@@ -121,6 +125,7 @@ interface ListRepository
     /**
      * @param $listUuid
      * @param ListElement $listElement
+     *
      * @return mixed
      */
     public function pushElement($listUuid, ListElement $listElement);

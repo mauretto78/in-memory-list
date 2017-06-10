@@ -10,12 +10,10 @@
 
 namespace InMemoryList\Infrastructure\Drivers\Exceptions;
 
-use Throwable;
-
 class RedisMalformedConfigException extends \Exception
 {
     public function __construct()
     {
-        parent::__construct("Malformed Redis config parameters provided.");
+        parent::__construct('Malformed Redis config parameters provided.');
     }
 }

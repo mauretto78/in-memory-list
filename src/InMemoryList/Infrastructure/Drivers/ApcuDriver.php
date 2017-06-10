@@ -17,7 +17,9 @@ class ApcuDriver implements DriverInterface
 {
     /**
      * ApcuDriver constructor.
+     *
      * @codeCoverageIgnore
+     *
      * @throws ApcuDriverCheckException
      */
     public function __construct()
@@ -31,6 +33,7 @@ class ApcuDriver implements DriverInterface
 
     /**
      * @codeCoverageIgnore
+     *
      * @return bool
      */
     public function check()

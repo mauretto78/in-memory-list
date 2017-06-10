@@ -5,7 +5,6 @@ use InMemoryList\Command\IndexCommand;
 use InMemoryList\Tests\BaseTestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
-use PHPUnit\Framework\TestCase;
 
 class IndexCommandTest extends BaseTestCase
 {
@@ -65,7 +64,7 @@ class IndexCommandTest extends BaseTestCase
         $client = new Client('apcu');
         $client->create(json_decode($this->array), [
             'uuid' => 'simple-list',
-            'element-uuid' => 'id'
+            'element-uuid' => 'id',
         ]);
 
         $command = $this->app->find('iml:cache:index');
@@ -110,7 +109,7 @@ class IndexCommandTest extends BaseTestCase
         $client = new Client('memcached');
         $client->create(json_decode($this->array), [
             'uuid' => 'simple-list',
-            'element-uuid' => 'id'
+            'element-uuid' => 'id',
         ]);
 
         $command = $this->app->find('iml:cache:index');
@@ -121,7 +120,7 @@ class IndexCommandTest extends BaseTestCase
             'driver' => 'memcached',
             'parameters' => [
                 'host=localhost,port=11211',
-            ]
+            ],
         ]);
 
         $output = $commandTester->getDisplay();
@@ -145,8 +144,8 @@ class IndexCommandTest extends BaseTestCase
             'command' => $command->getName(),
             'driver' => 'redis',
             'parameters' => [
-                'host=127.0.0.1,port=6379'
-            ]
+                'host=127.0.0.1,port=6379',
+            ],
         ]);
 
         $output = $commandTester->getDisplay();
@@ -163,7 +162,7 @@ class IndexCommandTest extends BaseTestCase
         $client->create(json_decode($this->array), [
             'uuid' => 'simple-list',
             'element-uuid' => 'id',
-            'ttl' => 3600
+            'ttl' => 3600,
         ]);
 
         $command = $this->app->find('iml:cache:index');
@@ -173,8 +172,8 @@ class IndexCommandTest extends BaseTestCase
             'command' => $command->getName(),
             'driver' => 'redis',
             'parameters' => [
-                'host=127.0.0.1,port=6379'
-            ]
+                'host=127.0.0.1,port=6379',
+            ],
         ]);
 
         $output = $commandTester->getDisplay();

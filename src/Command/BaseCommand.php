@@ -27,9 +27,10 @@ class BaseCommand extends Command
 
     /**
      * BaseCommand constructor.
+     *
      * @param null|string $name
-     * @param null $driver
-     * @param array $defaultParameters
+     * @param null        $driver
+     * @param array       $defaultParameters
      */
     public function __construct($name, $driver = null, array $defaultParameters = [])
     {
@@ -58,6 +59,7 @@ class BaseCommand extends Command
     /**
      * @param $driver
      * @param array $parameters
+     *
      * @return Client
      */
     protected function createClient($driver, array $parameters = [])
@@ -67,6 +69,7 @@ class BaseCommand extends Command
 
     /**
      * @param array $parameters
+     *
      * @return array
      */
     protected function convertParametersArray(array $parameters = [])

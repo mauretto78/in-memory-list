@@ -7,6 +7,7 @@
  *  For the full copyright and license information, please view the LICENSE
  *  file that was distributed with this source code.
  */
+
 namespace InMemoryList\Application;
 
 use InMemoryList\Application\Exceptions\MalformedParametersException;
@@ -50,7 +51,7 @@ class Client
         $allowedDrivers = [
             'apcu',
             'memcached',
-            'redis'
+            'redis',
         ];
 
         if (!in_array($driver, $allowedDrivers)) {
@@ -92,7 +93,9 @@ class Client
     /**
      * @param array $elements
      * @param array $parameters
+     *
      * @return mixed|string
+     *
      * @throws MalformedParametersException
      */
     public function create(array $elements, array $parameters = [])
@@ -119,6 +122,7 @@ class Client
 
     /**
      * @param $parameters
+     *
      * @throws MalformedParametersException
      */
     private function _validateParameters($parameters)
@@ -131,7 +135,7 @@ class Client
             'uuid',
         ];
 
-        foreach(array_keys($parameters) as $key) {
+        foreach (array_keys($parameters) as $key) {
             if (!in_array($key, $allowedParameters)) {
                 throw new MalformedParametersException();
             }
@@ -239,6 +243,7 @@ class Client
 
     /**
      * @param $listUuid
+     *
      * @return mixed
      */
     public function getTtl($listUuid)

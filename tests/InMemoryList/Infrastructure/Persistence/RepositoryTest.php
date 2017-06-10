@@ -14,7 +14,6 @@ use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Domain\Model\ListCollectionUuid;
 use InMemoryList\Infrastructure\Persistance\ApcuRepository;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListDoesNotExistsException;
-use InMemoryList\Infrastructure\Persistance\Exceptions\NotConformingElementStructure;
 use InMemoryList\Infrastructure\Persistance\MemcachedRepository;
 use InMemoryList\Infrastructure\Persistance\RedisRepository;
 use InMemoryList\Tests\BaseTestCase;
@@ -41,7 +40,7 @@ class RepositoryTest extends BaseTestCase
         $this->repos = [
             new ApcuRepository(),
             new MemcachedRepository($memcached),
-            new RedisRepository(new Client($redis_parameters))
+            new RedisRepository(new Client($redis_parameters)),
         ];
     }
 
@@ -103,12 +102,12 @@ class RepositoryTest extends BaseTestCase
             $collection->addItem($fakeElement4);
             $collection->addItem($fakeElement5);
 
-            $collectionUuid = (string)$collection->getUuid();
+            $collectionUuid = (string) $collection->getUuid();
 
             $repo->create($collection, 3600);
-            $repo->deleteElement($collectionUuid, (string)$fakeElement5->getUuid());
+            $repo->deleteElement($collectionUuid, (string) $fakeElement5->getUuid());
 
-            $element1 = unserialize($repo->findElement((string)$collection->getUuid(), (string)$fakeUUid1->getUuid()));
+            $element1 = unserialize($repo->findElement((string) $collection->getUuid(), (string) $fakeUUid1->getUuid()));
 
             $this->assertCount(4, $repo->findListByUuid($collectionUuid));
             $this->assertArrayHasKey('id', $element1);
@@ -122,11 +121,11 @@ class RepositoryTest extends BaseTestCase
 
             $this->assertEquals(5, $repo->getCounter($collectionUuid));
 
-            $repo->deleteElement($collectionUuid, (string)$fakeElement1->getUuid());
-            $repo->deleteElement($collectionUuid, (string)$fakeElement2->getUuid());
-            $repo->deleteElement($collectionUuid, (string)$fakeElement3->getUuid());
-            $repo->deleteElement($collectionUuid, (string)$fakeElement4->getUuid());
-            $repo->deleteElement($collectionUuid, (string)$fakeElement6->getUuid());
+            $repo->deleteElement($collectionUuid, (string) $fakeElement1->getUuid());
+            $repo->deleteElement($collectionUuid, (string) $fakeElement2->getUuid());
+            $repo->deleteElement($collectionUuid, (string) $fakeElement3->getUuid());
+            $repo->deleteElement($collectionUuid, (string) $fakeElement4->getUuid());
+            $repo->deleteElement($collectionUuid, (string) $fakeElement6->getUuid());
 
             $this->assertEquals(0, $repo->getCounter($collectionUuid));
             $this->assertEquals(0, $repo->getNumberOfChunks($collectionUuid));
@@ -151,97 +150,11 @@ class RepositoryTest extends BaseTestCase
 
             $repo->create($collection, 3600);
 
-            try
-            {
+            try {
                 $repo->updateTtl('not existing hash', 7200);
-            } catch (\Exception $exception){
+            } catch (\Exception $exception) {
                 $this->assertInstanceOf(ListDoesNotExistsException::class, $exception);
                 $this->assertEquals($exception->getMessage(), 'List not existing hash does not exists in memory.');
-            }
-        }
-    }
-
-
-
-    /**
-     * @test
-     */
-    public function it_throws_NotConformingElementStructure_if_attempt_to_push_element_with_invalid_structure()
-    {
-        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../../examples/files/posts.json'));
-
-        /** @var ListRepository $repo */
-        foreach ($this->repos as $repo) {
-            $repo->flush();
-
-            $listUuid = new ListCollectionUuid();
-            $collection = new ListCollection($listUuid);
-            foreach ($parsedArrayFromJson as $element) {
-                $collection->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
-            }
-
-            $repo->create($collection, 3600);
-
-            $nonConformArray = [
-                "userId" => 1,
-                "id" => 43,
-                "worong_key" => "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-                "body" => "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
-            ];
-
-            $nonConformElement = new ListElement(
-                new ListElementUuid(43),
-                $nonConformArray
-            );
-
-            try
-            {
-                $repo->pushElement(
-                    (string)$collection->getUuid(),
-                    $nonConformElement
-                );
-            } catch (\Exception $exception){
-                $this->assertInstanceOf(NotConformingElementStructure::class, $exception);
-                $this->assertEquals($exception->getMessage(), 'The structure of the element 43 does not conform to that of the list.');
-            }
-        }
-    }
-
-    /**
-     * @test
-     */
-    public function it_throws_NotConformingElementStructure_if_attempt_to_update_element_with_invalid_structure()
-    {
-        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../../examples/files/posts.json'));
-
-        /** @var ListRepository $repo */
-        foreach ($this->repos as $repo) {
-            $repo->flush();
-
-            $listUuid = new ListCollectionUuid();
-            $collection = new ListCollection($listUuid);
-            foreach ($parsedArrayFromJson as $element) {
-                $collection->addItem(new ListElement($fakeUuid = new ListElementUuid(), $element));
-            }
-
-            $repo->create($collection, 3600);
-
-            $nonConformArray = [
-                "userId" => 1,
-                "id" => 1,
-                "worong_key" => "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-                "body" => "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
-            ];
-
-            try
-            {
-                $repo->updateElement(
-                    (string)$collection->getUuid(),
-                    (string)$fakeUuid,
-                    $nonConformArray
-                );
-            } catch (\Exception $exception){
-                $this->assertInstanceOf(NotConformingElementStructure::class, $exception);
             }
         }
     }
@@ -271,7 +184,7 @@ class RepositoryTest extends BaseTestCase
 
             $repo->create($collection, 3600);
 
-            $listUuid1 = (string)$collection->getUuid();
+            $listUuid1 = (string) $collection->getUuid();
             $list = $repo->findListByUuid($listUuid1);
             $element = $repo->findElement($listUuid1, $fakeUuid1->getUuid());
             $listInTheIndex = $repo->getIndex()[$listUuid1];
@@ -284,11 +197,11 @@ class RepositoryTest extends BaseTestCase
             $this->assertEquals(10, unserialize($listInTheIndex)['size']);
             $this->assertArrayHasKey($listUuid1, $repo->getIndex());
 
-            $repo->updateTtl((string)$listUuid, -1);
+            $repo->updateTtl((string) $listUuid, -1);
 
-            $this->assertEquals(-1, $repo->getTtl((string)$listUuid));
+            $this->assertEquals(-1, $repo->getTtl((string) $listUuid));
 
-            $repo->delete((string)$listUuid);
+            $repo->delete((string) $listUuid);
 
             $this->assertGreaterThan(0, $repo->getStatistics());
         }

@@ -4,7 +4,6 @@ use InMemoryList\Command\StatisticsCommand;
 use InMemoryList\Tests\BaseTestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
-use PHPUnit\Framework\TestCase;
 
 class StatisticsCommandTest extends BaseTestCase
 {

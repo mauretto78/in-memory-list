@@ -14,6 +14,6 @@ class MemcachedMalformedConfigException extends \Exception
 {
     public function __construct()
     {
-        parent::__construct("Malformed Memcached config parameters provided.");
+        parent::__construct('Malformed Memcached config parameters provided.');
     }
 }

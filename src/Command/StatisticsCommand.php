@@ -10,7 +10,6 @@
 
 namespace InMemoryList\Command;
 
-use InMemoryList\Application\Client;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,7 +19,8 @@ class StatisticsCommand extends BaseCommand
 {
     /**
      * StatisticsCommand constructor.
-     * @param null $driver
+     *
+     * @param null  $driver
      * @param array $defaultParameters
      */
     public function __construct($driver = null, array $defaultParameters = [])
@@ -63,7 +63,7 @@ class StatisticsCommand extends BaseCommand
             if (is_array($infoData)) {
                 foreach ($infoData as $key => $value) {
                     $valueToDisplay = (is_array($value)) ? implode(',', $value) : $value;
-                    $dataString .= '['.$key.']->' . $valueToDisplay . "\xA";
+                    $dataString .= '['.$key.']->'.$valueToDisplay."\xA";
                 }
             } else {
                 $dataString .= $infoData;
@@ -73,7 +73,7 @@ class StatisticsCommand extends BaseCommand
                 $counter,
                 [
                     $infoKey,
-                    $dataString
+                    $dataString,
                 ]
             );
             ++$counter;

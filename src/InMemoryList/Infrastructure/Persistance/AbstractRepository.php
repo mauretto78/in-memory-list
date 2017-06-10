@@ -7,6 +7,7 @@
  *  For the full copyright and license information, please view the LICENSE
  *  file that was distributed with this source code.
  */
+
 namespace InMemoryList\Infrastructure\Persistance;
 
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListElementDoesNotExistsException;
@@ -22,7 +23,7 @@ abstract class AbstractRepository
     {
         $list = $this->findListByUuid($listUuid);
 
-        foreach(array_keys($list) as $elementUuid) {
+        foreach (array_keys($list) as $elementUuid) {
             $this->deleteElement($listUuid, $elementUuid);
         }
     }
@@ -89,6 +90,7 @@ abstract class AbstractRepository
 
     /**
      * @param $listUuid
+     *
      * @return bool
      */
     protected function _existsListInIndex($listUuid)
@@ -116,6 +118,7 @@ abstract class AbstractRepository
 
     /**
      * @param $listUuid
+     *
      * @return mixed
      */
     public function getTtl($listUuid)
@@ -124,7 +127,7 @@ abstract class AbstractRepository
         if ($index['ttl'] and $index['ttl'] > 0) {
             $now = new \DateTime('NOW');
             $expire_date = $index['created_on']->add(new \DateInterval('PT'.$index['ttl'].'S'));
-            $diffSeconds =  $expire_date->getTimestamp() - $now->getTimestamp();
+            $diffSeconds = $expire_date->getTimestamp() - $now->getTimestamp();
 
             return $diffSeconds;
         }
@@ -135,6 +138,7 @@ abstract class AbstractRepository
     /**
      * @param $listUuid
      * @param array $listElement
+     *
      * @return bool
      */
     protected function _isListElementConforming($listUuid, array $listElement = [])
@@ -143,7 +147,7 @@ abstract class AbstractRepository
         $firstElementKey = @array_keys($list)[0];
         $firstElement = unserialize(@$list[$firstElementKey]);
 
-        if(count(array_diff_key($listElement, (array)$firstElement))){
+        if (count(array_diff_key($listElement, (array) $firstElement))) {
             return false;
         }
 

@@ -10,7 +10,6 @@
 
 namespace InMemoryList\Command;
 
-use InMemoryList\Application\Client;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,7 +19,8 @@ class IndexCommand extends BaseCommand
 {
     /**
      * IndexCommand constructor.
-     * @param null $driver
+     *
+     * @param null  $driver
      * @param array $defaultParameters
      */
     public function __construct($driver = null, array $defaultParameters = [])
@@ -69,7 +69,7 @@ class IndexCommand extends BaseCommand
                 $table->setRow(
                     $counter,
                     [
-                        $counter+1,
+                        $counter + 1,
                         '<fg=yellow>'.$listUuid.'</>',
                         $created_on->format('Y-m-d H:i:s'),
                         $cache->getNumberOfChunks($listUuid),

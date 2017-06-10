@@ -29,7 +29,7 @@ foreach ($range as $number) {
 $apiArray = json_encode($array);
 
 $client = new Client('apcu');
-$collection = $client->findListByUuid('range-list') ?:  $client->create(json_decode($apiArray), ['uuid' => 'range-list', 'element-uuid' => 'id']);
+$collection = $client->findListByUuid('range-list') ?: $client->create(json_decode($apiArray), ['uuid' => 'range-list', 'element-uuid' => 'id']);
 
 // loop items
 echo '<h3>Loop items</h3>';

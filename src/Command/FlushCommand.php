@@ -10,8 +10,6 @@
 
 namespace InMemoryList\Command;
 
-use InMemoryList\Application\Client;
-use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -20,7 +18,8 @@ class FlushCommand extends BaseCommand
 {
     /**
      * FlushCommand constructor.
-     * @param null $driver
+     *
+     * @param null  $driver
      * @param array $defaultParameters
      */
     public function __construct($driver = null, array $defaultParameters = [])

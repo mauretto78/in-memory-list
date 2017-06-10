@@ -7,6 +7,7 @@
  *  For the full copyright and license information, please view the LICENSE
  *  file that was distributed with this source code.
  */
+
 namespace InMemoryList\Infrastructure\Persistance;
 
 use InMemoryList\Domain\Model\ListElement;
@@ -15,16 +16,14 @@ use InMemoryList\Domain\Model\Contracts\ListRepository;
 use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListAlreadyExistsException;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListDoesNotExistsException;
-use InMemoryList\Infrastructure\Persistance\Exceptions\ListElementDoesNotExistsException;
 use InMemoryList\Infrastructure\Persistance\Exceptions\NotConformingElementStructure;
-use Predis\Client;
 
 class ApcuRepository extends AbstractRepository implements ListRepository
 {
     /**
      * @param ListCollection $list
-     * @param null $ttl
-     * @param null $chunkSize
+     * @param null           $ttl
+     * @param null           $chunkSize
      *
      * @return mixed
      *
@@ -58,7 +57,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
             }
 
             apcu_store(
-                (string)$list->getUuid().self::SEPARATOR.'chunk-'.($chunkNumber+1),
+                (string) $list->getUuid().self::SEPARATOR.'chunk-'.($chunkNumber + 1),
                 $arrayToPersist,
                 $ttl
             );
@@ -66,17 +65,17 @@ class ApcuRepository extends AbstractRepository implements ListRepository
 
         // add list to index
         $this->_addOrUpdateListToIndex(
-            (string)$listUuid,
-            (int)count($list->getItems()),
-            (int)count($arrayChunks),
-            (int)$chunkSize,
+            (string) $listUuid,
+            (int) count($list->getItems()),
+            (int) count($arrayChunks),
+            (int) $chunkSize,
             $ttl
         );
 
         // set headers
         if ($list->getHeaders()) {
             apcu_store(
-                (string)$list->getUuid().self::SEPARATOR.self::HEADERS,
+                (string) $list->getUuid().self::SEPARATOR.self::HEADERS,
                 $list->getHeaders(),
                 $ttl
             );
@@ -96,8 +95,8 @@ class ApcuRepository extends AbstractRepository implements ListRepository
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
         $chunkSize = $this->getChunkSize($listUuid);
 
-        for ($i=1; $i<=$numberOfChunks; $i++) {
-            $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
+        for ($i = 1; $i <= $numberOfChunks; ++$i) {
+            $chunkNumber = $listUuid.self::SEPARATOR.self::CHUNK.'-'.$i;
             $chunk = apcu_fetch($chunkNumber);
 
             if (array_key_exists($elementUuid, $chunk)) {
@@ -119,7 +118,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
 
                 // delete headers if counter = 0
                 $counter = $this->getCounter($listUuid);
-                $headersKey = $listUuid . self::SEPARATOR . self::HEADERS;
+                $headersKey = $listUuid.self::SEPARATOR.self::HEADERS;
 
                 if ($counter === 0) {
                     apcu_delete($headersKey);
@@ -140,7 +139,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
         $collection = (apcu_fetch($listUuid.self::SEPARATOR.self::CHUNK.'-1')) ?: [];
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
 
-        for ($i=2; $i<=$numberOfChunks; $i++) {
+        for ($i = 2; $i <= $numberOfChunks; ++$i) {
             $collection = array_merge($collection, apcu_fetch($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
         }
 
@@ -167,6 +166,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
 
     /**
      * @param null $listUuid
+     *
      * @return mixed
      */
     public function getIndex($listUuid = null, $flush = null)
@@ -175,7 +175,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
         $index = apcu_fetch($indexKey);
 
         if ($flush and $index) {
-            foreach(array_keys($index) as $key) {
+            foreach (array_keys($index) as $key) {
                 if (!$this->findListByUuid($key)) {
                     $this->removeListFromIndex($key);
                 }
@@ -183,7 +183,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
         }
 
         if ($listUuid) {
-            return $index[(string)$listUuid];
+            return $index[(string) $listUuid];
         }
 
         return $index;
@@ -205,19 +205,19 @@ class ApcuRepository extends AbstractRepository implements ListRepository
             'size' => $size,
             'chunks' => $numberOfChunks,
             'chunk-size' => $chunkSize,
-            'ttl' => $ttl
+            'ttl' => $ttl,
         ]);
 
-        $indexArrayToUpdate = [(string)$listUuid => $indexArray];
+        $indexArrayToUpdate = [(string) $listUuid => $indexArray];
 
         if ($this->_existsListInIndex($listUuid)) {
-            $index = apcu_fetch((string)$indexKey);
+            $index = apcu_fetch((string) $indexKey);
             $index[$listUuid] = $indexArray;
             $indexArrayToUpdate = $index;
             apcu_delete($indexKey);
         }
 
-        apcu_store((string)$indexKey, $indexArrayToUpdate);
+        apcu_store((string) $indexKey, $indexArrayToUpdate);
 
         if ($size === 0) {
             $this->removeListFromIndex($listUuid);
@@ -245,22 +245,22 @@ class ApcuRepository extends AbstractRepository implements ListRepository
         $elementUuid = $listElement->getUuid();
         $body = $listElement->getBody();
 
-        if(!$this->_isListElementConforming($listUuid, unserialize($body))){
-            throw new NotConformingElementStructure('The structure of the element '. (string)$elementUuid .' does not conform to that of the list.');
+        if (!$this->_isListElementConforming($listUuid, unserialize($body))) {
+            throw new NotConformingElementStructure('The structure of the element '.(string) $elementUuid.' does not conform to that of the list.');
         }
 
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
         $chunkSize = $this->getChunkSize($listUuid);
-        $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $numberOfChunks;
+        $chunkNumber = $listUuid.self::SEPARATOR.self::CHUNK.'-'.$numberOfChunks;
         $ttl = ($this->getTtl($listUuid) > 0) ? $this->getTtl($listUuid) : null;
 
         if ($chunkSize - count(apcu_fetch($chunkNumber)) === 0) {
             ++$numberOfChunks;
-            $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $numberOfChunks;
+            $chunkNumber = $listUuid.self::SEPARATOR.self::CHUNK.'-'.$numberOfChunks;
         }
 
         $chunkValues = apcu_fetch($chunkNumber);
-        $chunkValues[(string)$elementUuid] = (string)$body;
+        $chunkValues[(string) $elementUuid] = (string) $body;
 
         apcu_delete($chunkNumber);
         apcu_store(
@@ -294,7 +294,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
         apcu_delete($indexKey);
         apcu_store($indexKey, $index);
     }
-    
+
     /**
      * @param $listUuid
      * @param $elementUuid
@@ -304,21 +304,21 @@ class ApcuRepository extends AbstractRepository implements ListRepository
      */
     public function updateElement($listUuid, $elementUuid, array $data = [])
     {
-        if(!$this->_isListElementConforming($listUuid, $data)){
-            throw new NotConformingElementStructure('The structure of the element '. (string)$elementUuid .' does not conform to that of the list.');
+        if (!$this->_isListElementConforming($listUuid, $data)) {
+            throw new NotConformingElementStructure('The structure of the element '.(string) $elementUuid.' does not conform to that of the list.');
         }
 
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
         $ttl = ($this->getTtl($listUuid) > 0) ? $this->getTtl($listUuid) : null;
 
-        for ($i=1; $i<=$numberOfChunks; $i++) {
-            $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $i;
+        for ($i = 1; $i <= $numberOfChunks; ++$i) {
+            $chunkNumber = $listUuid.self::SEPARATOR.self::CHUNK.'-'.$i;
             $chunk = apcu_fetch($chunkNumber);
 
             if (array_key_exists($elementUuid, $chunk)) {
                 $element = $this->findElement(
-                    (string)$listUuid,
-                    (string)$elementUuid)
+                    (string) $listUuid,
+                    (string) $elementUuid)
                 ;
 
                 $objMerged = (object) array_merge((array) $element, (array) $data);
@@ -332,7 +332,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
 
                 apcu_delete($chunkNumber);
                 apcu_store(
-                    (string)$chunkNumber,
+                    (string) $chunkNumber,
                     $arrayOfElements,
                     $ttl
                 );
@@ -358,18 +358,18 @@ class ApcuRepository extends AbstractRepository implements ListRepository
 
         $ttl = ($ttl > 0) ? $ttl : null;
 
-        apcu_delete((string)$listUuid);
+        apcu_delete((string) $listUuid);
         apcu_store(
-            (string)$listUuid,
+            (string) $listUuid,
             $list,
             $ttl
         );
 
         $this->_addOrUpdateListToIndex(
-            (string)$listUuid,
-            $this->getCounter((string)$listUuid),
-            $this->getNumberOfChunks((string)$listUuid),
-            $this->getChunkSize((string)$listUuid),
+            (string) $listUuid,
+            $this->getCounter((string) $listUuid),
+            $this->getNumberOfChunks((string) $listUuid),
+            $this->getChunkSize((string) $listUuid),
             $ttl
         );
     }

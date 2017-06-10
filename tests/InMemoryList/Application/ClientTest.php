@@ -9,10 +9,7 @@
  */
 use InMemoryList\Application\Client;
 use InMemoryList\Domain\Model\Contracts\ListRepository;
-use InMemoryList\Infrastructure\Persistance\ApcuRepository;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListElementDoesNotExistsException;
-use InMemoryList\Infrastructure\Persistance\MemcachedRepository;
-use InMemoryList\Infrastructure\Persistance\RedisRepository;
 use InMemoryList\Tests\BaseTestCase;
 
 class ClientTest extends BaseTestCase
@@ -73,10 +70,10 @@ class ClientTest extends BaseTestCase
     {
         foreach ($this->clients as $client) {
             $client->create($this->parsedArrayFromJson, [
-                'uuid' => 'fake list'
+                'uuid' => 'fake list',
             ]);
             $collection2 = $client->create($this->parsedArrayFromJson, [
-                'uuid' => 'fake list'
+                'uuid' => 'fake list',
             ]);
 
             $this->assertEquals($collection2, 'List fake-list already exists in memory.');
@@ -91,7 +88,7 @@ class ClientTest extends BaseTestCase
         foreach ($this->clients as $client) {
             $collection = $client->create($this->parsedArrayFromJson, [
                 'not-allowed-key' => 'not-allowed-value',
-                'uuid' => 'fake list'
+                'uuid' => 'fake list',
             ]);
 
             $this->assertEquals($collection, 'Malformed parameters array provided to Client create function.');
@@ -107,13 +104,12 @@ class ClientTest extends BaseTestCase
             $client->flush();
             $client->create($this->parsedArrayFromJson, [
                 'uuid' => 'fake list',
-                'element-uuid' => 'id'
+                'element-uuid' => 'id',
             ]);
 
-            try
-            {
+            try {
                 $client->findElement('fake list', '132131312');
-            } catch (\Exception $exception){
+            } catch (\Exception $exception) {
                 $this->assertInstanceOf(ListElementDoesNotExistsException::class, $exception);
                 $this->assertEquals($exception->getMessage(), 'Cannot retrieve the element 132131312 from the collection in memory.');
             }
@@ -139,7 +135,7 @@ class ClientTest extends BaseTestCase
 
             $client->create(json_decode($apiArray), [
                 'uuid' => 'range list',
-                'chunk-size' => 10
+                'chunk-size' => 10,
             ]);
 
             $client->pushElement(
@@ -173,7 +169,7 @@ class ClientTest extends BaseTestCase
                 'headers' => $headers,
                 'ttl' => 3600,
                 'uuid' => 'fake list',
-                'element-uuid' => 'id'
+                'element-uuid' => 'id',
             ]);
             $client->deleteElement('fake-list', '7');
             $client->deleteElement('fake-list', '8');

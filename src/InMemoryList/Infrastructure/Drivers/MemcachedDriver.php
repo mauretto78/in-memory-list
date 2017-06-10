@@ -30,8 +30,11 @@ class MemcachedDriver implements DriverInterface
 
     /**
      * MemcachedDriver constructor.
+     *
      * @codeCoverageIgnore
+     *
      * @param array $config
+     *
      * @throws MemcachedDriverCheckException
      */
     public function __construct(array $config = [])
@@ -46,6 +49,7 @@ class MemcachedDriver implements DriverInterface
 
     /**
      * @param $config
+     *
      * @throws MemcachedMalformedConfigException
      */
     private function _setConfig($config)
@@ -58,7 +62,7 @@ class MemcachedDriver implements DriverInterface
         ];
 
         foreach ($config as $server) {
-            foreach(array_keys($server) as $key) {
+            foreach (array_keys($server) as $key) {
                 if (!in_array($key, $allowedConfigKeys)) {
                     throw new MemcachedMalformedConfigException();
                 }
@@ -70,6 +74,7 @@ class MemcachedDriver implements DriverInterface
 
     /**
      * @codeCoverageIgnore
+     *
      * @return bool
      */
     public function check()
@@ -93,7 +98,7 @@ class MemcachedDriver implements DriverInterface
         if (count($servers) < 1) {
             $servers = [
                 [
-                    'host' =>'127.0.0.1',
+                    'host' => '127.0.0.1',
                     'port' => 11211,
                 ],
             ];

@@ -9,7 +9,7 @@
  */
 use InMemoryList\Application\Client;
 
-include __DIR__ . '/../tests/bootstrap.php';
+include __DIR__.'/../tests/bootstrap.php';
 
 $simpleArray = json_encode([
     [
@@ -27,7 +27,7 @@ $simpleArray = json_encode([
 ]);
 
 $client = new Client('redis', $config['redis_parameters']);
-$collection = $client->findListByUuid('simple-list') ?:  $client->create(json_decode($simpleArray), ['uuid' => 'simple-list', 'ttl' => 1000]);
+$collection = $client->findListByUuid('simple-list') ?: $client->create(json_decode($simpleArray), ['uuid' => 'simple-list', 'ttl' => 1000]);
 
 // loop items
 echo '<h3>Loop items</h3>';

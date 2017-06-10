@@ -9,7 +9,7 @@
  */
 use InMemoryList\Application\Client;
 
-include __DIR__ . '/../../tests/bootstrap.php';
+include __DIR__.'/../../tests/bootstrap.php';
 
 $start = microtime(true);
 $apiUrl = 'https://jsonplaceholder.typicode.com/albums';

@@ -7,7 +7,6 @@
  *  For the full copyright and license information, please view the LICENSE
  *  file that was distributed with this source code.
  */
-
 use InMemoryList\Infrastructure\Drivers\MemcachedDriver;
 use InMemoryList\Tests\BaseTestCase;
 
@@ -42,12 +41,11 @@ class MemcachedDriverTest extends BaseTestCase
                 'wrong' => 'param',
                 'wrong2' => 'param2',
                 'wrong3' => 'param3',
-            ]
+            ],
         ];
 
         new MemcachedDriver($badConfigArray);
     }
-
 
     /**
      * @test

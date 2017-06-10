@@ -7,6 +7,7 @@
  *  For the full copyright and license information, please view the LICENSE
  *  file that was distributed with this source code.
  */
+
 namespace InMemoryList\Domain\Model;
 
 use InMemoryList\Domain\Model\Contracts\ListRepository;
@@ -32,6 +33,7 @@ class ListElementUuid
 
     /**
      * @param null $uuid
+     *
      * @throws ListElementNotAllowedUuidException
      */
     public function _setUUid($uuid = null)
@@ -46,7 +48,7 @@ class ListElementUuid
 
         foreach ($notAllowedNames as $notAllowedName) {
             if (strpos($uuid, $notAllowedName) !== false) {
-                throw new ListElementNotAllowedUuidException('You can\'t assign "'. $uuid . '" as element uuid.');
+                throw new ListElementNotAllowedUuidException('You can\'t assign "'.$uuid.'" as element uuid.');
             }
         }
 

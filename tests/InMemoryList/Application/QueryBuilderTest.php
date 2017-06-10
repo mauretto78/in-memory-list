@@ -55,7 +55,7 @@ class QueryBuilderTest extends BaseTestCase
         $this->client->flush();
         $this->client->create($this->parsedUserArray, [
             'uuid' => 'user list',
-            'element-uuid' => 'id'
+            'element-uuid' => 'id',
         ]);
 
         $queryBuilder = new QueryBuilder($this->client->findListByUuid('user-list'));
@@ -74,7 +74,7 @@ class QueryBuilderTest extends BaseTestCase
     {
         $this->client->flush();
         $this->client->create($this->parsedUserArray, [
-            'uuid' => 'user list'
+            'uuid' => 'user list',
         ]);
 
         $queryBuilder = new QueryBuilder($this->client->findListByUuid('user-list'));
@@ -93,7 +93,7 @@ class QueryBuilderTest extends BaseTestCase
     {
         $this->client->flush();
         $this->client->create($this->parsedUserArray, [
-            'uuid' => 'user list'
+            'uuid' => 'user list',
         ]);
 
         $queryBuilder = new QueryBuilder($this->client->findListByUuid('user-list'));
@@ -115,7 +115,7 @@ class QueryBuilderTest extends BaseTestCase
         $this->client->flush();
         $this->client->create($this->parsedUserArray, [
             'uuid' => 'user list',
-            'element-uuid' => 'id'
+            'element-uuid' => 'id',
         ]);
 
         $queryBuilder = new QueryBuilder($this->client->findListByUuid('user-list'));
@@ -134,7 +134,7 @@ class QueryBuilderTest extends BaseTestCase
         $this->client->flush();
         $this->client->create($this->parsedUserArray, [
             'uuid' => 'user list',
-            'element-uuid' => 'id'
+            'element-uuid' => 'id',
         ]);
 
         $queryBuilder = new QueryBuilder($this->client->findListByUuid('user-list'));
@@ -153,7 +153,7 @@ class QueryBuilderTest extends BaseTestCase
         $this->client->flush();
         $this->client->create($this->parsedUserArray, [
             'uuid' => 'user list',
-            'element-uuid' => 'id'
+            'element-uuid' => 'id',
         ]);
 
         $queryBuilder = new QueryBuilder($this->client->findListByUuid('user-list'));
@@ -170,7 +170,7 @@ class QueryBuilderTest extends BaseTestCase
         $this->client->flush();
         $userCollection = $this->client->create($this->parsedUserArray, [
             'uuid' => 'user list',
-            'element-uuid' => 'id'
+            'element-uuid' => 'id',
         ]);
 
         // perform a simple query

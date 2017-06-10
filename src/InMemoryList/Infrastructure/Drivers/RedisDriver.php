@@ -29,8 +29,11 @@ class RedisDriver implements DriverInterface
 
     /**
      * RedisDriver constructor.
+     *
      * @codeCoverageIgnore
+     *
      * @param array $config
+     *
      * @throws RedisDriverCheckException
      */
     public function __construct(array $config = [])
@@ -45,6 +48,7 @@ class RedisDriver implements DriverInterface
 
     /**
      * @param $config
+     *
      * @throws RedisMalformedConfigException
      */
     private function _setConfig($config)
@@ -70,7 +74,7 @@ class RedisDriver implements DriverInterface
 
         foreach ($config as $param => $server) {
             if (is_array($server)) {
-                foreach(array_keys($server) as $key) {
+                foreach (array_keys($server) as $key) {
                     if (!in_array($key, $allowedConfigKeys)) {
                         throw new RedisMalformedConfigException();
                     }
@@ -87,6 +91,7 @@ class RedisDriver implements DriverInterface
 
     /**
      * @codeCoverageIgnore
+     *
      * @return bool
      */
     public function check()

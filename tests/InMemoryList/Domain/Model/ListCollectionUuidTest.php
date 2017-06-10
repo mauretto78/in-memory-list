@@ -31,6 +31,6 @@ class ListCollectionUuidTest extends TestCase
         $listCollectionUuid = new ListCollectionUuid();
 
         $this->assertInstanceOf(ListCollectionUuid::class, $listCollectionUuid);
-        $this->assertEquals((string)$listCollectionUuid, $listCollectionUuid->getUuid());
+        $this->assertEquals((string) $listCollectionUuid, $listCollectionUuid->getUuid());
     }
 }

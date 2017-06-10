@@ -7,6 +7,7 @@
  *  For the full copyright and license information, please view the LICENSE
  *  file that was distributed with this source code.
  */
+
 namespace InMemoryList\Application;
 
 use InMemoryList\Application\Exceptions\EmptyListException;
@@ -170,11 +171,11 @@ class QueryBuilder
                                 break;
 
                             case 'ARRAY':
-                                return in_array($value, (array)$criterion['value']);
+                                return in_array($value, (array) $criterion['value']);
                                 break;
 
                             case 'ARRAY_INVERSED':
-                                return in_array($criterion['value'], (array)$value);
+                                return in_array($criterion['value'], (array) $value);
                                 break;
 
                             case 'CONTAINS':
@@ -207,7 +208,6 @@ class QueryBuilder
 
         return $results;
     }
-
 
     /**
      * @param $counter

@@ -20,6 +20,6 @@ class ListElementUuidTest extends TestCase
         $listElementUuid = new ListElementUuid('12345');
 
         $this->assertInstanceOf(ListElementUuid::class, $listElementUuid);
-        $this->assertEquals((string)$listElementUuid, '12345');
+        $this->assertEquals((string) $listElementUuid, '12345');
     }
 }

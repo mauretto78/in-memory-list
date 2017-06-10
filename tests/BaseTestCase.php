@@ -8,11 +8,9 @@
  *  file that was distributed with this source code.
  */
 
-namespace InMemoryList\Tests;
+namespace InMemoryList\tests;
 
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Yaml\Exception\ParseException;
-use Symfony\Component\Yaml\Yaml;
 
 class BaseTestCase extends TestCase
 {
