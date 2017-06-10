@@ -1,0 +1,33 @@
+language: php
+
+sudo: false
+
+php:
+  - 5.6
+  - 7.0
+  - 7.1
+
+services:
+  - memcached
+  - redis-server
+
+global:
+  - REPORT_EXIT_STATUS=1
+
+before_install:
+  - echo 'extension = memcached.so' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - if [[ $TRAVIS_PHP_VERSION = "5.6" ]]; then echo yes | pecl install apcu-4.0.11; fi
+  - if [[ $TRAVIS_PHP_VERSION = "7.0" ]]; then echo yes | pecl install -f apcu; fi
+  - if [[ $TRAVIS_PHP_VERSION = "7.1" ]]; then echo yes | pecl install -f apcu; fi
+  - phpenv config-add install/apc-$(phpenv version-name).ini
+
+before_script:
+  - cp config/parameters.dist.yml config/parameters.yml
+  - composer self-update
+  - composer install --prefer-source --no-interaction --dev
+
+script:
+  - vendor/bin/phpunit
+
+matrix:
+  fast_finish: true
