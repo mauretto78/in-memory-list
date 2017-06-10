@@ -16,6 +16,7 @@ use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListAlreadyExistsException;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListDoesNotExistsException;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListElementDoesNotExistsException;
+use InMemoryList\Infrastructure\Persistance\Exceptions\NotConformingElementStructure;
 
 class MemcachedRepository extends AbstractRepository implements ListRepository
 {
@@ -237,10 +238,20 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
     /**
      * @param $listUuid
      * @param ListElement $listElement
+     *
+     * @throws NotConformingElementStructure
+     *
      * @return mixed
      */
     public function pushElement($listUuid, ListElement $listElement)
     {
+        $elementUuid = $listElement->getUuid();
+        $body = $listElement->getBody();
+
+        if(!$this->_isListElementConforming($listUuid, unserialize($body))){
+            throw new NotConformingElementStructure('The structure of the element '. (string)$elementUuid .' does not conform to that of the list.');
+        }
+
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
         $chunkSize = $this->getChunkSize($listUuid);
         $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $numberOfChunks;
@@ -249,9 +260,6 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
             ++$numberOfChunks;
             $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $numberOfChunks;
         }
-
-        $elementUuid = $listElement->getUuid();
-        $body = $listElement->getBody();
 
         $chunkValues = $this->memcached->get($chunkNumber);
         $chunkValues[(string)$elementUuid] = (string)$body;
@@ -285,16 +293,21 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
         unset($index[(string) $listUuid]);
         $this->memcached->replace(ListRepository::INDEX, $index);
     }
-    
+
     /**
      * @param $listUuid
      * @param $elementUuid
      * @param array $data
-     *
+     * @param null $ttl
+     * @throws NotConformingElementStructure
      * @return mixed
      */
     public function updateElement($listUuid, $elementUuid, array $data = [], $ttl = null)
     {
+        if(!$this->_isListElementConforming($listUuid, $data)){
+            throw new NotConformingElementStructure('The structure of the element '. (string)$elementUuid .' does not conform to that of the list.');
+        }
+
         $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
 
         for ($i=1; $i<=$number; $i++) {

@@ -131,4 +131,22 @@ abstract class AbstractRepository
 
         return -1;
     }
+
+    /**
+     * @param $listUuid
+     * @param array $listElement
+     * @return bool
+     */
+    protected function _isListElementConforming($listUuid, array $listElement = [])
+    {
+        $list = $this->findListByUuid($listUuid);
+        $firstElementKey = @array_keys($list)[0];
+        $firstElement = unserialize(@$list[$firstElementKey]);
+
+        if(count(array_diff_key($listElement, (array)$firstElement))){
+            return false;
+        }
+
+        return true;
+    }
 }

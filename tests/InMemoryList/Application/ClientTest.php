@@ -10,6 +10,7 @@
 use InMemoryList\Application\Client;
 use InMemoryList\Domain\Model\Contracts\ListRepository;
 use InMemoryList\Infrastructure\Persistance\ApcuRepository;
+use InMemoryList\Infrastructure\Persistance\Exceptions\ListElementDoesNotExistsException;
 use InMemoryList\Infrastructure\Persistance\MemcachedRepository;
 use InMemoryList\Infrastructure\Persistance\RedisRepository;
 use InMemoryList\Tests\BaseTestCase;
@@ -32,9 +33,9 @@ class ClientTest extends BaseTestCase
 
         $this->parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../examples/files/users.json'));
         $this->clients = [
-            new Client('apcu'),
-            new Client('memcached', $this->memcached_parameters),
-            new Client('redis', $this->redis_parameters),
+            'apcu' => new Client('apcu'),
+            'memcached' => new Client('memcached', $this->memcached_parameters),
+            'redis' => new Client('redis', $this->redis_parameters),
         ];
     }
 
@@ -51,7 +52,7 @@ class ClientTest extends BaseTestCase
     /**
      * @test
      */
-    public function it_throws_ConnectionException_if_wrong_redis_credentials_are_provided()
+    public function it_catch_ConnectionException_if_wrong_redis_credentials_are_provided()
     {
         $wrongCredentials = array(
             'host' => '0.0.0.0',
@@ -99,8 +100,6 @@ class ClientTest extends BaseTestCase
 
     /**
      * @test
-     * @expectedException InMemoryList\Infrastructure\Persistance\Exceptions\ListElementDoesNotExistsException
-     * @expectedExceptionMessage Cannot retrieve the element 132131312 from the collection in memory.
      */
     public function it_throws_NotExistListElementException_if_attempt_to_find_a_not_existing_element_in_collection_from_redis()
     {
@@ -110,7 +109,14 @@ class ClientTest extends BaseTestCase
                 'uuid' => 'fake list',
                 'element-uuid' => 'id'
             ]);
-            $client->findElement('fake list', '132131312');
+
+            try
+            {
+                $client->findElement('fake list', '132131312');
+            } catch (\Exception $exception){
+                $this->assertInstanceOf(ListElementDoesNotExistsException::class, $exception);
+                $this->assertEquals($exception->getMessage(), 'Cannot retrieve the element 132131312 from the collection in memory.');
+            }
         }
     }
 
@@ -119,7 +125,7 @@ class ClientTest extends BaseTestCase
      */
     public function it_should_store_delete_and_retrieve_correctly_list_elements_in_chunks()
     {
-        foreach ($this->clients as $client) {
+        foreach ($this->clients as $driver => $client) {
             $array = [];
             foreach (range(1, 5000) as $number) {
                 $array[] = [
@@ -146,6 +152,7 @@ class ClientTest extends BaseTestCase
                 ]
             );
 
+            $this->assertEquals($driver, $client->getDriver());
             $this->assertEquals(5001, $client->getCounter('range-list'));
         }
     }
