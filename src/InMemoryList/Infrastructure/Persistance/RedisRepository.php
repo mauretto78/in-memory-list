@@ -268,7 +268,6 @@ class RedisRepository extends AbstractRepository implements ListRepository
             $chunkNumber = $listUuid . self::SEPARATOR . self::CHUNK . '-' . $number;
         }
 
-
         $this->client->hset(
             (string)$chunkNumber,
             (string)$elementUuid,
@@ -298,7 +297,6 @@ class RedisRepository extends AbstractRepository implements ListRepository
             $listUuid
         );
     }
-
     /**
      * @param $listUuid
      * @param $elementUuid

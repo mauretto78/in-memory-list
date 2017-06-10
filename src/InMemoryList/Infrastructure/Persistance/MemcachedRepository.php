@@ -293,7 +293,6 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
         unset($index[(string) $listUuid]);
         $this->memcached->replace(ListRepository::INDEX, $index);
     }
-
     /**
      * @param $listUuid
      * @param $elementUuid
