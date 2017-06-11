@@ -61,10 +61,29 @@ class ListCollectionFactory implements Factory
      */
     private function _getValueFromKey($element, $key)
     {
-        if ((is_object($element) and !isset($element->{$key})) or (is_array($element) and !isset($element[$key]))) {
-            throw new NotValidKeyElementInListException($key.' is not a valid key.');
+        if ((is_object($element) and !$this->_getValueKeyFromObject($element, $key)) or (is_array($element) and !isset($element[$key]))) {
+            $getterName = 'get'.str_replace(' ', '', ucwords($key));
+
+            throw new NotValidKeyElementInListException($key.' is not a valid key. If your elements are Entities class, please check if you implement '.$getterName.'() method.');
         }
 
-        return is_object($element) ? $element->{$key} : $element[$key];
+        return is_object($element) ? $this->_getValueKeyFromObject($element, $key) : $element[$key];
+    }
+
+    /**
+     * @param $element
+     * @param $key
+     *
+     * @return bool
+     */
+    private function _getValueKeyFromObject($element, $key)
+    {
+        if(!$element instanceof \stdClass){
+            $getterName = 'get'.str_replace(' ', '', ucwords($key));
+
+            return (method_exists($element,$getterName)) ? $element->$getterName() : false;
+        }
+
+        return (isset($element->{$key})) ? $element->{$key} : false;
     }
 }

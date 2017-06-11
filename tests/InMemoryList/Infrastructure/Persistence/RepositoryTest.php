@@ -14,6 +14,7 @@ use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Domain\Model\ListCollectionUuid;
 use InMemoryList\Infrastructure\Persistance\ApcuRepository;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListDoesNotExistsException;
+use InMemoryList\Infrastructure\Persistance\Exceptions\NotConformingElementStructure;
 use InMemoryList\Infrastructure\Persistance\MemcachedRepository;
 use InMemoryList\Infrastructure\Persistance\RedisRepository;
 use InMemoryList\Tests\BaseTestCase;
@@ -130,6 +131,76 @@ class RepositoryTest extends BaseTestCase
             $this->assertEquals(0, $repo->getCounter($collectionUuid));
             $this->assertEquals(0, $repo->getNumberOfChunks($collectionUuid));
             $this->assertEquals(0, $repo->getChunkSize($collectionUuid));
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function it_throws_NotConformingElementStructure_if_attempt_to_push_element_with_inconsistant_data()
+    {
+        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../../examples/files/users.json'));
+
+        /** @var ListRepository $repo */
+        foreach ($this->repos as $repo) {
+            $listUuid = new ListCollectionUuid();
+            $collection = new ListCollection($listUuid);
+            foreach ($parsedArrayFromJson as $element) {
+                $collection->addItem(new ListElement(new ListElementUuid(), $element));
+            }
+
+            $repo->create($collection, 3600);
+
+            try {
+                $repo->pushElement(
+                    (string)$listUuid,
+                    new ListElement(
+                        new ListElementUuid(11111),
+                        [
+                            'wrong-key' => 'wrong-data',
+                            'wrong-key-2' => 'wrong-data-2',
+                            'wrong-key-3' => 'wrong-data-3',
+                        ]
+                    )
+                );
+            } catch (\Exception $exception) {
+                $this->assertInstanceOf(NotConformingElementStructure::class, $exception);
+                $this->assertEquals($exception->getMessage(), 'The structure of the element 11111 does not conform to that of the list.');
+            }
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function it_throws_NotConformingElementStructure_if_attempt_to_update_element_with_inconsistant_data()
+    {
+        $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../../examples/files/users.json'));
+
+        /** @var ListRepository $repo */
+        foreach ($this->repos as $repo) {
+            $listUuid = new ListCollectionUuid();
+            $collection = new ListCollection($listUuid);
+            foreach ($parsedArrayFromJson as $element) {
+                $collection->addItem(new ListElement(new ListElementUuid(), $element));
+            }
+
+            $repo->create($collection, 3600);
+
+            try {
+                $repo->updateElement(
+                    (string)$listUuid,
+                    1,
+                    [
+                       'wrong-key' => 'wrong-data',
+                       'wrong-key-2' => 'wrong-data-2',
+                       'wrong-key-3' => 'wrong-data-3',
+                    ]
+                );
+            } catch (\Exception $exception) {
+                $this->assertInstanceOf(NotConformingElementStructure::class, $exception);
+                $this->assertEquals($exception->getMessage(), 'The structure of the element 1 does not conform to that of the list.');
+            }
         }
     }
 
