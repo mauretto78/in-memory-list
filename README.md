@@ -306,17 +306,17 @@ $collection = $client->create($stringArray, [
 
 // array list, you must provide elements with consistent structure
 $listArray[] = [
-            'id' => 1,
-            'title' => 'Lorem Ipsum',
-            ];
+    'id' => 1,
+    'title' => 'Lorem Ipsum',
+];
 $listArray[] = [
-            'id' => 2,
-            'title' => 'Ipse Dixit',
-            ];
+    'id' => 2,
+    'title' => 'Ipse Dixit',
+];
 $listArray[] = [
-            'id' => 3,
-            'title' => 'Dolor facium',
-            ];
+    'id' => 3,
+    'title' => 'Dolor facium',
+];
 
 $collection = $client->create($listArray, [
     'uuid' => 'simple-array',
@@ -343,17 +343,17 @@ Instead, a `ListElementNotConsistentException` will be thrown. Example:
 
 // ListElementNotConsistentException will be thrown
 $listArray[] = [
-            'id' => 1,
-            'title' => 'Lorem Ipsum',
-            ];
+    'id' => 1,
+    'title' => 'Lorem Ipsum',
+];
 $listArray[] = [
-            'id' => 2,
-            'non-consistent-key' => 'Ipse Dixit',
-            ];
+    'id' => 2,
+    'non-consistent-key' => 'Ipse Dixit',
+];
 $listArray[] = [
-            'id' => 3,
-            'title' => 'Dolor facium',
-            ];
+    'id' => 3,
+    'title' => 'Dolor facium',
+];
 
 $collection = $client->create($listArray, [
     'uuid' => 'simple-array',
