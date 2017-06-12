@@ -41,7 +41,7 @@ class ListCollectionFactory implements Factory
 
         foreach ($elements as $element) {
             $newElementUuid = new ListElementUuid(($elementUuid) ? (string) $this->_getValueFromKey($element, $elementUuid) : null);
-            $list->addItem(new ListElement($newElementUuid, $element));
+            $list->addElement(new ListElement($newElementUuid, $element));
         }
 
         if ($headers) {

@@ -10,7 +10,9 @@
 
 namespace InMemoryList\Infrastructure\Persistance;
 
+use InMemoryList\Domain\Helper\ListElementConsistencyChecker;
 use InMemoryList\Domain\Model\Contracts\ListRepository;
+use InMemoryList\Domain\Model\Exceptions\ListElementNotConsistentException;
 use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListElementUuid;
@@ -240,7 +242,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
      * @param $listUuid
      * @param ListElement $listElement
      *
-     * @throws NotConformingElementStructure
+     * @throws ListElementNotConsistentException
      *
      * @return mixed
      */
@@ -249,8 +251,8 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
         $elementUuid = $listElement->getUuid();
         $body = $listElement->getBody();
 
-        if (!$this->_isListElementConforming($listUuid, unserialize($body))) {
-            throw new NotConformingElementStructure('The structure of the element '.(string) $elementUuid.' does not conform to that of the list.');
+        if(!ListElementConsistencyChecker::isConsistent($listElement, $this->findListByUuid($listUuid))) {
+            throw new ListElementNotConsistentException('Element '. (string) $listElement->getUuid() . ' is not consistent with list data.');
         }
 
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
@@ -300,25 +302,32 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
      * @param array $data
      * @param null  $ttl
      *
-     * @throws NotConformingElementStructure
+     * @throws ListElementNotConsistentException
      *
      * @return mixed
      */
-    public function updateElement($listUuid, $elementUuid, array $data = [], $ttl = null)
+    public function updateElement($listUuid, $elementUuid, array $data = [])
     {
-        if (!$this->_isListElementConforming($listUuid, $data)) {
-            throw new NotConformingElementStructure('The structure of the element '.(string) $elementUuid.' does not conform to that of the list.');
-        }
+        $numberOfChunks = $this->getNumberOfChunks($listUuid);
+        $ttl = ($this->getTtl($listUuid) > 0) ? $this->getTtl($listUuid) : null;
 
-        $number = ceil($this->getCounter($listUuid) / self::CHUNKSIZE);
-
-        for ($i = 1; $i <= $number; ++$i) {
+        for ($i = 1; $i <= $numberOfChunks; ++$i) {
             $chunkNumber = $listUuid.self::SEPARATOR.self::CHUNK.'-'.$i;
             $chunk = $this->memcached->get($chunkNumber);
 
             if (array_key_exists($elementUuid, $chunk)) {
-                $element = $this->findElement($listUuid, $elementUuid);
-                $objMerged = (object) array_merge((array) $element, (array) $data);
+
+                $listElement = $this->findElement(
+                    (string) $listUuid,
+                    (string) $elementUuid
+                );
+
+                $objMerged = (object) array_merge((array) unserialize($listElement), (array) $data);
+
+                if(!ListElementConsistencyChecker::isConsistent($objMerged, $this->findListByUuid($listUuid))) {
+                    throw new ListElementNotConsistentException('Element '. (string) $elementUuid . ' is not consistent with list data.');
+                }
+
                 $arrayOfElements = $this->memcached->get($listUuid);
                 $updatedElement = new ListElement(
                     new ListElementUuid($elementUuid),

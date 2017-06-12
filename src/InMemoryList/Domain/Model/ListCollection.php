@@ -10,8 +10,11 @@
 
 namespace InMemoryList\Domain\Model;
 
+use InMemoryList\Domain\Helper\ListElementChecker;
+use InMemoryList\Domain\Helper\ListElementConsistencyChecker;
 use InMemoryList\Domain\Model\Exceptions\ListElementDuplicateKeyException;
 use InMemoryList\Domain\Model\Exceptions\ListElementKeyDoesNotExistException;
+use InMemoryList\Domain\Model\Exceptions\ListElementNotConsistentException;
 
 class ListCollection implements \Countable
 {
@@ -71,7 +74,7 @@ class ListCollection implements \Countable
      *
      * @return bool
      */
-    public function hasItem(ListElementUuid $uuid)
+    public function hasElement(ListElementUuid $uuid)
     {
         return isset($this->items[$uuid->getUuid()]);
     }
@@ -80,11 +83,16 @@ class ListCollection implements \Countable
      * @param ListElement $element
      *
      * @throws ListElementDuplicateKeyException
+     * @throws ListElementNotConsistentException
      */
-    public function addItem(ListElement $element)
+    public function addElement(ListElement $element)
     {
-        if ($this->hasItem($element->getUuid())) {
+        if ($this->hasElement($element->getUuid())) {
             throw new ListElementDuplicateKeyException('Key '.$element->getUuid()->getUuid().' already in use.');
+        }
+
+        if(!ListElementConsistencyChecker::isConsistent($element, $this->items)) {
+            throw new ListElementNotConsistentException('Element '.$element->getUuid()->getUuid().' is not consistent with list data.');
         }
 
         $this->items[$element->getUuid()->getUuid()] = $element;
@@ -97,7 +105,7 @@ class ListCollection implements \Countable
      */
     public function deleteElement(ListElement $element)
     {
-        if (!$this->hasItem($element->getUuid())) {
+        if (!$this->hasElement($element->getUuid())) {
             throw new ListElementKeyDoesNotExistException('Invalid key '.$element->getUuid()->getUuid());
         }
 
@@ -113,7 +121,7 @@ class ListCollection implements \Countable
      */
     public function getElement(ListElementUuid $uuid)
     {
-        if (!$this->hasItem($uuid)) {
+        if (!$this->hasElement($uuid)) {
             throw new ListElementKeyDoesNotExistException('Invalid key '.$uuid->getUuid());
         }
 

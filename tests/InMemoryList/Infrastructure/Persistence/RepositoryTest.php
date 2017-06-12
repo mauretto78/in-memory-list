@@ -8,13 +8,13 @@
  *  file that was distributed with this source code.
  */
 use InMemoryList\Domain\Model\Contracts\ListRepository;
+use InMemoryList\Domain\Model\Exceptions\ListElementNotConsistentException;
 use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Domain\Model\ListCollectionUuid;
 use InMemoryList\Infrastructure\Persistance\ApcuRepository;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListDoesNotExistsException;
-use InMemoryList\Infrastructure\Persistance\Exceptions\NotConformingElementStructure;
 use InMemoryList\Infrastructure\Persistance\MemcachedRepository;
 use InMemoryList\Infrastructure\Persistance\RedisRepository;
 use InMemoryList\Tests\BaseTestCase;
@@ -97,11 +97,11 @@ class RepositoryTest extends BaseTestCase
 
             $listUuid = new ListCollectionUuid();
             $collection = new ListCollection($listUuid);
-            $collection->addItem($fakeElement1);
-            $collection->addItem($fakeElement2);
-            $collection->addItem($fakeElement3);
-            $collection->addItem($fakeElement4);
-            $collection->addItem($fakeElement5);
+            $collection->addElement($fakeElement1);
+            $collection->addElement($fakeElement2);
+            $collection->addElement($fakeElement3);
+            $collection->addElement($fakeElement4);
+            $collection->addElement($fakeElement5);
 
             $collectionUuid = (string) $collection->getUuid();
 
@@ -137,7 +137,7 @@ class RepositoryTest extends BaseTestCase
     /**
      * @test
      */
-    public function it_throws_NotConformingElementStructure_if_attempt_to_push_element_with_inconsistant_data()
+    public function it_throws_ListElementNotConsistentException_if_attempt_to_push_element_with_inconsistant_data()
     {
         $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../../examples/files/users.json'));
 
@@ -146,7 +146,7 @@ class RepositoryTest extends BaseTestCase
             $listUuid = new ListCollectionUuid();
             $collection = new ListCollection($listUuid);
             foreach ($parsedArrayFromJson as $element) {
-                $collection->addItem(new ListElement(new ListElementUuid(), $element));
+                $collection->addElement(new ListElement(new ListElementUuid(), $element));
             }
 
             $repo->create($collection, 3600);
@@ -164,8 +164,8 @@ class RepositoryTest extends BaseTestCase
                     )
                 );
             } catch (\Exception $exception) {
-                $this->assertInstanceOf(NotConformingElementStructure::class, $exception);
-                $this->assertEquals($exception->getMessage(), 'The structure of the element 11111 does not conform to that of the list.');
+                $this->assertInstanceOf(ListElementNotConsistentException::class, $exception);
+                $this->assertEquals($exception->getMessage(), 'Element 11111 is not consistent with list data.');
             }
         }
     }
@@ -173,7 +173,7 @@ class RepositoryTest extends BaseTestCase
     /**
      * @test
      */
-    public function it_throws_NotConformingElementStructure_if_attempt_to_update_element_with_inconsistant_data()
+    public function it_throws_ListElementNotConsistentException_if_attempt_to_update_element_with_inconsistant_data()
     {
         $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../../examples/files/users.json'));
 
@@ -182,15 +182,15 @@ class RepositoryTest extends BaseTestCase
             $listUuid = new ListCollectionUuid();
             $collection = new ListCollection($listUuid);
             foreach ($parsedArrayFromJson as $element) {
-                $collection->addItem(new ListElement(new ListElementUuid(), $element));
+                $collection->addElement(new ListElement($listElementUuid = new ListElementUuid(), $element));
             }
 
             $repo->create($collection, 3600);
 
             try {
                 $repo->updateElement(
-                    (string)$listUuid,
-                    1,
+                    (string) $listUuid,
+                    (string) $listElementUuid,
                     [
                        'wrong-key' => 'wrong-data',
                        'wrong-key-2' => 'wrong-data-2',
@@ -198,8 +198,8 @@ class RepositoryTest extends BaseTestCase
                     ]
                 );
             } catch (\Exception $exception) {
-                $this->assertInstanceOf(NotConformingElementStructure::class, $exception);
-                $this->assertEquals($exception->getMessage(), 'The structure of the element 1 does not conform to that of the list.');
+                $this->assertInstanceOf(ListElementNotConsistentException::class, $exception);
+                $this->assertEquals($exception->getMessage(), 'Element ' . $listElementUuid. ' is not consistent with list data.');
             }
         }
     }
@@ -216,7 +216,7 @@ class RepositoryTest extends BaseTestCase
             $listUuid = new ListCollectionUuid();
             $collection = new ListCollection($listUuid);
             foreach ($parsedArrayFromJson as $element) {
-                $collection->addItem(new ListElement(new ListElementUuid(), $element));
+                $collection->addElement(new ListElement(new ListElementUuid(), $element));
             }
 
             $repo->create($collection, 3600);
@@ -249,7 +249,7 @@ class RepositoryTest extends BaseTestCase
             $listUuid = new ListCollectionUuid();
             $collection = new ListCollection($listUuid);
             foreach ($parsedArrayFromJson as $element) {
-                $collection->addItem(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
+                $collection->addElement(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
             }
             $collection->setHeaders($headers);
 

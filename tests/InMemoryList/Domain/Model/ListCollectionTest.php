@@ -19,20 +19,48 @@ class ListCollectionTest extends TestCase
      * @test
      * @expectedException InMemoryList\Domain\Model\Exceptions\ListElementDuplicateKeyException
      */
-    public function it_should_return_exception_if_a_try_to_add_duplicate_element()
+    public function it_should_return_ListElementDuplicateKeyException_if_a_try_to_add_duplicate_element()
     {
         $fakeElement1 = new ListElement(new ListElementUuid(), 'lorem ipsum');
 
         $collection = new ListCollection(new ListCollectionUuid());
-        $collection->addItem($fakeElement1);
-        $collection->addItem($fakeElement1);
+        $collection->addElement($fakeElement1);
+        $collection->addElement($fakeElement1);
+    }
+
+    /**
+     * @test
+     * @expectedException InMemoryList\Domain\Model\Exceptions\ListElementNotConsistentException
+     */
+    public function it_should_return_ListElementNotConsistentException_if_try_to_delete_a_not_existing_element()
+    {
+        $fakeElement1 = new ListElement(
+            new ListElementUuid(),
+            [
+                'id' => 43,
+                'title' => 'Lorem Ipsum',
+                'category_id' => 24423
+            ]
+        );
+        $fakeElement2 = new ListElement(
+            new ListElementUuid(),
+            [
+                'id' => 54,
+                'wrong_title' => 'Not consistent title',
+                'category_id' => 24423
+            ]
+        );
+
+        $collection = new ListCollection(new ListCollectionUuid());
+        $collection->addElement($fakeElement1);
+        $collection->addElement($fakeElement2);
     }
 
     /**
      * @test
      * @expectedException InMemoryList\Domain\Model\Exceptions\ListElementKeyDoesNotExistException
      */
-    public function it_should_return_exception_if_try_to_delete_a_not_existing_element()
+    public function it_should_return_ListElementKeyDoesNotExistException_if_try_to_delete_a_not_existing_element()
     {
         $fakeElement1 = new ListElement(new ListElementUuid(), 'lorem ipsum');
 
@@ -44,7 +72,7 @@ class ListCollectionTest extends TestCase
      * @test
      * @expectedException InMemoryList\Domain\Model\Exceptions\ListElementKeyDoesNotExistException
      */
-    public function it_should_return_exception_if_not_finds_an_element()
+    public function it_should_return_ListElementKeyDoesNotExistException_if_not_finds_an_element()
     {
         $fakeElement1 = new ListElement(new ListElementUuid(), 'lorem ipsum');
 
@@ -68,10 +96,10 @@ class ListCollectionTest extends TestCase
         $fakeElement4 = new ListElement(new ListElementUuid(), 'ipse dixit');
 
         $collection = new ListCollection(new ListCollectionUuid());
-        $collection->addItem($fakeElement1);
-        $collection->addItem($fakeElement2);
-        $collection->addItem($fakeElement3);
-        $collection->addItem($fakeElement4);
+        $collection->addElement($fakeElement1);
+        $collection->addElement($fakeElement2);
+        $collection->addElement($fakeElement3);
+        $collection->addElement($fakeElement4);
         $collection->deleteElement($fakeElement4);
         $collection->setHeaders($headers);
 
