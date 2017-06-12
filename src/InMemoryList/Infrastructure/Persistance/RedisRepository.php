@@ -366,8 +366,6 @@ class RedisRepository extends AbstractRepository implements ListRepository
                 (string) $listUuid.self::SEPARATOR.self::CHUNK.'-'.$i,
                 (int) $ttl
             );
-
-            $this->client->ttl((string) $listUuid.self::SEPARATOR.self::CHUNK.'-'.$i);
         }
 
         $this->_addOrUpdateListToIndex(
