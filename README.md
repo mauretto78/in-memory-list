@@ -272,7 +272,7 @@ $client->updateElement(
 );
 ```
 
-##Ttl
+## Ttl
 
 You can update ttl of a persisted list with `updateTtl` method, and retrive the ttl with `getTtl` function:
 
