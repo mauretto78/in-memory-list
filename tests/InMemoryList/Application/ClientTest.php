@@ -226,6 +226,7 @@ class ClientTest extends BaseTestCase
             $this->assertEquals('mauretto1978@yahoo.it', $element2->email);
 
             $client->updateTtl('fake-list', 7200);
+            $this->assertEquals($client->getTtl('fake-list'), 7200);
 
             $client->removeListFromIndex('fake list');
             $client->delete('fake list');

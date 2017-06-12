@@ -355,18 +355,23 @@ class ApcuRepository extends AbstractRepository implements ListRepository
      */
     public function updateTtl($listUuid, $ttl)
     {
-        if (!$list = $this->findListByUuid($listUuid)) {
+        if (!$this->findListByUuid($listUuid)) {
             throw new ListDoesNotExistsException('List '.$listUuid.' does not exists in memory.');
         }
 
         $ttl = ($ttl > 0) ? $ttl : null;
 
-        apcu_delete((string) $listUuid);
-        apcu_store(
-            (string) $listUuid,
-            $list,
-            $ttl
-        );
+        $numberOfChunks = $this->getNumberOfChunks($listUuid);
+        for ($i = 1; $i <= $numberOfChunks; ++$i) {
+            $chunkNumber = (string) $listUuid.self::SEPARATOR.self::CHUNK.'-'.$i;
+            $storedListInChunk = apcu_fetch($chunkNumber);
+            apcu_delete((string) $chunkNumber);
+            apcu_store(
+                (string) $chunkNumber,
+                $storedListInChunk,
+                $ttl
+            );
+        }
 
         $this->_addOrUpdateListToIndex(
             (string) $listUuid,

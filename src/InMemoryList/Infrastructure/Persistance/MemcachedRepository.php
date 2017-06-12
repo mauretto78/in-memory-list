@@ -358,6 +358,14 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
             throw new ListDoesNotExistsException('List '.$listUuid.' does not exists in memory.');
         }
 
+        $numberOfChunks = $this->getNumberOfChunks($listUuid);
+        for ($i = 1; $i <= $numberOfChunks; ++$i) {
+            $this->memcached->touch(
+                (string) $listUuid.self::SEPARATOR.self::CHUNK.'-'.$i,
+                (int) $ttl
+            );
+        }
+
         $this->_addOrUpdateListToIndex(
             $listUuid,
             $this->getCounter($listUuid),
@@ -365,7 +373,5 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
             $this->getChunkSize($listUuid),
             $ttl
         );
-
-        $this->memcached->touch($listUuid, $ttl);
     }
 }

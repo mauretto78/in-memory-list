@@ -360,13 +360,22 @@ class RedisRepository extends AbstractRepository implements ListRepository
             throw new ListDoesNotExistsException('List '.$listUuid.' does not exists in memory.');
         }
 
+        $numberOfChunks = $this->getNumberOfChunks($listUuid);
+        for ($i = 1; $i <= $numberOfChunks; ++$i) {
+            $this->client->expire(
+                (string) $listUuid.self::SEPARATOR.self::CHUNK.'-'.$i,
+                (int) $ttl
+            );
+
+            $this->client->ttl((string) $listUuid.self::SEPARATOR.self::CHUNK.'-'.$i);
+        }
+
         $this->_addOrUpdateListToIndex(
             $listUuid,
             $this->getCounter($listUuid),
             $this->getNumberOfChunks($listUuid),
+            $this->getChunkSize($listUuid),
             $ttl
         );
-
-        $this->client->expire($listUuid, $ttl);
     }
 }
