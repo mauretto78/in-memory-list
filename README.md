@@ -240,7 +240,7 @@ $client->deleteElement(
 
 ## Push an element
 
-To push an element in you list, you must provide the list uuid, the element uuid and element data as array. See this example:
+To push an element in you list, use `pushElement` function. You must provide the list uuid, the element uuid and element data (data must be consistent - see Validation). Look at this example:
 
 ```php
 // ..
@@ -257,13 +257,13 @@ $client->pushElement(
 
 ## Update an element
 
-To update an element in you list, you can simply do this:
+To update an element in you list, use `updateElement` function. You must provide the list uuid, the element uuid and element data (data must be consistent - see Validation). Look at this example:
 
 ```php
 // ..
 $client->updateElement(
-    $listUuid, 
-    $elementUuid, 
+    'list-to-update', 
+    4325, 
     [
         'id' => 4325,
         'title' => 'New Title',
@@ -272,12 +272,27 @@ $client->updateElement(
 );
 ```
 
-## Data consistency
+##Ttl
 
-Please note that your data must be consistent:
+You can update ttl of a persisted list with `updateTtl` method, and retrive the ttl with `getTtl` function:
 
 ```php
-// string list
+// ...
+$client->updateTtl(
+    'your-list-uuid',
+    3600 // ttl in seconds
+);
+
+// get Ttl of the list
+$client->getTtl('your-list-uuid'); // 3600
+```
+
+## Validation (Data consistency)
+
+Please note that your data **must be consistent**:
+
+```php
+// simple string list
 $stringArray = [
     'Lorem Ipsum',
     'Ipse Dixit',
@@ -289,7 +304,7 @@ $collection = $client->create($stringArray, [
     'ttl' => 3600
 ]);
 
-// array list
+// array list, you must provide elements with consistent structure
 $listArray[] = [
             'id' => 1,
             'title' => 'Lorem Ipsum',
@@ -309,7 +324,7 @@ $collection = $client->create($listArray, [
     'ttl' => 3600
 ]);
 
-// entity list
+// entity list, the objects must have the same properties 
 $entityArray[] = new User(1, 'Mauro');
 $entityArray[] = new User(2, 'Cristina');
 $entityArray[] = new User(3, 'Lilli');
@@ -322,11 +337,11 @@ $collection = $client->create($entityArray, [
 
 ```
 
-Instead, a `ListElementKeyDoesNotExistException` will be thrown:
+Instead, a `ListElementNotConsistentException` will be thrown. Example:
 
 ```php
 
-// ListElementKeyDoesNotExistException will be thrown
+// ListElementNotConsistentException will be thrown
 $listArray[] = [
             'id' => 1,
             'title' => 'Lorem Ipsum',
