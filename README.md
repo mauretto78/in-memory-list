@@ -272,6 +272,82 @@ $client->updateElement(
 );
 ```
 
+## Data consistency
+
+Please note that your data must be consistent:
+
+```php
+// string list
+$stringArray = [
+    'Lorem Ipsum',
+    'Ipse Dixit',
+    'Dolor facium',
+];
+
+$collection = $client->create($stringArray, [
+    'uuid' => 'string-array',
+    'ttl' => 3600
+]);
+
+// array list
+$listArray[] = [
+            'id' => 1,
+            'title' => 'Lorem Ipsum',
+            ];
+$listArray[] = [
+            'id' => 2,
+            'title' => 'Ipse Dixit',
+            ];
+$listArray[] = [
+            'id' => 3,
+            'title' => 'Dolor facium',
+            ];
+
+$collection = $client->create($listArray, [
+    'uuid' => 'simple-array',
+    'element-uuid' => 'id',
+    'ttl' => 3600
+]);
+
+// entity list
+$entityArray[] = new User(1, 'Mauro');
+$entityArray[] = new User(2, 'Cristina');
+$entityArray[] = new User(3, 'Lilli');
+
+$collection = $client->create($entityArray, [
+    'uuid' => 'entity-array',
+    'element-uuid' => 'id',
+    'ttl' => 3600
+]);
+
+```
+
+Instead, a `ListElementKeyDoesNotExistException` will be thrown:
+
+```php
+
+// ListElementKeyDoesNotExistException will be thrown
+$listArray[] = [
+            'id' => 1,
+            'title' => 'Lorem Ipsum',
+            ];
+$listArray[] = [
+            'id' => 2,
+            'non-consistent-key' => 'Ipse Dixit',
+            ];
+$listArray[] = [
+            'id' => 3,
+            'title' => 'Dolor facium',
+            ];
+
+$collection = $client->create($listArray, [
+    'uuid' => 'simple-array',
+    'element-uuid' => 'id',
+    'ttl' => 3600
+]);
+
+```
+
 ## Sorting and Quering
 
 You can perform queries on your list. You can concatenate criteria:
