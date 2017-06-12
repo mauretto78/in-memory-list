@@ -259,7 +259,7 @@ class RedisRepository extends AbstractRepository implements ListRepository
         $elementUuid = $listElement->getUuid();
         $body = $listElement->getBody();
 
-        if(!ListElementConsistencyChecker::isConsistent($listElement, $this->findListByUuid($listUuid))) {
+        if (!ListElementConsistencyChecker::isConsistent($listElement, $this->findListByUuid($listUuid))) {
             throw new ListElementNotConsistentException('Element '. (string) $listElement->getUuid() . ' is not consistent with list data.');
         }
 
@@ -310,7 +310,7 @@ class RedisRepository extends AbstractRepository implements ListRepository
      *
      * @return mixed
      */
-    public function updateElement($listUuid, $elementUuid, array $data = [])
+    public function updateElement($listUuid, $elementUuid, $data)
     {
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
 
@@ -319,21 +319,19 @@ class RedisRepository extends AbstractRepository implements ListRepository
             $chunk = $this->client->hgetall($chunkNumber);
 
             if (array_key_exists($elementUuid, $chunk)) {
-
                 $listElement = $this->findElement(
                     (string) $listUuid,
                     (string) $elementUuid
                 );
 
-                $objMerged = (object) array_merge((array) unserialize($listElement), (array) $data);
-
-                if(!ListElementConsistencyChecker::isConsistent($objMerged, $this->findListByUuid($listUuid))) {
+                $updatedElementBody = $this->_updateListElementBody($listElement, $data);
+                if (!ListElementConsistencyChecker::isConsistent($updatedElementBody, $this->findListByUuid($listUuid))) {
                     throw new ListElementNotConsistentException('Element '. (string) $elementUuid . ' is not consistent with list data.');
                 }
 
                 $updatedElement = new ListElement(
                     new ListElementUuid($elementUuid),
-                    $objMerged
+                    $updatedElementBody
                 );
                 $body = $updatedElement->getBody();
 

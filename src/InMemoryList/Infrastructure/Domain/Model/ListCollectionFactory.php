@@ -78,10 +78,10 @@ class ListCollectionFactory implements Factory
      */
     private function _getValueKeyFromObject($element, $key)
     {
-        if(!$element instanceof \stdClass){
+        if (!$element instanceof \stdClass) {
             $getterName = 'get'.str_replace(' ', '', ucwords($key));
 
-            return (method_exists($element,$getterName)) ? $element->$getterName() : false;
+            return (method_exists($element, $getterName)) ? $element->$getterName() : false;
         }
 
         return (isset($element->{$key})) ? $element->{$key} : false;

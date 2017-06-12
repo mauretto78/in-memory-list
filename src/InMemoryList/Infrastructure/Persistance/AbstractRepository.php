@@ -136,21 +136,22 @@ abstract class AbstractRepository
     }
 
     /**
-     * @param $listUuid
-     * @param array $listElement
-     *
-     * @return bool
+     * @param $listElement
+     * @param $data
+     * @return array|object
      */
-    protected function _isListElementConforming($listUuid, array $listElement = [])
+    protected function _updateListElementBody($listElement, $data)
     {
-        $list = $this->findListByUuid($listUuid);
-        $firstElementKey = @array_keys($list)[0];
-        $firstElement = unserialize(@$list[$firstElementKey]);
+        $listElement = unserialize($listElement);
 
-        if (count(array_diff_key($listElement, (array) $firstElement))) {
-            return false;
+        if (is_string($listElement)) {
+            return $data;
         }
 
-        return true;
+        if (is_array($listElement)) {
+            return array_merge((array) $listElement, (array) $data);
+        }
+
+        return (object) array_merge((array) $listElement, (array) $data);
     }
 }

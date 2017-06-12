@@ -251,7 +251,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
         $elementUuid = $listElement->getUuid();
         $body = $listElement->getBody();
 
-        if(!ListElementConsistencyChecker::isConsistent($listElement, $this->findListByUuid($listUuid))) {
+        if (!ListElementConsistencyChecker::isConsistent($listElement, $this->findListByUuid($listUuid))) {
             throw new ListElementNotConsistentException('Element '. (string) $listElement->getUuid() . ' is not consistent with list data.');
         }
 
@@ -300,13 +300,12 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
      * @param $listUuid
      * @param $elementUuid
      * @param array $data
-     * @param null  $ttl
      *
      * @throws ListElementNotConsistentException
      *
      * @return mixed
      */
-    public function updateElement($listUuid, $elementUuid, array $data = [])
+    public function updateElement($listUuid, $elementUuid, $data)
     {
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
         $ttl = ($this->getTtl($listUuid) > 0) ? $this->getTtl($listUuid) : null;
@@ -316,22 +315,20 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
             $chunk = $this->memcached->get($chunkNumber);
 
             if (array_key_exists($elementUuid, $chunk)) {
-
                 $listElement = $this->findElement(
                     (string) $listUuid,
                     (string) $elementUuid
                 );
 
-                $objMerged = (object) array_merge((array) unserialize($listElement), (array) $data);
-
-                if(!ListElementConsistencyChecker::isConsistent($objMerged, $this->findListByUuid($listUuid))) {
+                $updatedElementBody = $this->_updateListElementBody($listElement, $data);
+                if (!ListElementConsistencyChecker::isConsistent($updatedElementBody, $this->findListByUuid($listUuid))) {
                     throw new ListElementNotConsistentException('Element '. (string) $elementUuid . ' is not consistent with list data.');
                 }
 
                 $arrayOfElements = $this->memcached->get($listUuid);
                 $updatedElement = new ListElement(
                     new ListElementUuid($elementUuid),
-                    $objMerged
+                    $updatedElementBody
                 );
                 $body = $updatedElement->getBody();
                 $arrayOfElements[(string) $elementUuid] = $body;

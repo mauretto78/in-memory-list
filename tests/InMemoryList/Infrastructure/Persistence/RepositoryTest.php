@@ -277,4 +277,84 @@ class RepositoryTest extends BaseTestCase
             $this->assertGreaterThan(0, $repo->getStatistics());
         }
     }
+
+    /**
+     * @test
+     */
+    public function it_should_create_query_and_delete_a_simple_array_list_and_get_statistics()
+    {
+        $listOfSimpleStrings = [
+            ['title' => 'Lorem Ipsum'],
+            ['title' => 'Ipse Dixit'],
+            ['title' => 'Veni vidi vici'],
+            ['title' => 'Ora et labora'],
+        ];
+
+        /** @var ListRepository $repo */
+        foreach ($this->repos as $repo) {
+            $repo->flush();
+
+            $listUuid = new ListCollectionUuid();
+            $collection = new ListCollection($listUuid);
+            foreach ($listOfSimpleStrings as $element) {
+                $collection->addElement(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
+            }
+
+            $repo->create($collection, 3600);
+            $repo->pushElement(
+                (string) $listUuid,
+                new ListElement(
+                    new ListElementUuid(),
+                    ['title' => 'Finibus Bonorum et Malorum']
+                )
+            );
+            $repo->updateElement(
+                (string) $listUuid,
+                (string) $fakeUuid1,
+                ['title' => 'Maiores alias consequatur aut perferendis doloribus asperiores repellat']
+            );
+
+            $this->assertEquals(5, $repo->getCounter((string) $listUuid));
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_create_query_and_delete_a_simple_string_list_and_get_statistics()
+    {
+        $listOfSimpleStrings = [
+            'Lorem Ipsum',
+            'Ipse Dixit',
+            'Veni vidi vici',
+            'Ora et labora',
+        ];
+
+        /** @var ListRepository $repo */
+        foreach ($this->repos as $repo) {
+            $repo->flush();
+
+            $listUuid = new ListCollectionUuid();
+            $collection = new ListCollection($listUuid);
+            foreach ($listOfSimpleStrings as $element) {
+                $collection->addElement(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
+            }
+
+            $repo->create($collection, 3600);
+            $repo->pushElement(
+                (string) $listUuid,
+                new ListElement(
+                    new ListElementUuid(),
+                    'Finibus Bonorum et Malorum'
+                )
+            );
+            $repo->updateElement(
+                (string) $listUuid,
+                (string) $fakeUuid1,
+                'Maiores alias consequatur aut perferendis doloribus asperiores repellat'
+            );
+
+            $this->assertEquals(5, $repo->getCounter((string) $listUuid));
+        }
+    }
 }

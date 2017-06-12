@@ -189,11 +189,35 @@ class ClientTest extends BaseTestCase
             $this->assertArrayHasKey('hash', $headers1);
             $this->assertEquals('ec457d0a974c48d5685a7efa03d137dc8bbde7e3', $headers1['hash']);
 
-            $client->updateElement('fake-list', '2', [
-                'name' => 'Mauro Cassani',
-                'username' => 'mauretto78',
-                'email' => 'mauretto1978@yahoo.it',
-            ]);
+            $a = [
+                "id" => 2,
+                "name" => "Mauro Cassani",
+                "username" => "mauretto78",
+                "email" => "mauretto1978@yahoo.it",
+                "address" => [
+                    "street" => "Kulas Light",
+                    "suite" => "Apt. 556",
+                    "city" => "Gwenborough",
+                    "zipcode" => "92998-3874",
+                    "geo"=> [
+                        "lat"=> "-37.3159",
+                        "lng"=> "81.1496"
+                    ]
+                ],
+                "phone" => "1-770-736-8031 x56442",
+                "website" => "hildegard.org",
+                "company" => [
+                    "name" => "Romaguera-Crona",
+                    "catchPhrase" => "Multi-layered client-server neural-net",
+                    "bs" => "harness real-time e-markets"
+                ],
+                "tags" => [
+                    "apple",
+                    "pear"
+                ]
+            ];
+
+            $client->updateElement('fake-list', '2', $a);
 
             $element2 = unserialize($client->findElement('fake-list', '2'));
 
@@ -330,8 +354,7 @@ class DummyUserEntityWithNoGetters
         $name,
         $email,
         $phone
-    )
-    {
+    ) {
         $this->_setId($id);
         $this->_setName($name);
         $this->_setEmail($email);
@@ -406,8 +429,7 @@ class DummyUserEntity
         $name,
         $email,
         $phone
-    )
-    {
+    ) {
         $this->_setId($id);
         $this->_setName($name);
         $this->_setEmail($email);

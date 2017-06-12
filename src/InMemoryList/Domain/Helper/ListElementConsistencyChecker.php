@@ -22,32 +22,33 @@ class ListElementConsistencyChecker
     public static function isConsistent($listElement, array $list = [])
     {
         // empty list
-        if(!count($list)) {
+        if (!count($list)) {
             return true;
         }
 
         $listElement = self::_getBodyOfListElement($listElement);
 
         // list element is a string
-        if(is_string($listElement)){
+        if (is_string($listElement)) {
             return true;
         }
 
         // list element is an array or an object
-        if(is_array($listElement) or is_object($listElement)){
+        if (is_array($listElement) or is_object($listElement)) {
             if (count(array_diff_key(
-                (array)$listElement,
+                (array) $listElement,
                 (array) self::_getBodyOfFirstElementOfList($list)
             ))) {
                 return false;
             }
-
-            return true;
         }
+
+        return true;
     }
 
     /**
      * @param $list
+     *
      * @return mixed
      */
     private static function _getBodyOfFirstElementOfList($list)
@@ -64,16 +65,14 @@ class ListElementConsistencyChecker
      */
     private static function _getBodyOfListElement($listElement)
     {
-        if(($listElement instanceof ListElement)) {
+        if (($listElement instanceof ListElement)) {
             return unserialize($listElement->getBody());
         }
 
-        if(is_object($listElement)) {
-            return $listElement;
+        if (is_string($listElement)) {
+            return (@unserialize($listElement) !== false) ? unserialize($listElement) : $listElement;
         }
 
-        if(is_string($listElement)) {
-            return unserialize($listElement);
-        }
+        return $listElement;
     }
 }

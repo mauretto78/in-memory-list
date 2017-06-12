@@ -91,7 +91,7 @@ class ListCollection implements \Countable
             throw new ListElementDuplicateKeyException('Key '.$element->getUuid()->getUuid().' already in use.');
         }
 
-        if(!ListElementConsistencyChecker::isConsistent($element, $this->items)) {
+        if (!ListElementConsistencyChecker::isConsistent($element, $this->items)) {
             throw new ListElementNotConsistentException('Element '.$element->getUuid()->getUuid().' is not consistent with list data.');
         }
 

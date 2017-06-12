@@ -246,7 +246,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
         $elementUuid = $listElement->getUuid();
         $body = $listElement->getBody();
 
-        if(!ListElementConsistencyChecker::isConsistent($listElement, $this->findListByUuid($listUuid))) {
+        if (!ListElementConsistencyChecker::isConsistent($listElement, $this->findListByUuid($listUuid))) {
             throw new ListElementNotConsistentException('Element '. (string) $listElement->getUuid() . ' is not consistent with list data.');
         }
 
@@ -305,7 +305,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
      *
      * @return mixed
      */
-    public function updateElement($listUuid, $elementUuid, array $data = [])
+    public function updateElement($listUuid, $elementUuid, $data)
     {
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
         $ttl = ($this->getTtl($listUuid) > 0) ? $this->getTtl($listUuid) : null;
@@ -315,22 +315,20 @@ class ApcuRepository extends AbstractRepository implements ListRepository
             $chunk = apcu_fetch($chunkNumber);
 
             if (array_key_exists($elementUuid, $chunk)) {
-
                 $listElement = $this->findElement(
                     (string) $listUuid,
                     (string) $elementUuid
                 );
 
-                $objMerged = (object) array_merge((array) unserialize($listElement), (array) $data);
-
-                if(!ListElementConsistencyChecker::isConsistent($objMerged, $this->findListByUuid($listUuid))) {
+                $updatedElementBody = $this->_updateListElementBody($listElement, $data);
+                if (!ListElementConsistencyChecker::isConsistent($updatedElementBody, $this->findListByUuid($listUuid))) {
                     throw new ListElementNotConsistentException('Element '. (string) $elementUuid . ' is not consistent with list data.');
                 }
 
                 $arrayOfElements = apcu_fetch($listUuid);
                 $updatedElement = new ListElement(
                     new ListElementUuid($elementUuid),
-                    $objMerged
+                    $updatedElementBody
                 );
                 $body = $updatedElement->getBody();
                 $arrayOfElements[(string) $elementUuid] = $body;

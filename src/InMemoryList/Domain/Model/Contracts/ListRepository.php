@@ -140,11 +140,11 @@ interface ListRepository
     /**
      * @param $listUuid
      * @param $elementUuid
-     * @param array $data
+     * @param mixed $data
      *
      * @return mixed
      */
-    public function updateElement($listUuid, $elementUuid, array $data = []);
+    public function updateElement($listUuid, $elementUuid, $data);
 
     /**
      * @param $listUuid
