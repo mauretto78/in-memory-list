@@ -14,13 +14,13 @@ use InMemoryList\Domain\Helper\ListElementConsistencyChecker;
 use InMemoryList\Domain\Model\Exceptions\ListElementNotConsistentException;
 use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListCollection;
-use InMemoryList\Domain\Model\Contracts\ListRepository;
+use InMemoryList\Domain\Model\Contracts\ListRepositoryInterface;
 use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListAlreadyExistsException;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListDoesNotExistsException;
 use Predis\Client;
 
-class RedisRepository extends AbstractRepository implements ListRepository
+class RedisRepositoryInterface extends AbstractRepository implements ListRepositoryInterface
 {
     /**
      * @var Client
@@ -159,7 +159,7 @@ class RedisRepository extends AbstractRepository implements ListRepository
      */
     private function _addOrUpdateListToIndex($listUuid, $size, $numberOfChunks, $chunkSize, $ttl = null)
     {
-        $indexKey = ListRepository::INDEX;
+        $indexKey = ListRepositoryInterface::INDEX;
         $this->client->hset(
             $indexKey,
             (string) $listUuid,
@@ -220,7 +220,7 @@ class RedisRepository extends AbstractRepository implements ListRepository
      */
     public function getIndex($listUuid = null, $flush = null)
     {
-        $indexKey = ListRepository::INDEX;
+        $indexKey = ListRepositoryInterface::INDEX;
 
         if ($flush) {
             foreach (array_keys($this->client->hgetall($indexKey)) as $key) {
@@ -296,7 +296,7 @@ class RedisRepository extends AbstractRepository implements ListRepository
     public function removeListFromIndex($listUuid)
     {
         $this->client->hdel(
-            ListRepository::INDEX,
+            ListRepositoryInterface::INDEX,
             $listUuid
         );
     }

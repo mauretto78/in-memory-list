@@ -7,7 +7,7 @@
  *  For the full copyright and license information, please view the LICENSE
  *  file that was distributed with this source code.
  */
-use InMemoryList\Domain\Model\Contracts\ListRepository;
+use InMemoryList\Domain\Model\Contracts\ListRepositoryInterface;
 use InMemoryList\Domain\Model\ListCollectionUuid;
 use PHPUnit\Framework\TestCase;
 
@@ -20,7 +20,7 @@ class ListCollectionUuidTest extends TestCase
      */
     public function it_throws_ListCollectionNotAllowedUuidException_if_attempt_to_create_a_ListCollectionUuid_with_an_not_allowed_name()
     {
-        new ListCollectionUuid(ListRepository::STATISTICS);
+        new ListCollectionUuid(ListRepositoryInterface::STATISTICS);
     }
 
     /**

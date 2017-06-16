@@ -11,7 +11,7 @@
 namespace InMemoryList\Infrastructure\Persistance;
 
 use InMemoryList\Domain\Helper\ListElementConsistencyChecker;
-use InMemoryList\Domain\Model\Contracts\ListRepository;
+use InMemoryList\Domain\Model\Contracts\ListRepositoryInterface;
 use InMemoryList\Domain\Model\Exceptions\ListElementNotConsistentException;
 use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\ListElement;
@@ -19,7 +19,7 @@ use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListAlreadyExistsException;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListDoesNotExistsException;
 
-class MemcachedRepository extends AbstractRepository implements ListRepository
+class MemcachedRepositoryInterface extends AbstractRepository implements ListRepositoryInterface
 {
     /**
      * @var \Memcached
@@ -186,7 +186,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
      */
     public function getIndex($listUuid = null, $flush = null)
     {
-        $indexKey = ListRepository::INDEX;
+        $indexKey = ListRepositoryInterface::INDEX;
         $index = $this->memcached->get($indexKey);
 
         if ($flush && $index) {
@@ -212,7 +212,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
      */
     private function _addOrUpdateListToIndex($listUuid, $size, $numberOfChunks, $chunkSize, $ttl = null)
     {
-        $indexKey = ListRepository::INDEX;
+        $indexKey = ListRepositoryInterface::INDEX;
         $indexArray = serialize([
             'uuid' => $listUuid,
             'created_on' => new \DateTimeImmutable(),
@@ -293,7 +293,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepository
         $index = $this->getIndex();
 
         unset($index[(string) $listUuid]);
-        $this->memcached->replace(ListRepository::INDEX, $index);
+        $this->memcached->replace(ListRepositoryInterface::INDEX, $index);
     }
     /**
      * @param $listUuid

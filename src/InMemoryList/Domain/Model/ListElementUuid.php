@@ -10,7 +10,7 @@
 
 namespace InMemoryList\Domain\Model;
 
-use InMemoryList\Domain\Model\Contracts\ListRepository;
+use InMemoryList\Domain\Model\Contracts\ListRepositoryInterface;
 use InMemoryList\Domain\Model\Exceptions\ListElementNotAllowedUuidException;
 use Ramsey\Uuid\Uuid;
 
@@ -39,11 +39,11 @@ class ListElementUuid
     public function _setUUid($uuid = null)
     {
         $notAllowedNames = [
-            ListRepository::CHUNK,
-            ListRepository::HEADERS,
-            ListRepository::INDEX,
-            ListRepository::SEPARATOR,
-            ListRepository::STATISTICS,
+            ListRepositoryInterface::CHUNK,
+            ListRepositoryInterface::HEADERS,
+            ListRepositoryInterface::INDEX,
+            ListRepositoryInterface::SEPARATOR,
+            ListRepositoryInterface::STATISTICS,
         ];
 
         foreach ($notAllowedNames as $notAllowedName) {

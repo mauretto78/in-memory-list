@@ -12,10 +12,10 @@ namespace InMemoryList\Application;
 
 use InMemoryList\Application\Exceptions\MalformedParametersException;
 use InMemoryList\Application\Exceptions\NotSupportedDriverException;
-use InMemoryList\Domain\Model\Contracts\ListRepository;
+use InMemoryList\Domain\Model\Contracts\ListRepositoryInterface;
 use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListElementUuid;
-use InMemoryList\Infrastructure\Domain\Model\ListCollectionFactory;
+use InMemoryList\Infrastructure\Domain\Model\ListCollectionFactoryInterface;
 
 class Client
 {
@@ -25,7 +25,7 @@ class Client
     private $driver;
 
     /**
-     * @var ListRepository
+     * @var ListRepositoryInterface
      */
     private $repository;
 
@@ -83,7 +83,7 @@ class Client
     }
 
     /**
-     * @return ListRepository
+     * @return ListRepositoryInterface
      */
     public function getRepository()
     {
@@ -102,7 +102,7 @@ class Client
     {
         try {
             $this->_validateParameters($parameters);
-            $factory = new ListCollectionFactory();
+            $factory = new ListCollectionFactoryInterface();
             $list = $factory->create(
                 $elements,
                 (isset($parameters['headers'])) ? $parameters['headers'] : [],

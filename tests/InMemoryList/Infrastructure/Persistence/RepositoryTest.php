@@ -7,16 +7,16 @@
  *  For the full copyright and license information, please view the LICENSE
  *  file that was distributed with this source code.
  */
-use InMemoryList\Domain\Model\Contracts\ListRepository;
+use InMemoryList\Domain\Model\Contracts\ListRepositoryInterface;
 use InMemoryList\Domain\Model\Exceptions\ListElementNotConsistentException;
 use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Domain\Model\ListCollectionUuid;
-use InMemoryList\Infrastructure\Persistance\ApcuRepository;
+use InMemoryList\Infrastructure\Persistance\ApcuRepositoryInterface;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListDoesNotExistsException;
-use InMemoryList\Infrastructure\Persistance\MemcachedRepository;
-use InMemoryList\Infrastructure\Persistance\RedisRepository;
+use InMemoryList\Infrastructure\Persistance\MemcachedRepositoryInterface;
+use InMemoryList\Infrastructure\Persistance\RedisRepositoryInterface;
 use InMemoryList\Tests\BaseTestCase;
 use Predis\Client;
 
@@ -39,9 +39,9 @@ class RepositoryTest extends BaseTestCase
         $redis_parameters = $this->redis_parameters;
 
         $this->repos = [
-            new ApcuRepository(),
-            new MemcachedRepository($memcached),
-            new RedisRepository(new Client($redis_parameters)),
+            new ApcuRepositoryInterface(),
+            new MemcachedRepositoryInterface($memcached),
+            new RedisRepositoryInterface(new Client($redis_parameters)),
         ];
     }
 
@@ -50,7 +50,7 @@ class RepositoryTest extends BaseTestCase
      */
     public function it_should_create_query_and_delete_the_list()
     {
-        /** @var ListRepository $repo */
+        /** @var ListRepositoryInterface $repo */
         foreach ($this->repos as $repo) {
             $fakeElement1 = new ListElement($fakeUUid1 = new ListElementUuid(), [
                 'id' => 123,
@@ -141,7 +141,7 @@ class RepositoryTest extends BaseTestCase
     {
         $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../../examples/files/users.json'));
 
-        /** @var ListRepository $repo */
+        /** @var ListRepositoryInterface $repo */
         foreach ($this->repos as $repo) {
             $listUuid = new ListCollectionUuid();
             $collection = new ListCollection($listUuid);
@@ -177,7 +177,7 @@ class RepositoryTest extends BaseTestCase
     {
         $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../../examples/files/users.json'));
 
-        /** @var ListRepository $repo */
+        /** @var ListRepositoryInterface $repo */
         foreach ($this->repos as $repo) {
             $listUuid = new ListCollectionUuid();
             $collection = new ListCollection($listUuid);
@@ -211,7 +211,7 @@ class RepositoryTest extends BaseTestCase
     {
         $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../../examples/files/users.json'));
 
-        /** @var ListRepository $repo */
+        /** @var ListRepositoryInterface $repo */
         foreach ($this->repos as $repo) {
             $listUuid = new ListCollectionUuid();
             $collection = new ListCollection($listUuid);
@@ -237,7 +237,7 @@ class RepositoryTest extends BaseTestCase
     {
         $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../../examples/files/users.json'));
 
-        /** @var ListRepository $repo */
+        /** @var ListRepositoryInterface $repo */
         foreach ($this->repos as $repo) {
             $repo->flush();
 
@@ -290,7 +290,7 @@ class RepositoryTest extends BaseTestCase
             ['title' => 'Ora et labora'],
         ];
 
-        /** @var ListRepository $repo */
+        /** @var ListRepositoryInterface $repo */
         foreach ($this->repos as $repo) {
             $repo->flush();
 
@@ -330,7 +330,7 @@ class RepositoryTest extends BaseTestCase
             'Ora et labora',
         ];
 
-        /** @var ListRepository $repo */
+        /** @var ListRepositoryInterface $repo */
         foreach ($this->repos as $repo) {
             $repo->flush();
 

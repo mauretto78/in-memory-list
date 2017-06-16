@@ -8,7 +8,7 @@
  *  file that was distributed with this source code.
  */
 use InMemoryList\Application\Client;
-use InMemoryList\Domain\Model\Contracts\ListRepository;
+use InMemoryList\Domain\Model\Contracts\ListRepositoryInterface;
 use InMemoryList\Infrastructure\Domain\Model\Exceptions\NotValidKeyElementInListException;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListElementDoesNotExistsException;
 use InMemoryList\Tests\BaseTestCase;
@@ -178,7 +178,7 @@ class ClientTest extends BaseTestCase
             $element1 = unserialize($client->findElement('fake-list', '1'));
             $element2 = unserialize($client->findElement('fake-list', '2'));
 
-            $this->assertInstanceOf(ListRepository::class, $client->getRepository());
+            $this->assertInstanceOf(ListRepositoryInterface::class, $client->getRepository());
             $this->assertCount(7, $client->findListByUuid('fake-list'));
             $this->assertEquals('Leanne Graham', $element1->name);
             $this->assertEquals('Ervin Howell', $element2->name);
@@ -313,7 +313,7 @@ class ClientTest extends BaseTestCase
             $element1 = unserialize($client->findElement('entity-list', '23'));
             $element2 = unserialize($client->findElement('entity-list', '24'));
 
-            $this->assertInstanceOf(ListRepository::class, $client->getRepository());
+            $this->assertInstanceOf(ListRepositoryInterface::class, $client->getRepository());
             $this->assertCount(3, $client->findListByUuid('entity-list'));
             $this->assertEquals('Mauro', $element1->getName());
             $this->assertEquals('Cristina', $element2->getName());

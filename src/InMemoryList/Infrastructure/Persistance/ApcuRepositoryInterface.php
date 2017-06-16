@@ -14,12 +14,12 @@ use InMemoryList\Domain\Helper\ListElementConsistencyChecker;
 use InMemoryList\Domain\Model\Exceptions\ListElementNotConsistentException;
 use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListCollection;
-use InMemoryList\Domain\Model\Contracts\ListRepository;
+use InMemoryList\Domain\Model\Contracts\ListRepositoryInterface;
 use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListAlreadyExistsException;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListDoesNotExistsException;
 
-class ApcuRepository extends AbstractRepository implements ListRepository
+class ApcuRepositoryInterface extends AbstractRepository implements ListRepositoryInterface
 {
     /**
      * @param ListCollection $list
@@ -172,7 +172,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
      */
     public function getIndex($listUuid = null, $flush = null)
     {
-        $indexKey = ListRepository::INDEX;
+        $indexKey = ListRepositoryInterface::INDEX;
         $index = apcu_fetch($indexKey);
 
         if ($flush && $index) {
@@ -199,7 +199,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
      */
     private function _addOrUpdateListToIndex($listUuid, $size, $numberOfChunks, $chunkSize, $ttl = null)
     {
-        $indexKey = ListRepository::INDEX;
+        $indexKey = ListRepositoryInterface::INDEX;
         $indexArray = serialize([
             'uuid' => $listUuid,
             'created_on' => new \DateTimeImmutable(),
@@ -288,7 +288,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
      */
     public function removeListFromIndex($listUuid)
     {
-        $indexKey = ListRepository::INDEX;
+        $indexKey = ListRepositoryInterface::INDEX;
         $index = $this->getIndex();
         unset($index[(string) $listUuid]);
 

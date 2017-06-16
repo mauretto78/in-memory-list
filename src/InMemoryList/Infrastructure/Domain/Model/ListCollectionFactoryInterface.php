@@ -14,11 +14,11 @@ use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\ListCollectionUuid;
 use InMemoryList\Domain\Model\ListElementUuid;
-use InMemoryList\Domain\Model\Contracts\ListFactory as Factory;
+use InMemoryList\Domain\Model\Contracts\ListFactoryInterface as Factory;
 use InMemoryList\Infrastructure\Domain\Model\Exceptions\CreateListFromEmptyArrayException;
 use InMemoryList\Infrastructure\Domain\Model\Exceptions\NotValidKeyElementInListException;
 
-class ListCollectionFactory implements Factory
+class ListCollectionFactoryInterface implements Factory
 {
     /**
      * @param array $elements

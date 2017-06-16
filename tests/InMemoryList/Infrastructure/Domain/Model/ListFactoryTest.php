@@ -8,7 +8,7 @@
  *  file that was distributed with this source code.
  */
 use InMemoryList\Domain\Model\ListCollection;
-use InMemoryList\Infrastructure\Domain\Model\ListCollectionFactory;
+use InMemoryList\Infrastructure\Domain\Model\ListCollectionFactoryInterface;
 use PHPUnit\Framework\TestCase;
 
 class ListFactoryTest extends TestCase
@@ -22,7 +22,7 @@ class ListFactoryTest extends TestCase
     {
         $emptyArray = [];
 
-        $factory = new ListCollectionFactory();
+        $factory = new ListCollectionFactoryInterface();
         $factory->create($emptyArray, [], 'fake list');
     }
 
@@ -71,7 +71,7 @@ class ListFactoryTest extends TestCase
             ],
         ];
 
-        $factory = new ListCollectionFactory();
+        $factory = new ListCollectionFactoryInterface();
         $factory->create($simpleArray, [], 'fake-list', 'not-existing-id');
     }
 
@@ -117,7 +117,7 @@ class ListFactoryTest extends TestCase
                 'rate' => 5,
             ],
         ];
-        $factory = new ListCollectionFactory();
+        $factory = new ListCollectionFactoryInterface();
         $imList = $factory->create($simpleArray, [], 'fake list');
 
         $this->assertInstanceOf(ListCollection::class, $imList);
@@ -137,7 +137,7 @@ class ListFactoryTest extends TestCase
         ];
 
         $parsedArrayFromJson = json_decode(file_get_contents(__DIR__.'/../../../../../examples/files/users.json'));
-        $factory = new ListCollectionFactory();
+        $factory = new ListCollectionFactoryInterface();
         $imList = $factory->create($parsedArrayFromJson, $headers, 'fake list from json object');
 
         $this->assertInstanceOf(ListCollection::class, $imList);

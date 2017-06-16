@@ -12,7 +12,7 @@ namespace InMemoryList\Domain\Model\Contracts;
 
 use InMemoryList\Domain\Model\ListCollection;
 
-interface ListFactory
+interface ListFactoryInterface
 {
     /**
      * @param array $elements

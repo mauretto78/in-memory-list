@@ -13,7 +13,7 @@ namespace InMemoryList\Domain\Model\Contracts;
 use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\ListElement;
 
-interface ListRepository
+interface ListRepositoryInterface
 {
     const CHUNK = 'chunk';
     const CHUNKSIZE = 1000;
