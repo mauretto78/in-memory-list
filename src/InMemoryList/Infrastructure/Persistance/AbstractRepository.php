@@ -36,7 +36,7 @@ abstract class AbstractRepository
      */
     public function existsElement($listUuid, $elementUuid)
     {
-        if(isset($this->findListByUuid($listUuid)[$elementUuid])){
+        if (isset($this->findListByUuid($listUuid)[$elementUuid])) {
             return $this->findListByUuid($listUuid)[$elementUuid];
         }
 
@@ -99,7 +99,7 @@ abstract class AbstractRepository
      */
     protected function _existsListInIndex($listUuid)
     {
-        if(@$this->getIndex($listUuid)){
+        if (@$this->getIndex($listUuid)) {
             return true;
         }
 

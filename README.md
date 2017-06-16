@@ -517,6 +517,10 @@ memcached_parameters:
 * [ramsey/uuid](https://github.com/ramsey/uuid) - A PHP 5.4+ library for generating RFC 4122 version 1, 3, 4, and 5 universally unique identifiers (UUID).
 * [Symfony Console](https://github.com/symfony/console) - Symfony Console Component
 
+## Support
+
+If you found an issue or had an idea please refer [to this section](https://github.com/mauretto78/in-memory-list/issues).
+
 ## Authors
 
 * **Mauro Cassani** - [github](https://github.com/mauretto78)
