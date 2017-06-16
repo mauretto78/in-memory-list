@@ -46,6 +46,3 @@ foreach ($collection as $element) {
     echo '<strong>body</strong>: '.$item->body.'<br>';
     echo '</p>';
 }
-
-// headers
-var_dump($client->getHeaders('simple-list-with-headers'));

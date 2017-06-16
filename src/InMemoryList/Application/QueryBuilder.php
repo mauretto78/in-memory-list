@@ -234,7 +234,7 @@ class QueryBuilder
      */
     private function _getListElementValueFromKey($element, $key)
     {
-        if ((is_object($element) and !isset($element->{$key})) or (is_array($element) and !isset($element[$key]))) {
+        if ((is_object($element) && !isset($element->{$key})) || (is_array($element) && !isset($element[$key]))) {
             throw new NotValidKeyElementInListException($key.' is not a valid key.');
         }
 

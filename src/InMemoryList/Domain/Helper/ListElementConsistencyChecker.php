@@ -34,7 +34,7 @@ class ListElementConsistencyChecker
         }
 
         // list element is an array or an object
-        if (is_array($listElement) or is_object($listElement)) {
+        if (is_array($listElement) || is_object($listElement)) {
             if (count(array_diff_key(
                 (array) $listElement,
                 (array) self::_getBodyOfFirstElementOfList($list)

@@ -81,7 +81,7 @@ class RedisDriver implements DriverInterface
                 }
             }
 
-            if (!is_array($server) and !in_array($param, $allowedConfigKeys)) {
+            if (!is_array($server) && !in_array($param, $allowedConfigKeys)) {
                 throw new RedisMalformedConfigException();
             }
         }

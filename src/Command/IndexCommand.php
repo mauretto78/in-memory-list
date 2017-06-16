@@ -54,7 +54,7 @@ class IndexCommand extends BaseCommand
         $cache = $this->createClient($driver, $parameters);
         $index = $cache->getIndex(null, true);
 
-        if ($index and count($index)) {
+        if ($index && count($index)) {
             ksort($index);
             $table = new Table($output);
             $table->setHeaders(['#', 'List', 'Created on', 'Chunks', 'Chunk size', 'Ttl', 'Items']);

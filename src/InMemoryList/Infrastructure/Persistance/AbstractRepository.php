@@ -124,7 +124,7 @@ abstract class AbstractRepository
     public function getTtl($listUuid)
     {
         $index = unserialize($this->getIndex($listUuid));
-        if ($index['ttl'] and $index['ttl'] > 0) {
+        if ($index['ttl'] && $index['ttl'] > 0) {
             $now = new \DateTime('NOW');
             $expire_date = $index['created_on']->add(new \DateInterval('PT'.$index['ttl'].'S'));
             $diffSeconds = $expire_date->getTimestamp() - $now->getTimestamp();

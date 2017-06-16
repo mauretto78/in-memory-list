@@ -32,7 +32,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
      */
     public function create(ListCollection $list, $ttl = null, $chunkSize = null)
     {
-        if (!$chunkSize and !is_int($chunkSize)) {
+        if (!$chunkSize && !is_int($chunkSize)) {
             $chunkSize = self::CHUNKSIZE;
         }
 
@@ -175,7 +175,7 @@ class ApcuRepository extends AbstractRepository implements ListRepository
         $indexKey = ListRepository::INDEX;
         $index = apcu_fetch($indexKey);
 
-        if ($flush and $index) {
+        if ($flush && $index) {
             foreach (array_keys($index) as $key) {
                 if (!$this->findListByUuid($key)) {
                     $this->removeListFromIndex($key);
