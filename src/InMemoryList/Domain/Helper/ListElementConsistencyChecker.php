@@ -37,7 +37,7 @@ class ListElementConsistencyChecker
         if (is_array($listElement) || is_object($listElement)) {
             if (count(array_diff_key(
                 (array) $listElement,
-                (array) self::_getBodyOfFirstElementOfList($list)
+                (array) self::_GetBodyOfFirstElementOfList($list)
             ))) {
                 return false;
             }
@@ -51,10 +51,10 @@ class ListElementConsistencyChecker
      *
      * @return mixed
      */
-    private static function _getBodyOfFirstElementOfList($list)
+    private static function _GetBodyOfFirstElementOfList($list)
     {
-        $firstElementKey = @array_keys($list)[0];
-        $firstElement = self::_getBodyOfListElement(@$list[$firstElementKey]);
+        $firstElementKey = array_keys($list)[0];
+        $firstElement = self::_getBodyOfListElement($list[$firstElementKey]);
 
         return $firstElement;
     }
@@ -70,7 +70,7 @@ class ListElementConsistencyChecker
         }
 
         if (is_string($listElement)) {
-            return (@unserialize($listElement) !== false) ? unserialize($listElement) : $listElement;
+            return (false !== @unserialize($listElement)) ? unserialize($listElement) : $listElement;
         }
 
         return $listElement;

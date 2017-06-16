@@ -84,7 +84,7 @@ class BaseCommand extends Command
                 foreach ($param as $p) {
                     $p = explode('=', $p);
                     if (count($p)) {
-                        $array[@$p[0]] = @$p[1];
+                        $array[$p[0]] = $p[1];
                     }
                 }
             }

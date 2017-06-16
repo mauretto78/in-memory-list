@@ -50,7 +50,7 @@ class ApcuDriver implements DriverInterface
      */
     public function clear()
     {
-        return @apcu_clear_cache();
+        return apcu_clear_cache();
     }
 
     /**
