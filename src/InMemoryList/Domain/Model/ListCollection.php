@@ -10,7 +10,6 @@
 
 namespace InMemoryList\Domain\Model;
 
-use InMemoryList\Domain\Helper\ListElementChecker;
 use InMemoryList\Domain\Helper\ListElementConsistencyChecker;
 use InMemoryList\Domain\Model\Exceptions\ListElementDuplicateKeyException;
 use InMemoryList\Domain\Model\Exceptions\ListElementKeyDoesNotExistException;

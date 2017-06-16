@@ -18,7 +18,6 @@ use InMemoryList\Domain\Model\Contracts\ListRepository;
 use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListAlreadyExistsException;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListDoesNotExistsException;
-use InMemoryList\Infrastructure\Persistance\Exceptions\NotConformingElementStructure;
 use Predis\Client;
 
 class RedisRepository extends AbstractRepository implements ListRepository
