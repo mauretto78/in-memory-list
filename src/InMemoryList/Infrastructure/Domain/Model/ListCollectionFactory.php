@@ -18,7 +18,7 @@ use InMemoryList\Domain\Model\Contracts\ListFactoryInterface as Factory;
 use InMemoryList\Infrastructure\Domain\Model\Exceptions\CreateListFromEmptyArrayException;
 use InMemoryList\Infrastructure\Domain\Model\Exceptions\NotValidKeyElementInListException;
 
-class ListCollectionFactoryInterface implements Factory
+class ListCollectionFactory implements Factory
 {
     /**
      * @param array $elements
@@ -40,7 +40,7 @@ class ListCollectionFactoryInterface implements Factory
         $list = new ListCollection($listUuid);
 
         foreach ($elements as $element) {
-            $newElementUuid = new ListElementUuid(($elementUuid) ? (string) $this->_getValueFromKey($element, $elementUuid) : null);
+            $newElementUuid = new ListElementUuid(($elementUuid) ? (string) $this->getValueFromKey($element, $elementUuid) : null);
             $list->addElement(new ListElement($newElementUuid, $element));
         }
 
@@ -59,7 +59,7 @@ class ListCollectionFactoryInterface implements Factory
      *
      * @throws NotValidKeyElementInListException
      */
-    private function _getValueFromKey($element, $key)
+    private function getValueFromKey($element, $key)
     {
         if ((is_object($element) && !$this->getValueKeyFromObject($element, $key)) || (is_array($element) && !isset($element[$key]))) {
             $getterName = 'get'.str_replace(' ', '', ucwords($key));

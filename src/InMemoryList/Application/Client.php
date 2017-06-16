@@ -15,7 +15,7 @@ use InMemoryList\Application\Exceptions\NotSupportedDriverException;
 use InMemoryList\Domain\Model\Contracts\ListRepositoryInterface;
 use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListElementUuid;
-use InMemoryList\Infrastructure\Domain\Model\ListCollectionFactoryInterface;
+use InMemoryList\Infrastructure\Domain\Model\ListCollectionFactory;
 
 class Client
 {
@@ -102,7 +102,7 @@ class Client
     {
         try {
             $this->validateParameters($parameters);
-            $factory = new ListCollectionFactoryInterface();
+            $factory = new ListCollectionFactory();
             $list = $factory->create(
                 $elements,
                 (isset($parameters['headers'])) ? $parameters['headers'] : [],
