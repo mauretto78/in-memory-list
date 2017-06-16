@@ -26,7 +26,7 @@ class ListElementConsistencyChecker
             return true;
         }
 
-        $listElement = self::_getBodyOfListElement($listElement);
+        $listElement = self::getBodyOfListElement($listElement);
 
         // list element is a string
         if (is_string($listElement)) {
@@ -37,7 +37,7 @@ class ListElementConsistencyChecker
         if (is_array($listElement) || is_object($listElement)) {
             if (count(array_diff_key(
                 (array) $listElement,
-                (array) self::_GetBodyOfFirstElementOfList($list)
+                (array) self::getBodyOfFirstElementOfList($list)
             ))) {
                 return false;
             }
@@ -51,10 +51,10 @@ class ListElementConsistencyChecker
      *
      * @return mixed
      */
-    private static function _GetBodyOfFirstElementOfList($list)
+    private static function getBodyOfFirstElementOfList($list)
     {
         $firstElementKey = array_keys($list)[0];
-        $firstElement = self::_getBodyOfListElement($list[$firstElementKey]);
+        $firstElement = self::getBodyOfListElement($list[$firstElementKey]);
 
         return $firstElement;
     }
@@ -63,7 +63,7 @@ class ListElementConsistencyChecker
      * @param $listElement
      * @return mixed
      */
-    private static function _getBodyOfListElement($listElement)
+    private static function getBodyOfListElement($listElement)
     {
         if (($listElement instanceof ListElement)) {
             return unserialize($listElement->getBody());

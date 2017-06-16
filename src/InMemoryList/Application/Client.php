@@ -37,8 +37,8 @@ class Client
      */
     public function __construct($driver = 'redis', array $parameters = [])
     {
-        $this->_setDriver($driver);
-        $this->_setRepository($driver, $parameters);
+        $this->setDriver($driver);
+        $this->setRepository($driver, $parameters);
     }
 
     /**
@@ -46,7 +46,7 @@ class Client
      *
      * @throws NotSupportedDriverException
      */
-    private function _setDriver($driver)
+    private function setDriver($driver)
     {
         $allowedDrivers = [
             'apcu',
@@ -73,7 +73,7 @@ class Client
      * @param $driver
      * @param array $config
      */
-    private function _setRepository($driver, array $config = [])
+    private function setRepository($driver, array $config = [])
     {
         $repository = 'InMemoryList\Infrastructure\Persistance\\'.ucfirst($driver).'Repository';
         $driver = 'InMemoryList\Infrastructure\Drivers\\'.ucfirst($driver).'Driver';
@@ -101,7 +101,7 @@ class Client
     public function create(array $elements, array $parameters = [])
     {
         try {
-            $this->_validateParameters($parameters);
+            $this->validateParameters($parameters);
             $factory = new ListCollectionFactoryInterface();
             $list = $factory->create(
                 $elements,
@@ -125,7 +125,7 @@ class Client
      *
      * @throws MalformedParametersException
      */
-    private function _validateParameters($parameters)
+    private function validateParameters($parameters)
     {
         $allowedParameters = [
             'chunk-size',

@@ -67,7 +67,7 @@ abstract class AbstractRepository
      */
     public function getChunkSize($listUuid)
     {
-        if ($this->_existsListInIndex($listUuid)) {
+        if ($this->existsListInIndex($listUuid)) {
             $index = unserialize($this->getIndex($listUuid));
 
             return $index['chunk-size'];
@@ -83,7 +83,7 @@ abstract class AbstractRepository
      */
     public function getCounter($listUuid)
     {
-        if ($this->_existsListInIndex($listUuid)) {
+        if ($this->existsListInIndex($listUuid)) {
             $index = unserialize($this->getIndex($listUuid));
 
             return $index['size'];
@@ -97,7 +97,7 @@ abstract class AbstractRepository
      *
      * @return bool
      */
-    protected function _existsListInIndex($listUuid)
+    protected function existsListInIndex($listUuid)
     {
         if (@$this->getIndex($listUuid)) {
             return true;
@@ -113,7 +113,7 @@ abstract class AbstractRepository
      */
     public function getNumberOfChunks($listUuid)
     {
-        if ($this->_existsListInIndex($listUuid)) {
+        if ($this->existsListInIndex($listUuid)) {
             $index = unserialize($this->getIndex($listUuid));
 
             return $index['chunks'];
@@ -146,7 +146,7 @@ abstract class AbstractRepository
      * @param $data
      * @return array|object
      */
-    protected function _updateListElementBody($listElement, $data)
+    protected function updateListElementBody($listElement, $data)
     {
         $listElement = unserialize($listElement);
 

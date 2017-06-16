@@ -11,30 +11,29 @@
 namespace InMemoryList\Infrastructure\Persistance;
 
 use InMemoryList\Domain\Helper\ListElementConsistencyChecker;
-use InMemoryList\Domain\Model\Exceptions\ListElementNotConsistentException;
-use InMemoryList\Domain\Model\ListElement;
-use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\Contracts\ListRepositoryInterface;
+use InMemoryList\Domain\Model\Exceptions\ListElementNotConsistentException;
+use InMemoryList\Domain\Model\ListCollection;
+use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListAlreadyExistsException;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListDoesNotExistsException;
-use Predis\Client;
 
-class RedisRepositoryInterface extends AbstractRepository implements ListRepositoryInterface
+class MemcachedRepository extends AbstractRepository implements ListRepositoryInterface
 {
     /**
-     * @var Client
+     * @var \Memcached
      */
-    private $client;
+    private $memcached;
 
     /**
-     * IMListRedisRepository constructor.
+     * ListMemcachedRepository constructor.
      *
-     * @param Client $client
+     * @param \Memcached $memcached
      */
-    public function __construct(Client $client)
+    public function __construct(\Memcached $memcached)
     {
-        $this->client = $client;
+        $this->memcached = $memcached;
     }
 
     /**
@@ -57,36 +56,33 @@ class RedisRepositoryInterface extends AbstractRepository implements ListReposit
             throw new ListAlreadyExistsException('List '.$list->getUuid().' already exists in memory.');
         }
 
-        $items = $list->getItems();
+        // create arrayOfElements
+        $arrayOfElements = [];
+
+        /** @var ListElement $element */
+        foreach ($list->getElements() as $element) {
+            $arrayOfElements[(string) $element->getUuid()] = $element->getBody();
+        }
 
         // persist in memory array in chunks
-        $arrayChunks = array_chunk($items, $chunkSize, true);
+        $arrayChunks = array_chunk($arrayOfElements, $chunkSize, true);
         foreach ($arrayChunks as $chunkNumber => $item) {
+            $arrayToPersist = [];
             foreach ($item as $key => $element) {
-                $listChunkUuid = $list->getUuid().self::SEPARATOR.self::CHUNK.'-'.($chunkNumber + 1);
-                $elementUuid = $element->getUuid();
-                $body = $element->getBody();
-
-                $this->client->hset(
-                    (string) $listChunkUuid,
-                    (string) $elementUuid,
-                    (string) $body
-                );
-
-                // set ttl
-                if ($ttl) {
-                    $this->client->expire(
-                        (string) $listChunkUuid,
-                        $ttl
-                    );
-                }
+                $arrayToPersist[$key] = $element;
             }
+
+            $this->memcached->set(
+                (string) $list->getUuid().self::SEPARATOR.'chunk-'.($chunkNumber + 1),
+                $arrayToPersist,
+                $ttl
+            );
         }
 
         // add list to index
-        $this->_addOrUpdateListToIndex(
+        $this->addOrUpdateListToIndex(
             $listUuid,
-            (int) count($items),
+            (int) count($list->getElements()),
             (int) count($arrayChunks),
             (int) $chunkSize,
             $ttl
@@ -94,17 +90,11 @@ class RedisRepositoryInterface extends AbstractRepository implements ListReposit
 
         // set headers
         if ($list->getHeaders()) {
-            foreach ($list->getHeaders() as $key => $header) {
-                $this->client->hset(
-                    $listUuid.self::SEPARATOR.self::HEADERS,
-                    $key,
-                    $header
-                );
-            }
-
-            if ($ttl) {
-                $this->client->expire($listUuid.self::SEPARATOR.self::HEADERS, $ttl);
-            }
+            $this->memcached->set(
+                (string) $list->getUuid().self::SEPARATOR.self::HEADERS,
+                $list->getHeaders(),
+                $ttl
+            );
         }
 
         return $this->findListByUuid($list->getUuid());
@@ -123,16 +113,17 @@ class RedisRepositoryInterface extends AbstractRepository implements ListReposit
 
         for ($i = 1; $i <= $numberOfChunks; ++$i) {
             $chunkNumber = $listUuid.self::SEPARATOR.self::CHUNK.'-'.$i;
-            $chunk = $this->client->hgetall($chunkNumber);
+            $chunk = $this->memcached->get($chunkNumber);
 
             if (array_key_exists($elementUuid, $chunk)) {
 
                 // delete elements from chunk
-                $this->client->hdel($chunkNumber, $elementUuid);
+                unset($chunk[(string) $elementUuid]);
+                $this->memcached->replace($chunkNumber, $chunk);
 
                 // update list index
                 $prevIndex = unserialize($this->getIndex($listUuid));
-                $this->_addOrUpdateListToIndex(
+                $this->addOrUpdateListToIndex(
                     $listUuid,
                     ($prevIndex['size'] - 1),
                     $numberOfChunks,
@@ -142,39 +133,13 @@ class RedisRepositoryInterface extends AbstractRepository implements ListReposit
 
                 // delete headers if counter = 0
                 $headersKey = $listUuid.self::SEPARATOR.self::HEADERS;
+
                 if ($this->getCounter($listUuid) === 0) {
-                    $this->client->del($headersKey);
+                    $this->memcached->delete($headersKey);
                 }
 
                 break;
             }
-        }
-    }
-
-    /**
-     * @param $listUuid
-     * @param $size
-     * @param $numberOfChunks
-     * @param null $ttl
-     */
-    private function _addOrUpdateListToIndex($listUuid, $size, $numberOfChunks, $chunkSize, $ttl = null)
-    {
-        $indexKey = ListRepositoryInterface::INDEX;
-        $this->client->hset(
-            $indexKey,
-            (string) $listUuid,
-            serialize([
-                'uuid' => $listUuid,
-                'created_on' => new \DateTimeImmutable(),
-                'size' => $size,
-                'chunks' => $numberOfChunks,
-                'chunk-size' => $chunkSize,
-                'ttl' => $ttl,
-            ])
-        );
-
-        if ($size === 0) {
-            $this->removeListFromIndex((string) $listUuid);
         }
     }
 
@@ -185,11 +150,11 @@ class RedisRepositoryInterface extends AbstractRepository implements ListReposit
      */
     public function findListByUuid($listUuid)
     {
-        $collection = $this->client->hgetall($listUuid.self::SEPARATOR.self::CHUNK.'-1');
-        $number = $this->getNumberOfChunks($listUuid);
+        $collection = ($this->memcached->get($listUuid.self::SEPARATOR.self::CHUNK.'-1')) ?: [];
+        $numberOfChunks = $this->getNumberOfChunks($listUuid);
 
-        for ($i = 2; $i <= $number; ++$i) {
-            $collection = array_merge($collection, $this->client->hgetall($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
+        for ($i = 2; $i <= $numberOfChunks; ++$i) {
+            $collection = array_merge($collection, $this->memcached->get($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
         }
 
         return $collection;
@@ -200,30 +165,32 @@ class RedisRepositoryInterface extends AbstractRepository implements ListReposit
      */
     public function flush()
     {
-        $this->client->flushall();
+        $this->memcached->flush();
     }
 
     /**
      * @param $listUuid
      *
-     * @return array
+     * @return mixed
      */
     public function getHeaders($listUuid)
     {
-        return $this->client->hgetall($listUuid.self::SEPARATOR.self::HEADERS);
+        return $this->memcached->get($listUuid.self::SEPARATOR.self::HEADERS);
     }
 
     /**
      * @param null $listUuid
+     * @param null $flush
      *
-     * @return array|string
+     * @return mixed
      */
     public function getIndex($listUuid = null, $flush = null)
     {
         $indexKey = ListRepositoryInterface::INDEX;
+        $index = $this->memcached->get($indexKey);
 
-        if ($flush) {
-            foreach (array_keys($this->client->hgetall($indexKey)) as $key) {
+        if ($flush && $index) {
+            foreach (array_keys($index) as $key) {
                 if (!$this->findListByUuid($key)) {
                     $this->removeListFromIndex($key);
                 }
@@ -231,10 +198,35 @@ class RedisRepositoryInterface extends AbstractRepository implements ListReposit
         }
 
         if ($listUuid) {
-            return $this->client->hget($indexKey, $listUuid);
+            return $index[$listUuid];
         }
 
-        return $this->client->hgetall($indexKey);
+        return $index;
+    }
+
+    /**
+     * @param $listUuid
+     * @param $size
+     * @param $numberOfChunks
+     * @param null $ttl
+     */
+    private function addOrUpdateListToIndex($listUuid, $size, $numberOfChunks, $chunkSize, $ttl = null)
+    {
+        $indexKey = ListRepositoryInterface::INDEX;
+        $indexArray = serialize([
+            'uuid' => $listUuid,
+            'created_on' => new \DateTimeImmutable(),
+            'size' => $size,
+            'chunks' => $numberOfChunks,
+            'chunk-size' => $chunkSize,
+            'ttl' => $ttl,
+        ]);
+
+        ($this->existsListInIndex($listUuid)) ? $this->memcached->replace($indexKey, [$listUuid => $indexArray]) : $this->memcached->set($indexKey, [$listUuid => $indexArray]);
+
+        if ($size === 0) {
+            $this->removeListFromIndex($listUuid);
+        }
     }
 
     /**
@@ -242,7 +234,7 @@ class RedisRepositoryInterface extends AbstractRepository implements ListReposit
      */
     public function getStatistics()
     {
-        return $this->client->info();
+        return $this->memcached->getStats();
     }
 
     /**
@@ -262,27 +254,30 @@ class RedisRepositoryInterface extends AbstractRepository implements ListReposit
             throw new ListElementNotConsistentException('Element '. (string) $listElement->getUuid() . ' is not consistent with list data.');
         }
 
-        $number = $this->getNumberOfChunks($listUuid);
+        $numberOfChunks = $this->getNumberOfChunks($listUuid);
         $chunkSize = $this->getChunkSize($listUuid);
-        $chunkNumber = $listUuid.self::SEPARATOR.self::CHUNK.'-'.$number;
+        $chunkNumber = $listUuid.self::SEPARATOR.self::CHUNK.'-'.$numberOfChunks;
 
-        if (($chunkSize - count($this->client->hgetall($chunkNumber))) === 0) {
-            ++$number;
-            $chunkNumber = $listUuid.self::SEPARATOR.self::CHUNK.'-'.$number;
+        if ($chunkSize - count($this->memcached->get($chunkNumber)) === 0) {
+            ++$numberOfChunks;
+            $chunkNumber = $listUuid.self::SEPARATOR.self::CHUNK.'-'.$numberOfChunks;
         }
 
-        $this->client->hset(
+        $chunkValues = $this->memcached->get($chunkNumber);
+        $chunkValues[(string) $elementUuid] = (string) $body;
+
+        $this->memcached->set(
             (string) $chunkNumber,
-            (string) $elementUuid,
-            (string) $body
+            $chunkValues,
+            $this->getTtl($listUuid)
         );
 
         // update list index
         $prevIndex = unserialize($this->getIndex($listUuid));
-        $this->_addOrUpdateListToIndex(
+        $this->addOrUpdateListToIndex(
             $listUuid,
             ($prevIndex['size'] + 1),
-            $number,
+            $numberOfChunks,
             $chunkSize,
             $this->getTtl($listUuid)
         );
@@ -295,10 +290,10 @@ class RedisRepositoryInterface extends AbstractRepository implements ListReposit
      */
     public function removeListFromIndex($listUuid)
     {
-        $this->client->hdel(
-            ListRepositoryInterface::INDEX,
-            $listUuid
-        );
+        $index = $this->getIndex();
+
+        unset($index[(string) $listUuid]);
+        $this->memcached->replace(ListRepositoryInterface::INDEX, $index);
     }
     /**
      * @param $listUuid
@@ -312,10 +307,11 @@ class RedisRepositoryInterface extends AbstractRepository implements ListReposit
     public function updateElement($listUuid, $elementUuid, $data)
     {
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
+        $ttl = ($this->getTtl($listUuid) > 0) ? $this->getTtl($listUuid) : null;
 
         for ($i = 1; $i <= $numberOfChunks; ++$i) {
             $chunkNumber = $listUuid.self::SEPARATOR.self::CHUNK.'-'.$i;
-            $chunk = $this->client->hgetall($chunkNumber);
+            $chunk = $this->memcached->get($chunkNumber);
 
             if (array_key_exists($elementUuid, $chunk)) {
                 $listElement = $this->findElement(
@@ -323,21 +319,23 @@ class RedisRepositoryInterface extends AbstractRepository implements ListReposit
                     (string) $elementUuid
                 );
 
-                $updatedElementBody = $this->_updateListElementBody($listElement, $data);
+                $updatedElementBody = $this->updateListElementBody($listElement, $data);
                 if (!ListElementConsistencyChecker::isConsistent($updatedElementBody, $this->findListByUuid($listUuid))) {
                     throw new ListElementNotConsistentException('Element '. (string) $elementUuid . ' is not consistent with list data.');
                 }
 
+                $arrayOfElements = $this->memcached->get($listUuid);
                 $updatedElement = new ListElement(
                     new ListElementUuid($elementUuid),
                     $updatedElementBody
                 );
                 $body = $updatedElement->getBody();
+                $arrayOfElements[(string) $elementUuid] = $body;
 
-                $this->client->hset(
-                    $chunkNumber,
-                    $elementUuid,
-                    $body
+                $this->memcached->replace(
+                    (string) $chunkNumber,
+                    $arrayOfElements,
+                    $ttl
                 );
 
                 break;
@@ -361,13 +359,13 @@ class RedisRepositoryInterface extends AbstractRepository implements ListReposit
 
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
         for ($i = 1; $i <= $numberOfChunks; ++$i) {
-            $this->client->expire(
+            $this->memcached->touch(
                 (string) $listUuid.self::SEPARATOR.self::CHUNK.'-'.$i,
                 (int) $ttl
             );
         }
 
-        $this->_addOrUpdateListToIndex(
+        $this->addOrUpdateListToIndex(
             $listUuid,
             $this->getCounter($listUuid),
             $this->getNumberOfChunks($listUuid),

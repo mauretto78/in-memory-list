@@ -39,7 +39,7 @@ class MemcachedDriver implements DriverInterface
      */
     public function __construct(array $config = [])
     {
-        $this->_setConfig($config);
+        $this->setConfig($config);
         if (!$this->check()) {
             throw new MemcachedDriverCheckException('Memcached is not loaded.');
         }
@@ -52,7 +52,7 @@ class MemcachedDriver implements DriverInterface
      *
      * @throws MemcachedMalformedConfigException
      */
-    private function _setConfig($config)
+    private function setConfig($config)
     {
         $allowedConfigKeys = [
             'host',

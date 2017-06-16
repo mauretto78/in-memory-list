@@ -28,7 +28,7 @@ class ListCollectionUuid
      */
     public function __construct($uuid = null)
     {
-        $this->_setUuid($uuid);
+        $this->setUuid($uuid);
     }
 
     /**
@@ -36,7 +36,7 @@ class ListCollectionUuid
      *
      * @throws ListCollectionNotAllowedUuidException
      */
-    public function _setUuid($uuid = null)
+    public function setUuid($uuid = null)
     {
         $notAllowedNames = [
             ListRepositoryInterface::CHUNK,

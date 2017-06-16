@@ -19,7 +19,7 @@ use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListAlreadyExistsException;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListDoesNotExistsException;
 
-class ApcuRepositoryInterface extends AbstractRepository implements ListRepositoryInterface
+class ApcuRepository extends AbstractRepository implements ListRepositoryInterface
 {
     /**
      * @param ListCollection $list
@@ -45,7 +45,7 @@ class ApcuRepositoryInterface extends AbstractRepository implements ListReposito
         $arrayOfElements = [];
 
         /** @var ListElement $element */
-        foreach ($list->getItems() as $element) {
+        foreach ($list->getElements() as $element) {
             $arrayOfElements[(string) $element->getUuid()] = $element->getBody();
         }
 
@@ -65,9 +65,9 @@ class ApcuRepositoryInterface extends AbstractRepository implements ListReposito
         }
 
         // add list to index
-        $this->_addOrUpdateListToIndex(
+        $this->addOrUpdateListToIndex(
             (string) $listUuid,
-            (int) count($list->getItems()),
+            (int) count($list->getElements()),
             (int) count($arrayChunks),
             (int) $chunkSize,
             $ttl
@@ -109,7 +109,7 @@ class ApcuRepositoryInterface extends AbstractRepository implements ListReposito
 
                 // update list index
                 $prevIndex = unserialize($this->getIndex($listUuid));
-                $this->_addOrUpdateListToIndex(
+                $this->addOrUpdateListToIndex(
                     $listUuid,
                     ($prevIndex['size'] - 1),
                     $numberOfChunks,
@@ -197,7 +197,7 @@ class ApcuRepositoryInterface extends AbstractRepository implements ListReposito
      * @param $chunkSize
      * @param null $ttl
      */
-    private function _addOrUpdateListToIndex($listUuid, $size, $numberOfChunks, $chunkSize, $ttl = null)
+    private function addOrUpdateListToIndex($listUuid, $size, $numberOfChunks, $chunkSize, $ttl = null)
     {
         $indexKey = ListRepositoryInterface::INDEX;
         $indexArray = serialize([
@@ -211,7 +211,7 @@ class ApcuRepositoryInterface extends AbstractRepository implements ListReposito
 
         $indexArrayToUpdate = [(string) $listUuid => $indexArray];
 
-        if ($this->_existsListInIndex($listUuid)) {
+        if ($this->existsListInIndex($listUuid)) {
             $index = apcu_fetch((string) $indexKey);
             $index[$listUuid] = $indexArray;
             $indexArrayToUpdate = $index;
@@ -272,7 +272,7 @@ class ApcuRepositoryInterface extends AbstractRepository implements ListReposito
 
         // update list index
         $prevIndex = unserialize($this->getIndex($listUuid));
-        $this->_addOrUpdateListToIndex(
+        $this->addOrUpdateListToIndex(
             $listUuid,
             ($prevIndex['size'] + 1),
             $numberOfChunks,
@@ -320,7 +320,7 @@ class ApcuRepositoryInterface extends AbstractRepository implements ListReposito
                     (string) $elementUuid
                 );
 
-                $updatedElementBody = $this->_updateListElementBody($listElement, $data);
+                $updatedElementBody = $this->updateListElementBody($listElement, $data);
                 if (!ListElementConsistencyChecker::isConsistent($updatedElementBody, $this->findListByUuid($listUuid))) {
                     throw new ListElementNotConsistentException('Element '. (string) $elementUuid . ' is not consistent with list data.');
                 }
@@ -373,7 +373,7 @@ class ApcuRepositoryInterface extends AbstractRepository implements ListReposito
             );
         }
 
-        $this->_addOrUpdateListToIndex(
+        $this->addOrUpdateListToIndex(
             (string) $listUuid,
             $this->getCounter((string) $listUuid),
             $this->getNumberOfChunks((string) $listUuid),

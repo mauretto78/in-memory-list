@@ -39,7 +39,7 @@ class QueryBuilder
      */
     public function __construct($list)
     {
-        $this->_setCollection($list);
+        $this->setCollection($list);
     }
 
     /**
@@ -47,7 +47,7 @@ class QueryBuilder
      *
      * @throws EmptyListException
      */
-    public function _setCollection($list)
+    public function setCollection($list)
     {
         if (empty($list)) {
             throw new EmptyListException('Empty collection provided.');
@@ -145,9 +145,9 @@ class QueryBuilder
 
         if (count($this->criteria)) {
             foreach ($this->criteria as $criterion) {
-                $singleQueryResults[] = $this->_filter(
+                $singleQueryResults[] = $this->filter(
                     function ($element) use ($criterion) {
-                        $value = $this->_getListElementValueFromKey(unserialize($element), $criterion['key']);
+                        $value = $this->getListElementValueFromKey(unserialize($element), $criterion['key']);
 
                         switch ($criterion['operator']) {
                             case '>':
@@ -189,13 +189,13 @@ class QueryBuilder
                     }
                 );
 
-                $results = $this->_returnSingleQueryResult($counter, $singleQueryResults);
+                $results = $this->returnSingleQueryResult($counter, $singleQueryResults);
                 ++$counter;
             }
         }
 
         if (count($this->orderBy)) {
-            usort($results, [$this, '_compareStrings']);
+            usort($results, [$this, 'compareStrings']);
 
             if ($this->orderBy['order'] === 'DESC') {
                 $results = array_reverse($results);
@@ -215,7 +215,7 @@ class QueryBuilder
      *
      * @return array
      */
-    private function _returnSingleQueryResult($counter, $singleQueryResults)
+    private function returnSingleQueryResult($counter, $singleQueryResults)
     {
         if ($counter > 0) {
             return  array_intersect_key($singleQueryResults[$counter], $singleQueryResults[$counter - 1]);
@@ -232,7 +232,7 @@ class QueryBuilder
      *
      * @throws NotValidKeyElementInListException
      */
-    private function _getListElementValueFromKey($element, $key)
+    private function getListElementValueFromKey($element, $key)
     {
         if ((is_object($element) && !isset($element->{$key})) || (is_array($element) && !isset($element[$key]))) {
             throw new NotValidKeyElementInListException($key.' is not a valid key.');
@@ -247,10 +247,10 @@ class QueryBuilder
      *
      * @return int
      */
-    private function _compareStrings($first, $second)
+    private function compareStrings($first, $second)
     {
-        $valueA = $this->_getListElementValueFromKey(unserialize($first), $this->orderBy['key']);
-        $valueB = $this->_getListElementValueFromKey(unserialize($second), $this->orderBy['key']);
+        $valueA = $this->getListElementValueFromKey(unserialize($first), $this->orderBy['key']);
+        $valueB = $this->getListElementValueFromKey(unserialize($second), $this->orderBy['key']);
 
         if ($valueA === $valueB) {
             return 0;
@@ -264,7 +264,7 @@ class QueryBuilder
      *
      * @return array|ø
      */
-    private function _filter(callable $function)
+    private function filter(callable $function)
     {
         return array_filter(
             array_map(

@@ -30,14 +30,14 @@ class ListElement
      */
     public function __construct(ListElementUuid $uuid, $body)
     {
-        $this->_setUuid($uuid);
-        $this->_setBody($body);
+        $this->setUuid($uuid);
+        $this->setBody($body);
     }
 
     /**
      * @param ListElementUuid $uuid
      */
-    private function _setUuid(ListElementUuid $uuid)
+    private function setUuid(ListElementUuid $uuid)
     {
         $this->uuid = $uuid;
     }
@@ -53,7 +53,7 @@ class ListElement
     /**
      * @param $body
      */
-    private function _setBody($body)
+    private function setBody($body)
     {
         $this->body = serialize($body);
     }

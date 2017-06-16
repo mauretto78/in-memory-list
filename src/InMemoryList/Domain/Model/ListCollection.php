@@ -20,7 +20,7 @@ class ListCollection implements \Countable
     /**
      * @var array
      */
-    private $items;
+    private $elements;
 
     /**
      * @var ListCollectionUuid
@@ -36,18 +36,18 @@ class ListCollection implements \Countable
      * IMListElementCollection constructor.
      *
      * @param ListCollectionUuid $uuid
-     * @param array              $items
+     * @param array              $elements
      */
-    public function __construct(ListCollectionUuid $uuid, array $items = [])
+    public function __construct(ListCollectionUuid $uuid, array $elements = [])
     {
-        $this->_setUuid($uuid);
-        $this->_setItems($items);
+        $this->setUuid($uuid);
+        $this->setElements($elements);
     }
 
     /**
      * @param ListCollectionUuid $uuid
      */
-    private function _setUuid(ListCollectionUuid $uuid)
+    private function setUuid(ListCollectionUuid $uuid)
     {
         $this->uuid = $uuid;
     }
@@ -61,11 +61,11 @@ class ListCollection implements \Countable
     }
 
     /**
-     * @param array $items
+     * @param array $elements
      */
-    private function _setItems($items)
+    private function setElements($elements)
     {
-        $this->items = $items;
+        $this->elements = $elements;
     }
 
     /**
@@ -75,7 +75,7 @@ class ListCollection implements \Countable
      */
     public function hasElement(ListElementUuid $uuid)
     {
-        return isset($this->items[$uuid->getUuid()]);
+        return isset($this->elements[$uuid->getUuid()]);
     }
 
     /**
@@ -90,11 +90,11 @@ class ListCollection implements \Countable
             throw new ListElementDuplicateKeyException('Key '.$element->getUuid()->getUuid().' already in use.');
         }
 
-        if (!ListElementConsistencyChecker::isConsistent($element, $this->items)) {
+        if (!ListElementConsistencyChecker::isConsistent($element, $this->elements)) {
             throw new ListElementNotConsistentException('Element '.$element->getUuid()->getUuid().' is not consistent with list data.');
         }
 
-        $this->items[$element->getUuid()->getUuid()] = $element;
+        $this->elements[$element->getUuid()->getUuid()] = $element;
     }
 
     /**
@@ -108,7 +108,7 @@ class ListCollection implements \Countable
             throw new ListElementKeyDoesNotExistException('Invalid key '.$element->getUuid()->getUuid());
         }
 
-        unset($this->items[$element->getUuid()->getUuid()]);
+        unset($this->elements[$element->getUuid()->getUuid()]);
     }
 
     /**
@@ -124,15 +124,15 @@ class ListCollection implements \Countable
             throw new ListElementKeyDoesNotExistException('Invalid key '.$uuid->getUuid());
         }
 
-        return $this->items[$uuid->getUuid()];
+        return $this->elements[$uuid->getUuid()];
     }
 
     /**
      * @return array
      */
-    public function getItems()
+    public function getElements()
     {
-        return $this->items;
+        return $this->elements;
     }
 
     /**
@@ -156,6 +156,6 @@ class ListCollection implements \Countable
      */
     public function count()
     {
-        return count($this->items);
+        return count($this->elements);
     }
 }

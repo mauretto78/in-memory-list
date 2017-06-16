@@ -38,7 +38,7 @@ class RedisDriver implements DriverInterface
      */
     public function __construct(array $config = [])
     {
-        $this->_setConfig($config);
+        $this->setConfig($config);
         if (!$this->check()) {
             throw new RedisDriverCheckException('PRedis Client is not loaded.');
         }
@@ -51,7 +51,7 @@ class RedisDriver implements DriverInterface
      *
      * @throws RedisMalformedConfigException
      */
-    private function _setConfig($config)
+    private function setConfig($config)
     {
         $allowedConfigKeys = [
             'alias',
