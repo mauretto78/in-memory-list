@@ -146,6 +146,18 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
     /**
      * @param $listUuid
      *
+     * @return bool
+     */
+    public function exists($listUuid)
+    {
+        $listFirstChunk =  $this->memcached->get($listUuid.self::SEPARATOR.self::CHUNK.'-1');
+
+        return isset($listFirstChunk);
+    }
+
+    /**
+     * @param $listUuid
+     *
      * @return mixed
      */
     public function findListByUuid($listUuid)
@@ -180,18 +192,15 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
 
     /**
      * @param null $listUuid
-     * @param null $flush
      *
      * @return mixed
      */
-    public function getIndex($listUuid = null, $flush = null)
+    public function getIndex($listUuid = null)
     {
         $indexKey = ListRepositoryInterface::INDEX;
         $index = $this->memcached->get($indexKey);
 
-        if ($flush && $index) {
-            $this->flushIndex($index);
-        }
+        $this->removeExpiredListsFromIndex($index);
 
         if ($listUuid) {
             return (isset($index[(string) $listUuid])) ? $index[(string) $listUuid] : null;

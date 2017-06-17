@@ -97,11 +97,10 @@ interface ListRepositoryInterface
 
     /**
      * @param null $listUuid
-     * @param null $flush
      *
      * @return mixed
      */
-    public function getIndex($listUuid = null, $flush = null);
+    public function getIndex($listUuid = null);
 
     /**
      * @param $listUuid

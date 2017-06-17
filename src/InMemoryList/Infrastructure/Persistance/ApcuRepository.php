@@ -133,6 +133,18 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
     /**
      * @param $listUuid
      *
+     * @return bool
+     */
+    public function exists($listUuid)
+    {
+        $listFirstChunk =  apcu_fetch($listUuid.self::SEPARATOR.self::CHUNK.'-1');
+
+        return isset($listFirstChunk);
+    }
+
+    /**
+     * @param $listUuid
+     *
      * @return mixed
      */
     public function findListByUuid($listUuid)
@@ -167,18 +179,15 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
 
     /**
      * @param null $listUuid
-     * @param null $flush
      *
      * @return mixed
      */
-    public function getIndex($listUuid = null, $flush = null)
+    public function getIndex($listUuid = null)
     {
         $indexKey = ListRepositoryInterface::INDEX;
         $index = apcu_fetch($indexKey);
 
-        if ($flush && $index) {
-            $this->flushIndex($index);
-        }
+        $this->removeExpiredListsFromIndex($index);
 
         if ($listUuid) {
             return (isset($index[(string)$listUuid])) ? $index[(string)$listUuid] : null;

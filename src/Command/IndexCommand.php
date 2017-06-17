@@ -52,7 +52,7 @@ class IndexCommand extends BaseCommand
         $parameters = $this->convertParametersArray($input->getArgument('parameters')) ?: $this->defaultParameters;
 
         $cache = $this->createClient($driver, $parameters);
-        $index = $cache->getIndex(null, true);
+        $index = $cache->getIndex();
 
         if ($index && count($index)) {
             ksort($index);

@@ -216,13 +216,12 @@ class Client
 
     /**
      * @param null $listUuid
-     * @param null $flushall
      *
      * @return mixed
      */
-    public function getIndex($listUuid = null, $flushall = null)
+    public function getIndex($listUuid = null)
     {
-        return $this->repository->getIndex($listUuid, $flushall);
+        return $this->repository->getIndex($listUuid);
     }
 
     /**

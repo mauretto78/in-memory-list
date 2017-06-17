@@ -181,6 +181,18 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
     /**
      * @param $listUuid
      *
+     * @return bool
+     */
+    public function exists($listUuid)
+    {
+        $listFirstChunk = $this->client->hgetall($listUuid.self::SEPARATOR.self::CHUNK.'-1');
+
+        return isset($listFirstChunk);
+    }
+
+    /**
+     * @param $listUuid
+     *
      * @return mixed
      */
     public function findListByUuid($listUuid)
@@ -218,13 +230,11 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
      *
      * @return array|string
      */
-    public function getIndex($listUuid = null, $flush = null)
+    public function getIndex($listUuid = null)
     {
         $indexKey = ListRepositoryInterface::INDEX;
 
-        if ($flush) {
-            $this->flushIndex($this->client->hgetall($indexKey));
-        }
+        $this->removeExpiredListsFromIndex($this->client->hgetall($indexKey));
 
         if ($listUuid) {
             return $this->client->hget($indexKey, $listUuid);

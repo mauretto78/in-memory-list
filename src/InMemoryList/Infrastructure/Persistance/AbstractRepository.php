@@ -140,11 +140,13 @@ abstract class AbstractRepository
     /**
      * @param array $index
      */
-    protected function flushIndex(array $index)
+    protected function removeExpiredListsFromIndex($index)
     {
-        foreach (array_keys($index) as $key) {
-            if (!$this->findListByUuid($key)) {
-                $this->removeListFromIndex($key);
+        if(is_array($index)){
+            foreach (array_keys($index) as $key) {
+                if(!$this->exists($key) && $this->existsListInIndex($key)){
+                    $this->removeListFromIndex($key);
+                }
             }
         }
     }
