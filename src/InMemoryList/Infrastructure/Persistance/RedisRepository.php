@@ -223,11 +223,7 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
         $indexKey = ListRepositoryInterface::INDEX;
 
         if ($flush) {
-            foreach (array_keys($this->client->hgetall($indexKey)) as $key) {
-                if (!$this->findListByUuid($key)) {
-                    $this->removeListFromIndex($key);
-                }
-            }
+            $this->flushIndex($this->client->hgetall($indexKey));
         }
 
         if ($listUuid) {

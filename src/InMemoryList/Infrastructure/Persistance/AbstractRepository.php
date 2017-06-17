@@ -138,6 +138,18 @@ abstract class AbstractRepository
     }
 
     /**
+     * @param array $index
+     */
+    protected function flushIndex(array $index)
+    {
+        foreach (array_keys($index) as $key) {
+            if (!$this->findListByUuid($key)) {
+                $this->removeListFromIndex($key);
+            }
+        }
+    }
+
+    /**
      * @param $listElement
      * @param $data
      * @return array|object

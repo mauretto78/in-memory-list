@@ -167,6 +167,7 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
 
     /**
      * @param null $listUuid
+     * @param null $flush
      *
      * @return mixed
      */
@@ -176,11 +177,7 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
         $index = apcu_fetch($indexKey);
 
         if ($flush && $index) {
-            foreach (array_keys($index) as $key) {
-                if (!$this->findListByUuid($key)) {
-                    $this->removeListFromIndex($key);
-                }
-            }
+            $this->flushIndex($index);
         }
 
         if ($listUuid) {
