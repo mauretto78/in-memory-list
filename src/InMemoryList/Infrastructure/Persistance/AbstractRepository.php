@@ -99,11 +99,7 @@ abstract class AbstractRepository
      */
     protected function existsListInIndex($listUuid)
     {
-        if (@$this->getIndex($listUuid)) {
-            return true;
-        }
-
-        return false;
+        return ($this->getIndex($listUuid)) ? true : false;
     }
 
     /**

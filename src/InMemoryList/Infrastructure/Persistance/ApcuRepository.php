@@ -184,7 +184,7 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
         }
 
         if ($listUuid) {
-            return $index[(string) $listUuid];
+            return (isset($index[(string)$listUuid])) ? $index[(string)$listUuid] : null;
         }
 
         return $index;

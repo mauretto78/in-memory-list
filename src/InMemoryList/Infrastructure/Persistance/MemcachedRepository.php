@@ -198,7 +198,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
         }
 
         if ($listUuid) {
-            return $index[$listUuid];
+            return (isset($index[(string) $listUuid])) ? $index[(string) $listUuid] : null;
         }
 
         return $index;
