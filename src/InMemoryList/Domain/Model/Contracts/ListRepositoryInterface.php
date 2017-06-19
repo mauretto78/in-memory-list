@@ -103,6 +103,14 @@ interface ListRepositoryInterface
     public function getIndex($listUuid = null);
 
     /**
+     * @param \Datetime $from
+     * @param \Datetime $to
+     *
+     * @return mixed
+     */
+    public function getIndexInRangeDate(\Datetime $from = null, \Datetime $to = null);
+
+    /**
      * @param $listUuid
      *
      * @return mixed

@@ -21,14 +21,14 @@ class StatisticsCommand extends BaseCommand
      * StatisticsCommand constructor.
      *
      * @param null  $driver
-     * @param array $defaultParameters
+     * @param array $parameters
      */
-    public function __construct($driver = null, array $defaultParameters = [])
+    public function __construct($driver = null, array $parameters = [])
     {
         parent::__construct(
             'iml_cache_statistics',
             $driver,
-            $defaultParameters
+            $parameters
         );
     }
     protected function configure()
@@ -37,20 +37,12 @@ class StatisticsCommand extends BaseCommand
             ->setName('iml:cache:statistics')
             ->setDescription('Get all data stored in cache.')
             ->setHelp('This command displays in a table all data stored in cache.')
-            ->addArgument('driver', InputArgument::OPTIONAL, 'driver [apcu, memcached, redis]')
-            ->addArgument(
-                'parameters',
-                InputArgument::IS_ARRAY,
-                'Insert here connection parameters [eg. host:localhost port:11211]'
-            );
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $driver = $input->getArgument('driver') ?: $this->driver;
-        $parameters = $this->convertParametersArray($input->getArgument('parameters')) ?: $this->defaultParameters;
-
-        $cache = $this->createClient($driver, $parameters);
+        $cache = $this->createClient($this->driver, $this->parameters);
         $statistics = $cache->getStatistics();
 
         $table = new Table($output);

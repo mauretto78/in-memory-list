@@ -20,14 +20,14 @@ class FlushCommand extends BaseCommand
      * FlushCommand constructor.
      *
      * @param null  $driver
-     * @param array $defaultParameters
+     * @param array $parameters
      */
-    public function __construct($driver = null, array $defaultParameters = [])
+    public function __construct($driver = null, array $parameters = [])
     {
         parent::__construct(
             'iml_cache_flush',
             $driver,
-            $defaultParameters
+            $parameters
         );
     }
 
@@ -37,22 +37,14 @@ class FlushCommand extends BaseCommand
             ->setName('iml:cache:flush')
             ->setDescription('Flush all data stored in cache.')
             ->setHelp('This command flushes all data stored in cache.')
-            ->addArgument('driver', InputArgument::OPTIONAL, 'driver [apcu, memcached, redis]')
-            ->addArgument(
-                'parameters',
-                InputArgument::IS_ARRAY,
-                'Insert here connection parameters'
-            );
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $driver = $input->getArgument('driver') ?: $this->driver;
-        $parameters = $this->convertParametersArray($input->getArgument('parameters')) ?: $this->defaultParameters;
-
-        $cache = $this->createClient($driver, $parameters);
+        $cache = $this->createClient($this->driver, $this->parameters);
         $cache->flush();
 
-        $output->writeln('<fg=red>['.$driver.'] Cache was successful flushed.</>');
+        $output->writeln('<fg=red>['.$this->driver.'] Cache was successful flushed.</>');
     }
 }

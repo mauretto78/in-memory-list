@@ -43,12 +43,12 @@ class IndexCommandTest extends BaseTestCase
      */
     public function it_displays_correctly_empty_apcu_cache()
     {
+        $this->app->add(new IndexCommand('apcu'));
         $command = $this->app->find('iml:cache:index');
 
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'command' => $command->getName(),
-            'driver' => 'apcu',
         ]);
 
         $output = $commandTester->getDisplay();
@@ -67,12 +67,14 @@ class IndexCommandTest extends BaseTestCase
             'element-uuid' => 'id',
         ]);
 
+        $this->app->add(new IndexCommand('apcu'));
         $command = $this->app->find('iml:cache:index');
 
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'command' => $command->getName(),
-            'driver' => 'apcu',
+            'from' => 'yesterday',
+            'to' => 'now',
         ]);
 
         $output = $commandTester->getDisplay();
@@ -88,12 +90,12 @@ class IndexCommandTest extends BaseTestCase
      */
     public function it_displays_correctly_empty_memcached_cache()
     {
+        $this->app->add(new IndexCommand('memcached', $this->memcached_parameters));
         $command = $this->app->find('iml:cache:index');
 
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'command' => $command->getName(),
-            'driver' => 'memcached',
         ]);
 
         $output = $commandTester->getDisplay();
@@ -106,21 +108,18 @@ class IndexCommandTest extends BaseTestCase
      */
     public function it_displays_correctly_index_memcached_cache()
     {
-        $client = new Client('memcached');
+        $client = new Client('memcached', $this->memcached_parameters);
         $client->create(json_decode($this->array), [
             'uuid' => 'simple-list',
             'element-uuid' => 'id',
         ]);
 
+        $this->app->add(new IndexCommand('memcached', $this->memcached_parameters));
         $command = $this->app->find('iml:cache:index');
 
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'command' => $command->getName(),
-            'driver' => 'memcached',
-            'parameters' => [
-                'host=localhost,port=11211',
-            ],
         ]);
 
         $output = $commandTester->getDisplay();
@@ -137,15 +136,12 @@ class IndexCommandTest extends BaseTestCase
      */
     public function it_displays_correctly_empty_redis_cache()
     {
+        $this->app->add(new IndexCommand('redis', $this->redis_parameters));
         $command = $this->app->find('iml:cache:index');
 
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'command' => $command->getName(),
-            'driver' => 'redis',
-            'parameters' => [
-                'host=127.0.0.1,port=6379',
-            ],
         ]);
 
         $output = $commandTester->getDisplay();
@@ -158,22 +154,21 @@ class IndexCommandTest extends BaseTestCase
      */
     public function it_displays_correctly_index_redis_cache()
     {
-        $client = new Client('redis');
+        $client = new Client('redis', $this->redis_parameters);
         $client->create(json_decode($this->array), [
             'uuid' => 'simple-list',
             'element-uuid' => 'id',
             'ttl' => 3600,
         ]);
 
+        $this->app->add(new IndexCommand('redis', $this->redis_parameters));
         $command = $this->app->find('iml:cache:index');
 
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'command' => $command->getName(),
-            'driver' => 'redis',
-            'parameters' => [
-                'host=127.0.0.1,port=6379',
-            ],
+            'from' => 'yesterday',
+            'to' => 'now',
         ]);
 
         $output = $commandTester->getDisplay();

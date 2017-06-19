@@ -61,15 +61,36 @@ class MemcachedDriver implements DriverInterface
             'sasl_password',
         ];
 
-        foreach ($config as $server) {
-            foreach (array_keys($server) as $key) {
-                if (!in_array($key, $allowedConfigKeys)) {
-                    throw new MemcachedMalformedConfigException();
-                }
-            }
+        foreach ($config as $key => $server) {
+            (false === is_array($server)) ? $this->checkSimpleConfigArray($key, $allowedConfigKeys) : $this->checkMultidimensionalConfigArray($server, $allowedConfigKeys);
         }
 
         $this->config = $config;
+    }
+
+    /**
+     * @param $key
+     * @param $allowedConfigKeys
+     *
+     * @throws MemcachedMalformedConfigException
+     */
+    private function checkSimpleConfigArray($key, $allowedConfigKeys)
+    {
+        if (!in_array($key, $allowedConfigKeys)) {
+            throw new MemcachedMalformedConfigException();
+        }
+    }
+
+    /**
+     * @param $server
+     *
+     * @param $allowedConfigKeys
+     */
+    private function checkMultidimensionalConfigArray($server, $allowedConfigKeys)
+    {
+        foreach (array_keys($server) as $key) {
+            $this->checkSimpleConfigArray($key, $allowedConfigKeys);
+        }
     }
 
     /**
@@ -95,6 +116,7 @@ class MemcachedDriver implements DriverInterface
         $this->instance = new Memcached();
         $servers = $this->config ?: [];
 
+        // if $servers is empty, connect with default parameters
         if (count($servers) < 1) {
             $servers = [
                 [
@@ -104,6 +126,17 @@ class MemcachedDriver implements DriverInterface
             ];
         }
 
+        // if $servers is a monodimensional array convert to multidimensional
+        if (!isset($servers[0])) {
+            $servers = [
+                [
+                    'host' => $servers['host'],
+                    'port' => $servers['port'],
+                ],
+            ];
+        }
+
+        // loop all servers
         foreach ($servers as $server) {
             if (!$this->instance->addServer($server['host'], $server['port'])) {
                 throw new MemcachedDriverConnectionException('Memcached connection refused: [host'.$server['host'].' port'.$server['port'].']');

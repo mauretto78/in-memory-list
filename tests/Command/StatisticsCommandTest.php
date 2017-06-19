@@ -25,12 +25,12 @@ class StatisticsCommandTest extends BaseTestCase
      */
     public function it_displays_correctly_apcu_statistics()
     {
+        $this->app->add(new StatisticsCommand('apcu'));
         $command = $this->app->find('iml:cache:statistics');
 
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'command' => $command->getName(),
-            'driver' => 'apcu',
         ]);
 
         $output = $commandTester->getDisplay();
@@ -55,17 +55,23 @@ class StatisticsCommandTest extends BaseTestCase
      */
     public function it_displays_correctly_memcached_statistics()
     {
+        $this->app->add(new StatisticsCommand('memcached', $this->memcached_parameters));
         $command = $this->app->find('iml:cache:statistics');
 
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'command' => $command->getName(),
-            'driver' => 'memcached',
         ]);
 
         $output = $commandTester->getDisplay();
 
-        $this->assertContains('127.0.0.1:11211', $output);
+        // if $this->memcached_parameters is a monodimensional array convert to multidimensional
+        if(!isset($this->memcached_parameters[0])){
+            $this->memcached_parameters = [$this->memcached_parameters];
+        }
+
+        $this->assertContains($this->memcached_parameters[0]['host'], $output);
+        $this->assertContains($this->memcached_parameters[0]['port'], $output);
     }
 
     /**
@@ -73,12 +79,12 @@ class StatisticsCommandTest extends BaseTestCase
      */
     public function it_displays_correctly_redis_statistics()
     {
+        $this->app->add(new StatisticsCommand('redis', $this->redis_parameters));
         $command = $this->app->find('iml:cache:statistics');
 
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'command' => $command->getName(),
-            'driver' => 'redis',
         ]);
 
         $output = $commandTester->getDisplay();

@@ -21,14 +21,14 @@ class IndexCommand extends BaseCommand
      * IndexCommand constructor.
      *
      * @param null  $driver
-     * @param array $defaultParameters
+     * @param array $parameters
      */
-    public function __construct($driver = null, array $defaultParameters = [])
+    public function __construct($driver = null, array $parameters = [])
     {
         parent::__construct(
             'iml_cache_index',
             $driver,
-            $defaultParameters
+            $parameters
         );
     }
 
@@ -38,21 +38,18 @@ class IndexCommand extends BaseCommand
             ->setName('iml:cache:index')
             ->setDescription('Get all data stored in cache.')
             ->setHelp('This command displays in a table all data stored in cache.')
-            ->addArgument('driver', InputArgument::OPTIONAL, 'driver [apcu, memcached, redis]')
-            ->addArgument(
-                'parameters',
-                InputArgument::IS_ARRAY,
-                'Insert here connection parameters [eg. host:localhost port:11211]'
-            );
+            ->addArgument('from', InputArgument::OPTIONAL, 'Type date from you wish to display data. Eg: 20-06-2017')
+            ->addArgument('to', InputArgument::OPTIONAL, 'Type date to you wish to display data. Eg: now')
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $driver = $input->getArgument('driver') ?: $this->driver;
-        $parameters = $this->convertParametersArray($input->getArgument('parameters')) ?: $this->defaultParameters;
+        $cache = $this->createClient($this->driver, $this->parameters);
 
-        $cache = $this->createClient($driver, $parameters);
-        $index = $cache->getIndex();
+        $from = $input->getArgument('from') ? new \DateTime($input->getArgument('from')): null;
+        $to = $input->getArgument('to') ? new \DateTime($input->getArgument('to')) : null;
+        $index = $cache->getIndexInRangeDate($from, $to);
 
         if ($index && count($index)) {
             ksort($index);
@@ -83,7 +80,7 @@ class IndexCommand extends BaseCommand
 
             $table->render();
         } else {
-            $output->writeln('<fg=red>['.$driver.'] Empty Index.</>');
+            $output->writeln('<fg=red>['.$this->driver.'] Empty Index.</>');
         }
     }
 }

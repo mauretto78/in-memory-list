@@ -438,8 +438,8 @@ foreach ($qb->getResults() as $element){
 If you have an application which uses [Symfony Console](https://github.com/symfony/console), you have some commands avaliable:
 
 * `iml:cache:flush` to flush the cache
-* `iml:cache:index` to get full index of items stored in cache
-* `iml:cache:statistics` to get cache statistics 
+* `iml:cache:index [<from>] [<to>]` to get full index of items stored in cache
+* `iml:cache:statistics` to get cache statistics
 
 You can register the commands in your app, consider this example:
 
@@ -465,13 +465,13 @@ $console = $app['console'];
 
 // add commands here
 ...
-$console->add(new \InMemoryList\Command\FlushCommand());
-$console->add(new \InMemoryList\Command\IndexCommand());
-$console->add(new \InMemoryList\Command\StatisticsCommand());
+$console->add(new \InMemoryList\Command\FlushCommand(...));
+$console->add(new \InMemoryList\Command\IndexCommand(...));
+$console->add(new \InMemoryList\Command\StatisticsCommand(...));
 $console->run();
 ```
 
-You can pass to commands your driver and connection parameters array. Example:
+You have to provide to commands your driver and connection parameters array. Example:
 
 ```php
 $console->add(new \InMemoryList\Command\FlushCommand('redis', [
@@ -479,14 +479,6 @@ $console->add(new \InMemoryList\Command\FlushCommand('redis', [
     'port' => 6379,
 ]));
 ```
-
-If you prefer you can use this syntax on command line:
-
-`iml:cache:COMMAND DRIVER key=value,key2=value2,key3=value3`
-
-Each string represents an array, so to get a multi-server connection you have to pass arrays separated by space. Example:
-
-`iml:cache:statistics memcached host=localhost,port=11211 host=localhost,port=11222`
 
 ## Testing
 
@@ -507,9 +499,8 @@ redis_parameters:
     profile: '3.2'
 
 memcached_parameters:
-  -
-    host: 'localhost'
-    port: '11211'
+  host: 'localhost'
+  port: '11211'
 ```
 
 ## Built With

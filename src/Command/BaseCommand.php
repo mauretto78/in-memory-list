@@ -23,21 +23,21 @@ class BaseCommand extends Command
     /**
      * @var array
      */
-    protected $defaultParameters;
+    protected $parameters;
 
     /**
      * BaseCommand constructor.
      *
      * @param null|string $name
      * @param null        $driver
-     * @param array       $defaultParameters
+     * @param array       $parameters
      */
-    public function __construct($name, $driver = null, array $defaultParameters = [])
+    public function __construct($name, $driver = null, array $parameters = [])
     {
         parent::__construct($name);
 
         $this->driver = $driver;
-        $this->defaultParameters = $defaultParameters;
+        $this->parameters = $parameters;
     }
 
     /**
@@ -51,9 +51,9 @@ class BaseCommand extends Command
     /**
      * @return array
      */
-    public function getDefaultParameters()
+    public function getParameters()
     {
-        return $this->defaultParameters;
+        return $this->parameters;
     }
 
     /**
@@ -65,33 +65,5 @@ class BaseCommand extends Command
     protected function createClient($driver, array $parameters = [])
     {
         return new Client($driver, $parameters);
-    }
-
-    /**
-     * @param array $parameters
-     *
-     * @return array
-     */
-    protected function convertParametersArray(array $parameters = [])
-    {
-        $convertedArray = [];
-        $array = [];
-
-        foreach ($parameters as $param) {
-            $param = explode(',', $param);
-
-            if (count($param)) {
-                foreach ($param as $p) {
-                    $p = explode('=', $p);
-                    if (count($p)) {
-                        $array[$p[0]] = $p[1];
-                    }
-                }
-            }
-
-            $convertedArray[] = $array;
-        }
-
-        return $convertedArray;
     }
 }

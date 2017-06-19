@@ -24,13 +24,12 @@ class FlushCommandTest extends BaseTestCase
      */
     public function it_displays_correctly_memcached_flush_message()
     {
-        $this->app->add(new FlushCommand());
+        $this->app->add(new FlushCommand('memcached', $this->memcached_parameters));
         $command = $this->app->find('iml:cache:flush');
 
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'command' => $command->getName(),
-            'driver' => 'memcached',
         ]);
 
         $output = $commandTester->getDisplay();
@@ -43,13 +42,12 @@ class FlushCommandTest extends BaseTestCase
      */
     public function it_displays_correctly_apcu_flush_message()
     {
-        $this->app->add(new FlushCommand());
+        $this->app->add(new FlushCommand('apcu'));
         $command = $this->app->find('iml:cache:flush');
 
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'command' => $command->getName(),
-            'driver' => 'apcu',
         ]);
 
         $output = $commandTester->getDisplay();
@@ -73,8 +71,8 @@ class FlushCommandTest extends BaseTestCase
         $output = $commandTester->getDisplay();
 
         $this->assertEquals('redis', $command->getDriver());
-        $this->assertEquals('127.0.0.1', $command->getDefaultParameters()['host']);
-        $this->assertEquals(6379, $command->getDefaultParameters()['port']);
+        $this->assertEquals('127.0.0.1', $command->getParameters()['host']);
+        $this->assertEquals(6379, $command->getParameters()['port']);
         $this->assertContains('[redis] Cache was successful flushed.', $output);
     }
 }

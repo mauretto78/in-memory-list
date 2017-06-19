@@ -225,6 +225,17 @@ class Client
     }
 
     /**
+     * @param \Datetime $from
+     * @param \Datetime $to
+     *
+     * @return mixed
+     */
+    public function getIndexInRangeDate(\Datetime $from = null, \Datetime $to = null)
+    {
+        return $this->repository->getIndexInRangeDate($from, $to);
+    }
+
+    /**
      * @return mixed
      */
     public function getNumberOfChunks($listUuid)

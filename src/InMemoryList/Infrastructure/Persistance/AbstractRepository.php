@@ -119,6 +119,34 @@ abstract class AbstractRepository
     }
 
     /**
+     * @param \Datetime|null $from
+     * @param \Datetime|null $to
+     *
+     * @return array
+     */
+    public function getIndexInRangeDate(\Datetime $from = null, \Datetime $to = null)
+    {
+        $results = [];
+
+        if($index = $this->getIndex()){
+            foreach ($index as $item){
+                $unserializedItem = unserialize($item);
+                $createdOn = $unserializedItem['created_on']->format('Y-m-d');
+                $from = $from ? $from->format('Y-m-d') : null;
+                $to = $to ? $to->format('Y-m-d') : null;
+                $firstStatement = ($from) ? $createdOn >= $from : true;
+                $secondStatement = ($to) ? $createdOn <= $to : true;
+
+                if($firstStatement && $secondStatement){
+                    $results[] = $item;
+                }
+            }
+        }
+
+        return $results;
+    }
+
+    /**
      * @param $listUuid
      *
      * @return mixed

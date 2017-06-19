@@ -32,7 +32,11 @@ class RepositoryTest extends BaseTestCase
         parent::setUp();
 
         // memcached
+        // if $this->memcached_parameters is a monodimensional array convert to multidimensional
         $memcached = new Memcached();
+        if(!isset($this->memcached_parameters[0])){
+            $this->memcached_parameters = [$this->memcached_parameters];
+        }
         $memcached->addServers($this->memcached_parameters);
 
         // redis
