@@ -1,9 +1,14 @@
 FROM php:7.0-apache
 
-# Copy whole project
+# Copy the whole project into /var/www/html
+COPY / /var/www/html
+
 # Copy parameters.docker.yml into parameters.yml
-COPY / /var/www/html/
+RUN chown -R www-data:www-data /var/www/html
+RUN chmod 0775 /var/www/html
+RUN touch /var/www/html/config/parameters.yml
 COPY config/parameters.docker.yml /var/www/html/config/parameters.yml
+
 WORKDIR /var/www/html/
 
 # Composer

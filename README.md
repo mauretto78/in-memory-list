@@ -509,15 +509,32 @@ memcached_parameters:
 
 ### 2. Run the project with Docker
 
-You can simple run the project with [Docker](https://www.docker.com/):
+You can run the project with [Docker](https://www.docker.com/).
+
+**STEP1: Make the build**
 
 ```
 docker-compose build
+```
 
+**STEP2: Raise the app**
+
+```
 docker-compose up -d
 ```
 
-Then, enter in the container and run the tests.
+**STEP3: Enter in the docker container**
+
+```
+docker exec -it inmemorylist_app_1 bash
+```
+
+**STEP4: Run the tests in the container**
+
+```
+vendor/bin/phpunit
+```
+
 
 ## Built With
 

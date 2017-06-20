@@ -6,6 +6,8 @@ services:
     links:
       - redis:redis
       - memcached:memcached
+    volumes:
+      - /var/www/html
     ports:
       - "5000:80"
 
