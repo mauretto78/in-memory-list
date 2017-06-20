@@ -18,5 +18,4 @@ try {
     return $config;
 } catch (ParseException $e) {
     printf('Unable to parse the YAML string: %s', $e->getMessage());
-    die();
 }
