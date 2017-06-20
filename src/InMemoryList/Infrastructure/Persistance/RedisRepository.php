@@ -11,10 +11,10 @@
 namespace InMemoryList\Infrastructure\Persistance;
 
 use InMemoryList\Domain\Helper\ListElementConsistencyChecker;
-use InMemoryList\Domain\Model\Exceptions\ListElementNotConsistentException;
-use InMemoryList\Domain\Model\ListElement;
-use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\Contracts\ListRepositoryInterface;
+use InMemoryList\Domain\Model\Exceptions\ListElementNotConsistentException;
+use InMemoryList\Domain\Model\ListCollection;
+use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListAlreadyExistsException;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListDoesNotExistsException;
@@ -126,7 +126,6 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
             $chunk = $this->client->hgetall($chunkNumber);
 
             if (array_key_exists($elementUuid, $chunk)) {
-
                 // delete elements from chunk
                 $this->client->hdel($chunkNumber, $elementUuid);
 
@@ -265,7 +264,7 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
         $body = $listElement->getBody();
 
         if (!ListElementConsistencyChecker::isConsistent($listElement, $this->findListByUuid($listUuid))) {
-            throw new ListElementNotConsistentException('Element '. (string) $listElement->getUuid() . ' is not consistent with list data.');
+            throw new ListElementNotConsistentException('Element '.(string) $listElement->getUuid().' is not consistent with list data.');
         }
 
         $number = $this->getNumberOfChunks($listUuid);
@@ -306,6 +305,7 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
             $listUuid
         );
     }
+
     /**
      * @param $listUuid
      * @param $elementUuid
@@ -331,7 +331,7 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
 
                 $updatedElementBody = $this->updateListElementBody($listElement, $data);
                 if (!ListElementConsistencyChecker::isConsistent($updatedElementBody, $this->findListByUuid($listUuid))) {
-                    throw new ListElementNotConsistentException('Element '. (string) $elementUuid . ' is not consistent with list data.');
+                    throw new ListElementNotConsistentException('Element '.(string) $elementUuid.' is not consistent with list data.');
                 }
 
                 $updatedElement = new ListElement(

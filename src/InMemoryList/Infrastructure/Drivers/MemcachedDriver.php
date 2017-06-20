@@ -83,7 +83,6 @@ class MemcachedDriver implements DriverInterface
 
     /**
      * @param $server
-     *
      * @param $allowedConfigKeys
      */
     private function checkMultidimensionalConfigArray($server, $allowedConfigKeys)

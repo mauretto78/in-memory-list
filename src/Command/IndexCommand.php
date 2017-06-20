@@ -47,7 +47,7 @@ class IndexCommand extends BaseCommand
     {
         $cache = $this->createClient($this->driver, $this->parameters);
 
-        $from = $input->getArgument('from') ? new \DateTime($input->getArgument('from')): null;
+        $from = $input->getArgument('from') ? new \DateTime($input->getArgument('from')) : null;
         $to = $input->getArgument('to') ? new \DateTime($input->getArgument('to')) : null;
         $index = $cache->getIndexInRangeDate($from, $to);
 

@@ -9,7 +9,6 @@
  */
 use InMemoryList\Application\Client;
 use InMemoryList\Domain\Model\Contracts\ListRepositoryInterface;
-use InMemoryList\Infrastructure\Domain\Model\Exceptions\NotValidKeyElementInListException;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListElementDoesNotExistsException;
 use InMemoryList\Tests\BaseTestCase;
 
@@ -39,7 +38,7 @@ class ClientTest extends BaseTestCase
 
     /**
      * @test
-     * @expectedException InMemoryList\Application\Exceptions\NotSupportedDriverException
+     * @expectedException \InMemoryList\Application\Exceptions\NotSupportedDriverException
      * @expectedExceptionMessage not supported driver is not a supported driver.
      */
     public function it_throws_NotSupportedDriverException_if_a_not_supported_driver_is_provided()
@@ -52,11 +51,11 @@ class ClientTest extends BaseTestCase
      */
     public function it_catch_ConnectionException_if_wrong_redis_credentials_are_provided()
     {
-        $wrongCredentials = array(
+        $wrongCredentials = [
             'host' => '0.0.0.0',
             'port' => 432423423,
             'database' => 15,
-        );
+        ];
 
         $client = new Client('redis', $wrongCredentials);
         $collection = $client->create($this->parsedArrayFromJson, [], 'fake list');
@@ -190,31 +189,31 @@ class ClientTest extends BaseTestCase
             $this->assertEquals('ec457d0a974c48d5685a7efa03d137dc8bbde7e3', $headers1['hash']);
 
             $a = [
-                "id" => 2,
-                "name" => "Mauro Cassani",
-                "username" => "mauretto78",
-                "email" => "mauretto1978@yahoo.it",
-                "address" => [
-                    "street" => "Kulas Light",
-                    "suite" => "Apt. 556",
-                    "city" => "Gwenborough",
-                    "zipcode" => "92998-3874",
-                    "geo"=> [
-                        "lat"=> "-37.3159",
-                        "lng"=> "81.1496"
-                    ]
+                'id' => 2,
+                'name' => 'Mauro Cassani',
+                'username' => 'mauretto78',
+                'email' => 'mauretto1978@yahoo.it',
+                'address' => [
+                    'street' => 'Kulas Light',
+                    'suite' => 'Apt. 556',
+                    'city' => 'Gwenborough',
+                    'zipcode' => '92998-3874',
+                    'geo' => [
+                        'lat' => '-37.3159',
+                        'lng' => '81.1496',
+                    ],
                 ],
-                "phone" => "1-770-736-8031 x56442",
-                "website" => "hildegard.org",
-                "company" => [
-                    "name" => "Romaguera-Crona",
-                    "catchPhrase" => "Multi-layered client-server neural-net",
-                    "bs" => "harness real-time e-markets"
+                'phone' => '1-770-736-8031 x56442',
+                'website' => 'hildegard.org',
+                'company' => [
+                    'name' => 'Romaguera-Crona',
+                    'catchPhrase' => 'Multi-layered client-server neural-net',
+                    'bs' => 'harness real-time e-markets',
                 ],
-                "tags" => [
-                    "apple",
-                    "pear"
-                ]
+                'tags' => [
+                    'apple',
+                    'pear',
+                ],
             ];
 
             $client->updateElement('fake-list', '2', $a);
@@ -345,6 +344,7 @@ class DummyUserEntityWithNoGetters
 
     /**
      * DummyUserEntity constructor.
+     *
      * @param $id
      * @param $name
      * @param $email
@@ -395,7 +395,6 @@ class DummyUserEntityWithNoGetters
     }
 }
 
-
 class DummyUserEntity
 {
     /**
@@ -420,6 +419,7 @@ class DummyUserEntity
 
     /**
      * DummyUserEntity constructor.
+     *
      * @param $id
      * @param $name
      * @param $email

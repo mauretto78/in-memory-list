@@ -10,11 +10,11 @@
 
 namespace InMemoryList\Infrastructure\Domain\Model;
 
-use InMemoryList\Domain\Model\ListElement;
+use InMemoryList\Domain\Model\Contracts\ListFactoryInterface as Factory;
 use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\ListCollectionUuid;
+use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListElementUuid;
-use InMemoryList\Domain\Model\Contracts\ListFactoryInterface as Factory;
 use InMemoryList\Infrastructure\Domain\Model\Exceptions\CreateListFromEmptyArrayException;
 use InMemoryList\Infrastructure\Domain\Model\Exceptions\NotValidKeyElementInListException;
 

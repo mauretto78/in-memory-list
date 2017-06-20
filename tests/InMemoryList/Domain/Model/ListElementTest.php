@@ -7,9 +7,9 @@
  *  For the full copyright and license information, please view the LICENSE
  *  file that was distributed with this source code.
  */
-use PHPUnit\Framework\TestCase;
-use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Domain\Model\ListElement;
+use InMemoryList\Domain\Model\ListElementUuid;
+use PHPUnit\Framework\TestCase;
 
 class ListElementTest extends TestCase
 {

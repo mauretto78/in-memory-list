@@ -17,6 +17,7 @@ class ListElementConsistencyChecker
     /**
      * @param $listElement
      * @param array $list
+     *
      * @return bool
      */
     public static function isConsistent($listElement, array $list = [])
@@ -61,6 +62,7 @@ class ListElementConsistencyChecker
 
     /**
      * @param $listElement
+     *
      * @return mixed
      */
     private static function getBodyOfListElement($listElement)
@@ -87,7 +89,7 @@ class ListElementConsistencyChecker
      */
     private static function isSerialized($data)
     {
-        if (!is_string($data)){
+        if (!is_string($data)) {
             return false;
         }
 
@@ -101,17 +103,17 @@ class ListElementConsistencyChecker
         }
 
         switch ($badions[1]) {
-            case 'a' :
-            case 'O' :
-            case 's' :
-                if (preg_match( "/^{$badions[1]}:[0-9]+:.*[;}]\$/s", $data)) {
+            case 'a':
+            case 'O':
+            case 's':
+                if (preg_match("/^{$badions[1]}:[0-9]+:.*[;}]\$/s", $data)) {
                     return true;
                 }
                 break;
-            case 'b' :
-            case 'i' :
-            case 'd' :
-                if ( preg_match( "/^{$badions[1]}:[0-9.E-]+;\$/", $data)) {
+            case 'b':
+            case 'i':
+            case 'd':
+                if (preg_match("/^{$badions[1]}:[0-9.E-]+;\$/", $data)) {
                     return true;
                 }
                 break;
