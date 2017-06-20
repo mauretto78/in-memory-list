@@ -9,8 +9,6 @@
  */
 use InMemoryList\Application\Client;
 
-include __DIR__.'/../shared.php';
-
 $start = microtime(true);
 $apiUrl = 'https://jsonplaceholder.typicode.com/comments';
 $apiArray = json_decode(file_get_contents($apiUrl));

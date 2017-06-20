@@ -9,8 +9,6 @@
  */
 use InMemoryList\Application\Client;
 
-include __DIR__.'/../shared.php';
-
 $start = microtime(true);
 
 $from = (isset($_GET['from'])) ?: 1;

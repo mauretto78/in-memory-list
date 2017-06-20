@@ -9,7 +9,7 @@
   ~  file that was distributed with this source code.
   -->
 
-<phpunit bootstrap="tests/bootstrap.php"
+<phpunit bootstrap="app/bootstrap.php"
          colors="true"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"

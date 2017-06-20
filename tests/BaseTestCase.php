@@ -29,7 +29,7 @@ class BaseTestCase extends TestCase
      */
     public function setUp()
     {
-        $config = require __DIR__.'/../tests/bootstrap.php';
+        $config = require __DIR__ . '/../app/bootstrap.php';
         $this->memcached_parameters = $config['memcached_parameters'];
         $this->redis_parameters = $config['redis_parameters'];
     }

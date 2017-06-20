@@ -20,7 +20,6 @@ class RedisDriverTest extends BaseTestCase
     /**
      * @test
      * @expectedException \Predis\Connection\ConnectionException
-     * @expectedExceptionMessage `AUTH` failed: ERR Client sent AUTH, but no password is set [tcp://127.0.0.1:6379]
      */
     public function it_throws_ConnectionException_if_wrong_config_array_is_provided()
     {

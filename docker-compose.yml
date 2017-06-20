@@ -1,0 +1,18 @@
+version: '2'
+
+services:
+  app:
+    build: .
+    links:
+      - redis:redis
+      - memcached:memcached
+    ports:
+      - "5000:80"
+
+  redis:
+    image: redis
+    restart: always
+
+  memcached:
+    image: memcached
+    restart: always

@@ -71,8 +71,8 @@ class FlushCommandTest extends BaseTestCase
         $output = $commandTester->getDisplay();
 
         $this->assertEquals('redis', $command->getDriver());
-        $this->assertEquals('127.0.0.1', $command->getParameters()['host']);
-        $this->assertEquals(6379, $command->getParameters()['port']);
+        $this->assertEquals($this->redis_parameters['host'], $command->getParameters()['host']);
+        $this->assertEquals($this->redis_parameters['port'], $command->getParameters()['port']);
         $this->assertContains('[redis] Cache was successful flushed.', $output);
     }
 }

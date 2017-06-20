@@ -482,7 +482,11 @@ $console->add(new \InMemoryList\Command\FlushCommand('redis', [
 
 ## Testing
 
-In order to run all the test, you need to install **all the drivers** on your machine:
+In order to run all the tests, you have two options:
+
+### 1. Install all the drivers on your machine
+
+The first way it to install **all the drivers** on your machine:
 
 * APCU - [(install via PECL)](https://pecl.php.net/package/APCu) 
 * MEMCACHED - [(install via PECL)](https://pecl.php.net/package/memcached) 
@@ -502,6 +506,18 @@ memcached_parameters:
   host: 'localhost'
   port: '11211'
 ```
+
+### 2. Run the project with Docker
+
+You can simple run the project with [Docker](https://www.docker.com/):
+
+```
+docker-compose build
+
+docker-compose up -d
+```
+
+Then, enter in the container and run the tests.
 
 ## Built With
 
