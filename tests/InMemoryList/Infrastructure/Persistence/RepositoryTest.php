@@ -9,10 +9,10 @@
  */
 use InMemoryList\Domain\Model\Contracts\ListRepositoryInterface;
 use InMemoryList\Domain\Model\Exceptions\ListElementNotConsistentException;
-use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListCollection;
-use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Domain\Model\ListCollectionUuid;
+use InMemoryList\Domain\Model\ListElement;
+use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Infrastructure\Persistance\ApcuRepository;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListDoesNotExistsException;
 use InMemoryList\Infrastructure\Persistance\MemcachedRepository;
@@ -34,7 +34,7 @@ class RepositoryTest extends BaseTestCase
         // memcached
         // if $this->memcached_parameters is a monodimensional array convert to multidimensional
         $memcached = new Memcached();
-        if(!isset($this->memcached_parameters[0])){
+        if (!isset($this->memcached_parameters[0])) {
             $this->memcached_parameters = [$this->memcached_parameters];
         }
         $memcached->addServers($this->memcached_parameters);
@@ -157,7 +157,7 @@ class RepositoryTest extends BaseTestCase
 
             try {
                 $repo->pushElement(
-                    (string)$listUuid,
+                    (string) $listUuid,
                     new ListElement(
                         new ListElementUuid(11111),
                         [
@@ -203,7 +203,7 @@ class RepositoryTest extends BaseTestCase
                 );
             } catch (\Exception $exception) {
                 $this->assertInstanceOf(ListElementNotConsistentException::class, $exception);
-                $this->assertEquals($exception->getMessage(), 'Element ' . $listElementUuid. ' is not consistent with list data.');
+                $this->assertEquals($exception->getMessage(), 'Element '.$listElementUuid.' is not consistent with list data.');
             }
         }
     }

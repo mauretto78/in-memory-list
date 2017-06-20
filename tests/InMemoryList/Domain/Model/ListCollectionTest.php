@@ -7,17 +7,17 @@
  *  For the full copyright and license information, please view the LICENSE
  *  file that was distributed with this source code.
  */
+use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\ListCollectionUuid;
 use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListElementUuid;
-use InMemoryList\Domain\Model\ListCollection;
 use PHPUnit\Framework\TestCase;
 
 class ListCollectionTest extends TestCase
 {
     /**
      * @test
-     * @expectedException InMemoryList\Domain\Model\Exceptions\ListElementDuplicateKeyException
+     * @expectedException \InMemoryList\Domain\Model\Exceptions\ListElementDuplicateKeyException
      */
     public function it_should_return_ListElementDuplicateKeyException_if_a_try_to_add_duplicate_element()
     {
@@ -30,7 +30,7 @@ class ListCollectionTest extends TestCase
 
     /**
      * @test
-     * @expectedException InMemoryList\Domain\Model\Exceptions\ListElementNotConsistentException
+     * @expectedException \InMemoryList\Domain\Model\Exceptions\ListElementNotConsistentException
      */
     public function it_should_return_ListElementNotConsistentException_if_try_to_delete_a_not_existing_element()
     {
@@ -39,7 +39,7 @@ class ListCollectionTest extends TestCase
             [
                 'id' => 43,
                 'title' => 'Lorem Ipsum',
-                'category_id' => 24423
+                'category_id' => 24423,
             ]
         );
         $fakeElement2 = new ListElement(
@@ -47,7 +47,7 @@ class ListCollectionTest extends TestCase
             [
                 'id' => 54,
                 'wrong_title' => 'Not consistent title',
-                'category_id' => 24423
+                'category_id' => 24423,
             ]
         );
 
@@ -58,7 +58,7 @@ class ListCollectionTest extends TestCase
 
     /**
      * @test
-     * @expectedException InMemoryList\Domain\Model\Exceptions\ListElementKeyDoesNotExistException
+     * @expectedException \InMemoryList\Domain\Model\Exceptions\ListElementKeyDoesNotExistException
      */
     public function it_should_return_ListElementKeyDoesNotExistException_if_try_to_delete_a_not_existing_element()
     {
@@ -70,7 +70,7 @@ class ListCollectionTest extends TestCase
 
     /**
      * @test
-     * @expectedException InMemoryList\Domain\Model\Exceptions\ListElementKeyDoesNotExistException
+     * @expectedException \InMemoryList\Domain\Model\Exceptions\ListElementKeyDoesNotExistException
      */
     public function it_should_return_ListElementKeyDoesNotExistException_if_not_finds_an_element()
     {

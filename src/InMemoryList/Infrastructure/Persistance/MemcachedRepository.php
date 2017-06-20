@@ -116,7 +116,6 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
             $chunk = $this->memcached->get($chunkNumber);
 
             if (array_key_exists($elementUuid, $chunk)) {
-
                 // delete elements from chunk
                 unset($chunk[(string) $elementUuid]);
                 $this->memcached->replace($chunkNumber, $chunk);
@@ -150,7 +149,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
      */
     public function exists($listUuid)
     {
-        $listFirstChunk =  $this->memcached->get($listUuid.self::SEPARATOR.self::CHUNK.'-1');
+        $listFirstChunk = $this->memcached->get($listUuid.self::SEPARATOR.self::CHUNK.'-1');
 
         return isset($listFirstChunk);
     }
@@ -256,7 +255,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
         $body = $listElement->getBody();
 
         if (!ListElementConsistencyChecker::isConsistent($listElement, $this->findListByUuid($listUuid))) {
-            throw new ListElementNotConsistentException('Element '. (string) $listElement->getUuid() . ' is not consistent with list data.');
+            throw new ListElementNotConsistentException('Element '.(string) $listElement->getUuid().' is not consistent with list data.');
         }
 
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
@@ -300,6 +299,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
         unset($index[(string) $listUuid]);
         $this->memcached->replace(ListRepositoryInterface::INDEX, $index);
     }
+
     /**
      * @param $listUuid
      * @param $elementUuid
@@ -326,7 +326,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
 
                 $updatedElementBody = $this->updateListElementBody($listElement, $data);
                 if (!ListElementConsistencyChecker::isConsistent($updatedElementBody, $this->findListByUuid($listUuid))) {
-                    throw new ListElementNotConsistentException('Element '. (string) $elementUuid . ' is not consistent with list data.');
+                    throw new ListElementNotConsistentException('Element '.(string) $elementUuid.' is not consistent with list data.');
                 }
 
                 $arrayOfElements = $this->memcached->get($listUuid);

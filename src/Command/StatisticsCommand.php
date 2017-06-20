@@ -30,6 +30,7 @@ class StatisticsCommand extends BaseCommand
             $parameters
         );
     }
+
     protected function configure()
     {
         $this

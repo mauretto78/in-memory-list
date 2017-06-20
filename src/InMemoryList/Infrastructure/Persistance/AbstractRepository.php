@@ -128,8 +128,8 @@ abstract class AbstractRepository
     {
         $results = [];
 
-        if($index = $this->getIndex()){
-            foreach ($index as $item){
+        if ($index = $this->getIndex()) {
+            foreach ($index as $item) {
                 $unserializedItem = unserialize($item);
                 $createdOn = $unserializedItem['created_on']->format('Y-m-d');
                 $from = $from ? $from->format('Y-m-d') : null;
@@ -137,7 +137,7 @@ abstract class AbstractRepository
                 $firstStatement = ($from) ? $createdOn >= $from : true;
                 $secondStatement = ($to) ? $createdOn <= $to : true;
 
-                if($firstStatement && $secondStatement){
+                if ($firstStatement && $secondStatement) {
                     $results[] = $item;
                 }
             }
@@ -170,9 +170,9 @@ abstract class AbstractRepository
      */
     protected function removeExpiredListsFromIndex($index)
     {
-        if(is_array($index)){
+        if (is_array($index)) {
             foreach (array_keys($index) as $key) {
-                if(!$this->exists($key) && $this->existsListInIndex($key)){
+                if (!$this->exists($key) && $this->existsListInIndex($key)) {
                     $this->removeListFromIndex($key);
                 }
             }
@@ -182,6 +182,7 @@ abstract class AbstractRepository
     /**
      * @param $listElement
      * @param $data
+     *
      * @return array|object
      */
     protected function updateListElementBody($listElement, $data)

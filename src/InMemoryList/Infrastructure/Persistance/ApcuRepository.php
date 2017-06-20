@@ -11,10 +11,10 @@
 namespace InMemoryList\Infrastructure\Persistance;
 
 use InMemoryList\Domain\Helper\ListElementConsistencyChecker;
-use InMemoryList\Domain\Model\Exceptions\ListElementNotConsistentException;
-use InMemoryList\Domain\Model\ListElement;
-use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\Contracts\ListRepositoryInterface;
+use InMemoryList\Domain\Model\Exceptions\ListElementNotConsistentException;
+use InMemoryList\Domain\Model\ListCollection;
+use InMemoryList\Domain\Model\ListElement;
 use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListAlreadyExistsException;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListDoesNotExistsException;
@@ -101,7 +101,6 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
             $chunk = apcu_fetch($chunkNumber);
 
             if (array_key_exists($elementUuid, $chunk)) {
-
                 // delete elements from chunk
                 unset($chunk[(string) $elementUuid]);
                 apcu_delete($chunkNumber);
@@ -137,7 +136,7 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
      */
     public function exists($listUuid)
     {
-        $listFirstChunk =  apcu_fetch($listUuid.self::SEPARATOR.self::CHUNK.'-1');
+        $listFirstChunk = apcu_fetch($listUuid.self::SEPARATOR.self::CHUNK.'-1');
 
         return isset($listFirstChunk);
     }
@@ -190,7 +189,7 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
         $this->removeExpiredListsFromIndex($index);
 
         if ($listUuid) {
-            return (isset($index[(string)$listUuid])) ? $index[(string)$listUuid] : null;
+            return (isset($index[(string) $listUuid])) ? $index[(string) $listUuid] : null;
         }
 
         return $index;
@@ -253,7 +252,7 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
         $body = $listElement->getBody();
 
         if (!ListElementConsistencyChecker::isConsistent($listElement, $this->findListByUuid($listUuid))) {
-            throw new ListElementNotConsistentException('Element '. (string) $listElement->getUuid() . ' is not consistent with list data.');
+            throw new ListElementNotConsistentException('Element '.(string) $listElement->getUuid().' is not consistent with list data.');
         }
 
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
@@ -328,7 +327,7 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
 
                 $updatedElementBody = $this->updateListElementBody($listElement, $data);
                 if (!ListElementConsistencyChecker::isConsistent($updatedElementBody, $this->findListByUuid($listUuid))) {
-                    throw new ListElementNotConsistentException('Element '. (string) $elementUuid . ' is not consistent with list data.');
+                    throw new ListElementNotConsistentException('Element '.(string) $elementUuid.' is not consistent with list data.');
                 }
 
                 $arrayOfElements = apcu_fetch($listUuid);

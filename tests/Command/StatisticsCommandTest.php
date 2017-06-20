@@ -66,7 +66,7 @@ class StatisticsCommandTest extends BaseTestCase
         $output = $commandTester->getDisplay();
 
         // if $this->memcached_parameters is a monodimensional array convert to multidimensional
-        if(!isset($this->memcached_parameters[0])){
+        if (!isset($this->memcached_parameters[0])) {
             $this->memcached_parameters = [$this->memcached_parameters];
         }
 
