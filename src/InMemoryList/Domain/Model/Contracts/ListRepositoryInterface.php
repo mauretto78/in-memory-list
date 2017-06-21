@@ -48,6 +48,13 @@ interface ListRepositoryInterface
 
     /**
      * @param $listUuid
+     *
+     * @return bool
+     */
+    public function exists($listUuid);
+
+    /**
+     * @param $listUuid
      * @param $elementUuid
      *
      * @return bool

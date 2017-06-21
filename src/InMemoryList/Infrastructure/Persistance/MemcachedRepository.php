@@ -151,7 +151,11 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
     {
         $listFirstChunk = $this->memcached->get($listUuid.self::SEPARATOR.self::CHUNK.'-1');
 
-        return isset($listFirstChunk);
+        if(false === $listFirstChunk){
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -199,11 +203,11 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
         $indexKey = ListRepositoryInterface::INDEX;
         $index = $this->memcached->get($indexKey);
 
-        $this->removeExpiredListsFromIndex($index);
-
         if ($listUuid) {
             return (isset($index[(string) $listUuid])) ? $index[(string) $listUuid] : null;
         }
+
+        $this->removeExpiredListsFromIndex($index);
 
         return $index;
     }
@@ -295,7 +299,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
      */
     public function removeListFromIndex($listUuid)
     {
-        $index = $this->getIndex();
+        $index = $this->memcached->get(ListRepositoryInterface::INDEX);
 
         unset($index[(string) $listUuid]);
         $this->memcached->replace(ListRepositoryInterface::INDEX, $index);

@@ -172,7 +172,7 @@ abstract class AbstractRepository
     {
         if (is_array($index)) {
             foreach (array_keys($index) as $key) {
-                if (!$this->exists($key) && $this->existsListInIndex($key)) {
+                if (false === $this->exists($key) && isset($index[$key])) {
                     $this->removeListFromIndex($key);
                 }
             }

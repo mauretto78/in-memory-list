@@ -295,7 +295,8 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
     public function removeListFromIndex($listUuid)
     {
         $indexKey = ListRepositoryInterface::INDEX;
-        $index = $this->getIndex();
+
+        $index = apcu_fetch($indexKey);
         unset($index[(string) $listUuid]);
 
         apcu_delete($indexKey);

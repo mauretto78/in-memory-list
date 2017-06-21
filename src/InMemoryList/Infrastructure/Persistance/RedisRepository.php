@@ -187,7 +187,7 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
     {
         $listFirstChunk = $this->client->hgetall($listUuid.self::SEPARATOR.self::CHUNK.'-1');
 
-        return isset($listFirstChunk);
+        return (count($listFirstChunk) === 0) ? false : true;
     }
 
     /**
