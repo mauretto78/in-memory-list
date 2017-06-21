@@ -32,7 +32,7 @@ $headers = [
 ];
 
 $client = new Client('redis', $config['redis_parameters']);
-$collection = $client->findListByUuid('simple-list-with-headers') ?: $client->create(json_decode($simpleArray), ['uuid' => 'simple-list-with-headers', 'headers' => $headers]);
+$collection = $client->findListByUuid('simple-list-with-h') ?: $client->create(json_decode($simpleArray), ['uuid' => 'simple-list-with-h', 'headers' => $headers]);
 
 // loop items
 echo '<h3>Loop items</h3>';

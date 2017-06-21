@@ -83,15 +83,6 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
             }
         }
 
-        // add list to index
-        $this->addOrUpdateListToIndex(
-            $listUuid,
-            (int) count($items),
-            (int) count($arrayChunks),
-            (int) $chunkSize,
-            $ttl
-        );
-
         // set headers
         if ($list->getHeaders()) {
             foreach ($list->getHeaders() as $key => $header) {
@@ -106,6 +97,15 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
                 $this->client->expire($listUuid.self::SEPARATOR.self::HEADERS, $ttl);
             }
         }
+
+        // add list to index
+        $this->addOrUpdateListToIndex(
+            $listUuid,
+            (int) count($items),
+            (int) count($arrayChunks),
+            (int) $chunkSize,
+            $ttl
+        );
 
         return $this->findListByUuid($list->getUuid());
     }
@@ -168,6 +168,7 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
                 'size' => $size,
                 'chunks' => $numberOfChunks,
                 'chunk-size' => $chunkSize,
+                'headers' => $this->getHeaders($listUuid),
                 'ttl' => $ttl,
             ])
         );
@@ -365,6 +366,7 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
             throw new ListDoesNotExistsException('List '.$listUuid.' does not exists in memory.');
         }
 
+        // update ttl of all chunks
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
         for ($i = 1; $i <= $numberOfChunks; ++$i) {
             $this->client->expire(
@@ -373,6 +375,12 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
             );
         }
 
+        // update ttl of headers array (if present)
+        if($this->getHeaders($listUuid)){
+            $this->client->expire($listUuid.self::SEPARATOR.self::HEADERS, $ttl);
+        }
+
+        // update index
         $this->addOrUpdateListToIndex(
             $listUuid,
             $this->getCounter($listUuid),

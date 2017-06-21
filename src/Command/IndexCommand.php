@@ -54,12 +54,14 @@ class IndexCommand extends BaseCommand
         if ($index && count($index)) {
             ksort($index);
             $table = new Table($output);
-            $table->setHeaders(['#', 'List', 'Created on', 'Chunks', 'Chunk size', 'Ttl', 'Items']);
+            $table->setHeaders(['#', 'List', 'Created on', 'Chunks', 'Chunk size', 'Headers','Ttl', 'Items']);
 
             $counter = 0;
             foreach ($index as $item) {
                 $item = unserialize($item);
                 $listUuid = $item['uuid'];
+
+                $headers = (is_array($item['headers']) and count($item['headers'])) ? $this->implodeArrayToAString($item['headers']) : 'empty';
 
                 /** @var \DateTimeImmutable $created_on */
                 $created_on = $item['created_on'];
@@ -71,6 +73,7 @@ class IndexCommand extends BaseCommand
                         $created_on->format('Y-m-d H:i:s'),
                         $cache->getNumberOfChunks($listUuid),
                         $cache->getChunkSize($listUuid),
+                        $headers,
                         $cache->getTtl($listUuid),
                         $item['size'],
                     ]
@@ -82,5 +85,27 @@ class IndexCommand extends BaseCommand
         } else {
             $output->writeln('<fg=red>['.$this->driver.'] Empty Index.</>');
         }
+    }
+
+    /**
+     * @param array $input
+     *
+     * @return string
+     */
+    protected function implodeArrayToAString(array $input)
+    {
+        $output = implode(', ', array_map(
+            function ($v, $k) {
+                if(is_array($v)){
+                    return $k.'[]='.implode('&'.$k.'[]=', $v);
+                } else {
+                    return $k.'='.$v;
+                }
+            },
+            $input,
+            array_keys($input)
+        ));
+
+        return $output;
     }
 }

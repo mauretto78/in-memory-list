@@ -64,15 +64,6 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
             );
         }
 
-        // add list to index
-        $this->addOrUpdateListToIndex(
-            (string) $listUuid,
-            (int) count($list->getElements()),
-            (int) count($arrayChunks),
-            (int) $chunkSize,
-            $ttl
-        );
-
         // set headers
         if ($list->getHeaders()) {
             apcu_store(
@@ -81,6 +72,15 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
                 $ttl
             );
         }
+
+        // add list to index
+        $this->addOrUpdateListToIndex(
+            (string) $listUuid,
+            (int) count($list->getElements()),
+            (int) count($arrayChunks),
+            (int) $chunkSize,
+            $ttl
+        );
 
         return $this->findListByUuid($list->getUuid());
     }
@@ -211,6 +211,7 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
             'size' => $size,
             'chunks' => $numberOfChunks,
             'chunk-size' => $chunkSize,
+            'headers' => $this->getHeaders($listUuid),
             'ttl' => $ttl,
         ]);
 
@@ -366,6 +367,7 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
 
         $ttl = ($ttl > 0) ? $ttl : null;
 
+        // update ttl of all chunks
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
         for ($i = 1; $i <= $numberOfChunks; ++$i) {
             $chunkNumber = (string) $listUuid.self::SEPARATOR.self::CHUNK.'-'.$i;
@@ -378,6 +380,19 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
             );
         }
 
+        // update ttl of headers array (if present)
+        if($this->getHeaders($listUuid)){
+            $headers = (string) $listUuid.self::SEPARATOR.self::HEADERS;
+            $storedHeaders = apcu_fetch($headers);
+            apcu_delete((string) $headers);
+            apcu_store(
+                (string) $headers,
+                $storedHeaders,
+                $ttl
+            );
+        }
+
+        // update index
         $this->addOrUpdateListToIndex(
             (string) $listUuid,
             $this->getCounter((string) $listUuid),

@@ -154,11 +154,16 @@ class IndexCommandTest extends BaseTestCase
      */
     public function it_displays_correctly_index_redis_cache()
     {
+        $headers = [
+            'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',
+            'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
+        ];
         $client = new Client('redis', $this->redis_parameters);
         $client->create(json_decode($this->array), [
             'uuid' => 'simple-list',
             'element-uuid' => 'id',
             'ttl' => 3600,
+            'headers' => $headers
         ]);
 
         $this->app->add(new IndexCommand('redis', $this->redis_parameters));
@@ -176,6 +181,7 @@ class IndexCommandTest extends BaseTestCase
         $this->assertContains('simple-list', $output);
         $this->assertContains('3600', $output);
         $this->assertContains('2', $output);
+        $this->assertContains('expires=Sat, 26 Jul 1997 05:00:00 GMT, hash=ec457d0a974c48d5685a7efa03d137dc8bbde7e3', $output);
 
         $client->flush();
     }
