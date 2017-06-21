@@ -373,7 +373,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
         }
 
         // update ttl of headers array (if present)
-        if($this->getHeaders($listUuid)){
+        if ($this->getHeaders($listUuid)) {
             $this->memcached->touch(
                 (string) $listUuid.self::SEPARATOR.self::HEADERS,
                 (int) $ttl

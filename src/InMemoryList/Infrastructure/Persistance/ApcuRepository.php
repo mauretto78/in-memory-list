@@ -381,7 +381,7 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
         }
 
         // update ttl of headers array (if present)
-        if($this->getHeaders($listUuid)){
+        if ($this->getHeaders($listUuid)) {
             $headers = (string) $listUuid.self::SEPARATOR.self::HEADERS;
             $storedHeaders = apcu_fetch($headers);
             apcu_delete((string) $headers);

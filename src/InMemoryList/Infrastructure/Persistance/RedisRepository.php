@@ -376,7 +376,7 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
         }
 
         // update ttl of headers array (if present)
-        if($this->getHeaders($listUuid)){
+        if ($this->getHeaders($listUuid)) {
             $this->client->expire($listUuid.self::SEPARATOR.self::HEADERS, $ttl);
         }
 

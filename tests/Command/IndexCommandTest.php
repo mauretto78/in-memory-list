@@ -163,7 +163,7 @@ class IndexCommandTest extends BaseTestCase
             'uuid' => 'simple-list',
             'element-uuid' => 'id',
             'ttl' => 3600,
-            'headers' => $headers
+            'headers' => $headers,
         ]);
 
         $this->app->add(new IndexCommand('redis', $this->redis_parameters));

@@ -54,7 +54,7 @@ class IndexCommand extends BaseCommand
         if ($index && count($index)) {
             ksort($index);
             $table = new Table($output);
-            $table->setHeaders(['#', 'List', 'Created on', 'Chunks', 'Chunk size', 'Headers','Ttl', 'Items']);
+            $table->setHeaders(['#', 'List', 'Created on', 'Chunks', 'Chunk size', 'Headers', 'Ttl', 'Items']);
 
             $counter = 0;
             foreach ($index as $item) {
@@ -96,7 +96,7 @@ class IndexCommand extends BaseCommand
     {
         $output = implode(', ', array_map(
             function ($v, $k) {
-                if(is_array($v)){
+                if (is_array($v)) {
                     return $k.'[]='.implode('&'.$k.'[]=', $v);
                 } else {
                     return $k.'='.$v;
