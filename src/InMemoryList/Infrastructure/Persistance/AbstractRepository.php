@@ -129,7 +129,7 @@ abstract class AbstractRepository
         $results = [];
 
         if ($index = $this->getIndex()) {
-            foreach ($index as $item) {
+            foreach ($index as $key => $item) {
                 $unserializedItem = unserialize($item);
                 $createdOn = $unserializedItem['created_on']->format('Y-m-d');
                 $from = $from ? $from->format('Y-m-d') : null;
@@ -138,7 +138,7 @@ abstract class AbstractRepository
                 $secondStatement = ($to) ? $createdOn <= $to : true;
 
                 if ($firstStatement && $secondStatement) {
-                    $results[] = $item;
+                    $results[$key] = $item;
                 }
             }
         }
