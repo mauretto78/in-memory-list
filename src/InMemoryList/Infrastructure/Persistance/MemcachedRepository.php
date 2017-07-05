@@ -221,7 +221,9 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
     private function addOrUpdateListToIndex($listUuid, $size, $numberOfChunks, $chunkSize, $ttl = null)
     {
         $indexKey = ListRepositoryInterface::INDEX;
-        $indexArray = serialize([
+        $indexArrayToUpdate = ($this->memcached->get($indexKey)) ?: [];
+
+        $element = serialize([
             'uuid' => $listUuid,
             'created_on' => new \DateTimeImmutable(),
             'size' => $size,
@@ -231,7 +233,9 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
             'ttl' => $ttl,
         ]);
 
-        ($this->existsListInIndex($listUuid)) ? $this->memcached->replace($indexKey, [$listUuid => $indexArray]) : $this->memcached->set($indexKey, [$listUuid => $indexArray]);
+        $indexArrayToUpdate[(string) $listUuid] = $element;
+
+        ($this->existsListInIndex($listUuid)) ? $this->memcached->replace($indexKey, $indexArrayToUpdate) : $this->memcached->set($indexKey, $indexArrayToUpdate);
 
         if ($size === 0) {
             $this->removeListFromIndex($listUuid);

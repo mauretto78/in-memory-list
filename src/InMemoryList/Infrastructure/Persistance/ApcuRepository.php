@@ -215,7 +215,7 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
             'ttl' => $ttl,
         ]);
 
-        $indexArrayToUpdate = [(string) $listUuid => $indexArray];
+        $indexArrayToUpdate[(string) $listUuid] = $indexArray;
 
         if ($this->existsListInIndex($listUuid)) {
             $index = apcu_fetch((string) $indexKey);
