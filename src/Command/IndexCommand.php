@@ -54,7 +54,7 @@ class IndexCommand extends BaseCommand
         if ($index && count($index)) {
             ksort($index);
             $table = new Table($output);
-            $table->setHeaders(['#', 'List', 'Created on', 'Chunks', 'Chunk size', 'Headers', 'Ttl', 'Items']);
+            $table->setHeaders(['#', 'List', 'Created on', 'Chunks', 'Chunk size', 'Headers', 'Ttl','Expires on', 'Items']);
 
             $counter = 0;
             foreach ($index as $item) {
@@ -65,16 +65,19 @@ class IndexCommand extends BaseCommand
 
                 /** @var \DateTimeImmutable $created_on */
                 $created_on = $item['created_on'];
+                $expire_date = ($item['ttl']) ? $created_on->add(new \DateInterval('PT'.$item['ttl'].'S'))->format('Y-m-d H:i:s') : '<fg=red>never</>';
+
                 $table->setRow(
                     $counter,
                     [
                         $counter + 1,
                         '<fg=yellow>'.$listUuid.'</>',
                         $created_on->format('Y-m-d H:i:s'),
-                        $cache->getNumberOfChunks($listUuid),
-                        $cache->getChunkSize($listUuid),
+                        $item['chunks'],
+                        $item['chunk-size'],
                         $headers,
-                        $cache->getTtl($listUuid),
+                        $item['ttl'],
+                        $expire_date,
                         $item['size'],
                     ]
                 );

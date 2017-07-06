@@ -26,7 +26,7 @@ $simpleArray = json_encode([
     ],
 ]);
 
-$client = new Client('redis', $config['redis_parameters']);
+$client = new Client('memcached', $config['memcached_parameters']);
 $collection = $client->findListByUuid('simple-list') ?: $client->create(json_decode($simpleArray), ['uuid' => 'simple-list', 'ttl' => 1000]);
 
 // loop items

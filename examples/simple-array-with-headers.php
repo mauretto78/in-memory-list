@@ -31,8 +31,8 @@ $headers = [
     'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
 ];
 
-$client = new Client('redis', $config['redis_parameters']);
-$collection = $client->findListByUuid('simple-list-with-h') ?: $client->create(json_decode($simpleArray), ['uuid' => 'simple-list-with-h', 'headers' => $headers]);
+$client = new Client('memcached', $config['memcached_parameters']);
+$collection = $client->findListByUuid('simple-list-with-h') ?: $client->create(json_decode($simpleArray), ['uuid' => 'simple-list-with-h', 'ttl' => 300, 'headers' => $headers]);
 
 // loop items
 echo '<h3>Loop items</h3>';
