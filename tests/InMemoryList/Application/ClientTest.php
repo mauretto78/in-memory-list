@@ -101,14 +101,14 @@ class ClientTest extends BaseTestCase
     public function it_throws_NotExistListElementException_if_attempt_to_find_a_not_existing_element_in_collection_from_redis()
     {
         foreach ($this->clients as $client) {
-            $client->flush();
+            $client->getRepository()->flush();
             $client->create($this->parsedArrayFromJson, [
                 'uuid' => 'fake list',
                 'element-uuid' => 'id',
             ]);
 
             try {
-                $client->findElement('fake list', '132131312');
+                $client->getRepository()->findElement('fake list', '132131312');
             } catch (\Exception $exception) {
                 $this->assertInstanceOf(ListElementDoesNotExistsException::class, $exception);
                 $this->assertEquals($exception->getMessage(), 'Cannot retrieve the element 132131312 from the collection in memory.');
@@ -149,7 +149,7 @@ class ClientTest extends BaseTestCase
             );
 
             $this->assertEquals($driver, $client->getDriver());
-            $this->assertEquals(5001, $client->getCounter('range-list'));
+            $this->assertEquals(5001, $client->getRepository()->getCounter('range-list'));
         }
     }
 
@@ -164,25 +164,25 @@ class ClientTest extends BaseTestCase
                 'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
             ];
 
-            $client->flush();
+            $client->getRepository()->flush();
             $client->create($this->parsedArrayFromJson, [
                 'headers' => $headers,
                 'ttl' => 3600,
                 'uuid' => 'fake list',
                 'element-uuid' => 'id',
             ]);
-            $client->deleteElement('fake-list', '7');
-            $client->deleteElement('fake-list', '8');
-            $client->deleteElement('fake-list', '9');
-            $element1 = unserialize($client->findElement('fake-list', '1'));
-            $element2 = unserialize($client->findElement('fake-list', '2'));
+            $client->getRepository()->deleteElement('fake-list', '7');
+            $client->getRepository()->deleteElement('fake-list', '8');
+            $client->getRepository()->deleteElement('fake-list', '9');
+            $element1 = unserialize($client->getRepository()->findElement('fake-list', '1'));
+            $element2 = unserialize($client->getRepository()->findElement('fake-list', '2'));
 
             $this->assertInstanceOf(ListRepositoryInterface::class, $client->getRepository());
-            $this->assertCount(7, $client->findListByUuid('fake-list'));
+            $this->assertCount(7, $client->getRepository()->findListByUuid('fake-list'));
             $this->assertEquals('Leanne Graham', $element1->name);
             $this->assertEquals('Ervin Howell', $element2->name);
 
-            $headers1 = $client->getHeaders('fake-list');
+            $headers1 = $client->getRepository()->getHeaders('fake-list');
             $this->assertEquals($headers1, $headers);
             $this->assertArrayHasKey('expires', $headers1);
             $this->assertArrayHasKey('hash', $headers1);
@@ -216,19 +216,19 @@ class ClientTest extends BaseTestCase
                 ],
             ];
 
-            $client->updateElement('fake-list', '2', $a);
+            $client->getRepository()->updateElement('fake-list', '2', $a);
 
-            $element2 = unserialize($client->findElement('fake-list', '2'));
+            $element2 = unserialize($client->getRepository()->findElement('fake-list', '2'));
 
             $this->assertEquals('Mauro Cassani', $element2->name);
             $this->assertEquals('mauretto78', $element2->username);
             $this->assertEquals('mauretto1978@yahoo.it', $element2->email);
 
-            $client->updateTtl('fake-list', 7200);
-            $this->assertEquals($client->getTtl('fake-list'), 7200);
+            $client->getRepository()->updateTtl('fake-list', 7200);
+            $this->assertEquals($client->getRepository()->getTtl('fake-list'), 7200);
 
-            $client->removeListFromIndex('fake list');
-            $client->delete('fake list');
+            $client->getRepository()->removeListFromIndex('fake list');
+            $client->getRepository()->delete('fake list');
         }
     }
 
@@ -258,7 +258,7 @@ class ClientTest extends BaseTestCase
         $entityList = [$dummyUser1, $dummyUser2, $dummyUser3];
 
         foreach ($this->clients as $client) {
-            $client->flush();
+            $client->getRepository()->flush();
 
             $collection = $client->create($entityList, [
                 'ttl' => 3600,
@@ -301,7 +301,7 @@ class ClientTest extends BaseTestCase
                 'hash' => 'ec457d0a974c48d5685a7efa03d137dc8bbde7e3',
             ];
 
-            $client->flush();
+            $client->getRepository()->flush();
             $client->create($entityList, [
                 'headers' => $headers,
                 'ttl' => 3600,
@@ -309,12 +309,13 @@ class ClientTest extends BaseTestCase
                 'element-uuid' => 'id',
             ]);
 
-            $element1 = unserialize($client->findElement('entity-list', '23'));
-            $element2 = unserialize($client->findElement('entity-list', '24'));
+            $element1 = unserialize($client->getRepository()->findElement('entity-list', '23'));
+            $element2 = unserialize($client->getRepository()->findElement('entity-list', '24'));
 
             $this->assertInstanceOf(ListRepositoryInterface::class, $client->getRepository());
-            $this->assertCount(3, $client->findListByUuid('entity-list'));
-            $this->assertTrue($client->existsListInIndex('entity-list'));
+            $this->assertCount(3, $client->getRepository()->findListByUuid('entity-list'));
+            $this->assertTrue($client->getRepository()->existsListInIndex('entity-list'));
+            $this->assertTrue($client->getRepository()->existsElement('entity-list', '24'));
             $this->assertEquals('Mauro', $element1->getName());
             $this->assertEquals('Cristina', $element2->getName());
         }

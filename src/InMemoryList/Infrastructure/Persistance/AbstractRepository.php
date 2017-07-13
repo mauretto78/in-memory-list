@@ -36,11 +36,7 @@ abstract class AbstractRepository
      */
     public function existsElement($listUuid, $elementUuid)
     {
-        if (isset($this->findListByUuid($listUuid)[$elementUuid])) {
-            return $this->findListByUuid($listUuid)[$elementUuid];
-        }
-
-        return false;
+        return isset($this->findListByUuid($listUuid)[$elementUuid]);
     }
 
     /**
@@ -53,11 +49,11 @@ abstract class AbstractRepository
      */
     public function findElement($listUuid, $elementUuid)
     {
-        if (!$element = $this->existsElement($listUuid, $elementUuid)) {
+        if (!$this->existsElement($listUuid, $elementUuid)) {
             throw new ListElementDoesNotExistsException('Cannot retrieve the element '.$elementUuid.' from the collection in memory.');
         }
 
-        return $element;
+        return $this->findListByUuid($listUuid)[$elementUuid];
     }
 
     /**

@@ -14,7 +14,7 @@ $apiUrl = 'https://jsonplaceholder.typicode.com/comments';
 $apiArray = json_decode(file_get_contents($apiUrl));
 
 $client = new Client('apcu');
-$collection = $client->findListByUuid('comments-list') ?: $client->create($apiArray, ['uuid' => 'comments-list', 'element-uuid' => 'id']);
+$collection = $client->getRepository()->findListByUuid('comments-list') ?: $client->create($apiArray, ['uuid' => 'comments-list', 'element-uuid' => 'id']);
 
 // loop items
 echo '<h3>Loop items</h3>';

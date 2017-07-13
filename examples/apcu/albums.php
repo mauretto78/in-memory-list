@@ -15,7 +15,7 @@ $apiArray = json_decode(file_get_contents($apiUrl));
 
 $client = new Client('apcu');
 
-$collection = $client->findListByUuid('albums-list') ?: $client->create($apiArray, ['uuid' => 'albums-list', 'element-uuid' => 'id']);
+$collection = $client->getRepository()->findListByUuid('albums-list') ?: $client->create($apiArray, ['uuid' => 'albums-list', 'element-uuid' => 'id']);
 
 // loop items
 echo '<h3>Loop items</h3>';

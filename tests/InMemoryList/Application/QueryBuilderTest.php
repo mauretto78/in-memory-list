@@ -52,17 +52,17 @@ class QueryBuilderTest extends BaseTestCase
      */
     public function it_throws_NotValidOperatorQueryBuilderException_if_an_invalid_operator_is_provided()
     {
-        $this->client->flush();
+        $this->client->getRepository()->flush();
         $this->client->create($this->parsedUserArray, [
             'uuid' => 'user list',
             'element-uuid' => 'id',
         ]);
 
-        $queryBuilder = new QueryBuilder($this->client->findListByUuid('user-list'));
+        $queryBuilder = new QueryBuilder($this->client->getRepository()->findListByUuid('user-list'));
         $queryBuilder->addCriteria('name', 'Ervin Howell', 'wrong operator');
         $this->assertCount(1, $queryBuilder->getResults());
 
-        $this->client->flush();
+        $this->client->getRepository()->flush();
     }
 
     /**
@@ -72,16 +72,16 @@ class QueryBuilderTest extends BaseTestCase
      */
     public function it_throws_NotValidKeyElementInCollectionException_if_a_not_valid_element_key_is_provided()
     {
-        $this->client->flush();
+        $this->client->getRepository()->flush();
         $this->client->create($this->parsedUserArray, [
             'uuid' => 'user list',
         ]);
 
-        $queryBuilder = new QueryBuilder($this->client->findListByUuid('user-list'));
+        $queryBuilder = new QueryBuilder($this->client->getRepository()->findListByUuid('user-list'));
         $queryBuilder->addCriteria('not-existing-key', 'Ervin Howell');
         $this->assertCount(1, $queryBuilder->getResults());
 
-        $this->client->flush();
+        $this->client->getRepository()->flush();
     }
 
     /**
@@ -91,18 +91,18 @@ class QueryBuilderTest extends BaseTestCase
      */
     public function it_throws_NotValidSortingOperatorException_if_an_invalid_sorting_operator_is_provided()
     {
-        $this->client->flush();
+        $this->client->getRepository()->flush();
         $this->client->create($this->parsedUserArray, [
             'uuid' => 'user list',
         ]);
 
-        $queryBuilder = new QueryBuilder($this->client->findListByUuid('user-list'));
+        $queryBuilder = new QueryBuilder($this->client->getRepository()->findListByUuid('user-list'));
         $queryBuilder
             ->addCriteria('name', 'Ervin Howell')
             ->orderBy('name', 'not wrong sorting operator');
         $this->assertCount(1, $queryBuilder->getResults());
 
-        $this->client->flush();
+        $this->client->getRepository()->flush();
     }
 
     /**
@@ -112,16 +112,16 @@ class QueryBuilderTest extends BaseTestCase
      */
     public function it_throws_InvalidArgumentException_if_an_invalid_offset_is_provided()
     {
-        $this->client->flush();
+        $this->client->getRepository()->flush();
         $this->client->create($this->parsedUserArray, [
             'uuid' => 'user list',
             'element-uuid' => 'id',
         ]);
 
-        $queryBuilder = new QueryBuilder($this->client->findListByUuid('user-list'));
+        $queryBuilder = new QueryBuilder($this->client->getRepository()->findListByUuid('user-list'));
         $queryBuilder->limit(123, 'string');
 
-        $this->client->flush();
+        $this->client->getRepository()->flush();
     }
 
     /**
@@ -131,16 +131,16 @@ class QueryBuilderTest extends BaseTestCase
      */
     public function it_throws_InvalidArgumentException_if_an_invalid_length_is_provided()
     {
-        $this->client->flush();
+        $this->client->getRepository()->flush();
         $this->client->create($this->parsedUserArray, [
             'uuid' => 'user list',
             'element-uuid' => 'id',
         ]);
 
-        $queryBuilder = new QueryBuilder($this->client->findListByUuid('user-list'));
+        $queryBuilder = new QueryBuilder($this->client->getRepository()->findListByUuid('user-list'));
         $queryBuilder->limit('string', 13);
 
-        $this->client->flush();
+        $this->client->getRepository()->flush();
     }
 
     /**
@@ -150,16 +150,16 @@ class QueryBuilderTest extends BaseTestCase
      */
     public function it_throws_InvalidArgumentException_if_an_offset_is_grater_than_length_is_provided()
     {
-        $this->client->flush();
+        $this->client->getRepository()->flush();
         $this->client->create($this->parsedUserArray, [
             'uuid' => 'user list',
             'element-uuid' => 'id',
         ]);
 
-        $queryBuilder = new QueryBuilder($this->client->findListByUuid('user-list'));
+        $queryBuilder = new QueryBuilder($this->client->getRepository()->findListByUuid('user-list'));
         $queryBuilder->limit(432, 13);
 
-        $this->client->flush();
+        $this->client->getRepository()->flush();
     }
 
     /**
@@ -167,7 +167,7 @@ class QueryBuilderTest extends BaseTestCase
      */
     public function it_should_query_sorting_and_retrieve_data_from_in_memory_collection()
     {
-        $this->client->flush();
+        $this->client->getRepository()->flush();
         $userCollection = $this->client->create($this->parsedUserArray, [
             'uuid' => 'user list',
             'element-uuid' => 'id',
@@ -244,6 +244,6 @@ class QueryBuilderTest extends BaseTestCase
         $queryBuilder13->limit(0, 5);
         $this->assertCount(5, $queryBuilder13->getResults());
 
-        $this->client->flush();
+        $this->client->getRepository()->flush();
     }
 }

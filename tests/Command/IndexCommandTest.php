@@ -82,7 +82,7 @@ class IndexCommandTest extends BaseTestCase
         $this->assertContains('1', $output);
         $this->assertContains('2', $output);
 
-        $client->flush();
+        $client->getRepository()->flush();
     }
 
     /**
@@ -128,7 +128,7 @@ class IndexCommandTest extends BaseTestCase
         $this->assertContains('0', $output);
         $this->assertContains('2', $output);
 
-        $client->flush();
+        $client->getRepository()->flush();
     }
 
     /**
@@ -183,6 +183,6 @@ class IndexCommandTest extends BaseTestCase
         $this->assertContains('2', $output);
         $this->assertContains('expires=Sat, 26 Jul 1997 05:00:00 GMT, hash=ec457d0a974c48d5685a7efa03d137dc8bbde7e3', $output);
 
-        $client->flush();
+        $client->getRepository()->flush();
     }
 }

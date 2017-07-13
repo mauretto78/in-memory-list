@@ -42,7 +42,7 @@ class FlushCommand extends BaseCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $cache = $this->createClient($this->driver, $this->parameters);
-        $cache->flush();
+        $cache->getRepository()->flush();
 
         $output->writeln('<fg=red>['.$this->driver.'] Cache was successful flushed.</>');
     }

@@ -124,7 +124,7 @@ $collection = $client->create($array, [
 ]);
 
 // And now you can retrive the list:
-$simpleArray = $client->findListByUuid('simple-array');
+$simpleArray = $client->getRepository()->findListByUuid('simple-array');
 
 //..
 
@@ -155,7 +155,7 @@ $collection = $client->create($array, [
 ]);
 
 // get headers
-var_dump($client->getHeaders('simple-array'));
+var_dump($client->getRepository()->getHeaders('simple-array'));
 
 // ...
 ```
@@ -233,7 +233,7 @@ To delete an element in you list do this:
 
 ```php
 // ..
-$client->deleteElement(
+$client->getRepository()->deleteElement(
     $listUuid, 
     $elementUuid,
 );
@@ -262,7 +262,7 @@ To update an element in you list, use `updateElement` function. You must provide
 
 ```php
 // ..
-$client->updateElement(
+$client->getRepository()->updateElement(
     'list-to-update', 
     4325, 
     [
@@ -279,13 +279,13 @@ You can update ttl of a persisted list with `updateTtl` method, and retrive the 
 
 ```php
 // ...
-$client->updateTtl(
+$client->getRepository()->updateTtl(
     'your-list-uuid',
     3600 // ttl in seconds
 );
 
 // get Ttl of the list
-$client->getTtl('your-list-uuid'); // 3600
+$client->getRepository()->getTtl('your-list-uuid'); // 3600
 ```
 
 ## Validation (Data consistency)

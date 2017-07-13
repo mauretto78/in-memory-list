@@ -16,7 +16,7 @@ $apiUrl = 'https://jsonplaceholder.typicode.com/photos';
 $apiArray = json_decode(file_get_contents($apiUrl));
 
 $client = new Client('redis', $config['redis_parameters']);
-$collection = $client->findListByUuid('photos-list') ?: $client->create($apiArray, ['uuid' => 'photos-list', 'element-uuid' => 'id']);
+$collection = $client->getRepository()->findListByUuid('photos-list') ?: $client->create($apiArray, ['uuid' => 'photos-list', 'element-uuid' => 'id']);
 
 // loop items
 echo '<h3>Loop items</h3>';

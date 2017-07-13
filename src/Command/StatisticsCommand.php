@@ -43,7 +43,7 @@ class StatisticsCommand extends BaseCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $cache = $this->createClient($this->driver, $this->parameters);
-        $statistics = $cache->getStatistics();
+        $statistics = $cache->getRepository()->getStatistics();
 
         $table = new Table($output);
         $table->setHeaders(['Key', 'Value']);

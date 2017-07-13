@@ -49,7 +49,7 @@ class IndexCommand extends BaseCommand
 
         $from = $input->getArgument('from') ? new \DateTime($input->getArgument('from')) : null;
         $to = $input->getArgument('to') ? new \DateTime($input->getArgument('to')) : null;
-        $index = $cache->getIndexInRangeDate($from, $to);
+        $index = $cache->getRepository()->getIndexInRangeDate($from, $to);
 
         if ($index && count($index)) {
             ksort($index);
