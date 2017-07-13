@@ -64,6 +64,13 @@ interface ListRepositoryInterface
     /**
      * @param $listUuid
      *
+     * @return bool
+     */
+    public function existsListInIndex($listUuid);
+
+    /**
+     * @param $listUuid
+     *
      * @return mixed
      */
     public function findListByUuid($listUuid);

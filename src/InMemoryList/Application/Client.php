@@ -164,6 +164,16 @@ class Client
     /**
      * @param $listUuid
      *
+     * @return bool
+     */
+    public function existsListInIndex($listUuid)
+    {
+        return $this->repository->existsListInIndex($listUuid);
+    }
+
+    /**
+     * @param $listUuid
+     *
      * @return mixed
      */
     public function findListByUuid($listUuid)

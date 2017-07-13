@@ -97,7 +97,7 @@ abstract class AbstractRepository
      *
      * @return bool
      */
-    protected function existsListInIndex($listUuid)
+    public function existsListInIndex($listUuid)
     {
         return ($this->getIndex($listUuid)) ? true : false;
     }

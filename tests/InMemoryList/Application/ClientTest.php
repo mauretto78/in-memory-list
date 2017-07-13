@@ -314,6 +314,7 @@ class ClientTest extends BaseTestCase
 
             $this->assertInstanceOf(ListRepositoryInterface::class, $client->getRepository());
             $this->assertCount(3, $client->findListByUuid('entity-list'));
+            $this->assertTrue($client->existsListInIndex('entity-list'));
             $this->assertEquals('Mauro', $element1->getName());
             $this->assertEquals('Cristina', $element2->getName());
         }
