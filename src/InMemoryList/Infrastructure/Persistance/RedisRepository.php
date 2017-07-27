@@ -48,13 +48,14 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
      */
     public function create(ListCollection $list, $ttl = null, $chunkSize = null)
     {
-        if (!$chunkSize && !is_int($chunkSize)) {
-            $chunkSize = self::CHUNKSIZE;
+        // check if list already exists in memory
+        $listUuid = (string) $list->getUuid();
+        if ($this->existsListInIndex($listUuid) && $this->exists($listUuid)) {
+            throw new ListAlreadyExistsException('List '.$list->getUuid().' already exists in memory.');
         }
 
-        $listUuid = (string) $list->getUuid();
-        if ($this->findListByUuid($listUuid)) {
-            throw new ListAlreadyExistsException('List '.$list->getUuid().' already exists in memory.');
+        if (!$chunkSize && !is_int($chunkSize)) {
+            $chunkSize = self::CHUNKSIZE;
         }
 
         $items = $list->getElements();

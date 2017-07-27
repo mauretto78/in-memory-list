@@ -32,13 +32,14 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
      */
     public function create(ListCollection $list, $ttl = null, $chunkSize = null)
     {
-        if (!$chunkSize && !is_int($chunkSize)) {
-            $chunkSize = self::CHUNKSIZE;
+        // check if list already exists in memory
+        $listUuid = (string) $list->getUuid();
+        if ($this->existsListInIndex($listUuid) && $this->exists($listUuid)) {
+            throw new ListAlreadyExistsException('List '.$list->getUuid().' already exists in memory.');
         }
 
-        $listUuid = (string) $list->getUuid();
-        if ($this->findListByUuid($listUuid)) {
-            throw new ListAlreadyExistsException('List '.$listUuid.' already exists in memory.');
+        if (!$chunkSize && !is_int($chunkSize)) {
+            $chunkSize = self::CHUNKSIZE;
         }
 
         // create arrayOfElements
