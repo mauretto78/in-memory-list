@@ -129,8 +129,6 @@ $simpleArray = $client->getRepository()->findListByUuid('simple-array');
 
 ```
 
-Please note that the unique ID **must be a string**. 
-
 ### headers
 
 You can set a headers array to your list:
