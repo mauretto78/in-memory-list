@@ -118,7 +118,7 @@ $array = [
 ]
 
 $client = new Client();
-$collection = $client->create($array, [
+$client->create($array, [
     'uuid' => 'simple-array'
 ]);
 
@@ -376,14 +376,14 @@ $client = new Client();
 $collection = $client->create($array, [
     'uuid' => 'simple-array'
 ]);
-$qb = new QueryBuilder($collection);
+$qb = QueryBuilder::create($collection);
 $qb
     ->addCriteria('title', '...', 'CONTAINS')
     ->addCriteria('rate', '3', '>')
     ->orderBy('title');
     
+// get results    
 foreach ($qb->getResults() as $element){
-    $item = $client->item($element);
     // ...
 }
 ```
@@ -413,10 +413,13 @@ $array = [
 ]
 
 $client = new Client();
-$collection = $client->create($array, [
+$client->create($array, [
     'uuid' => 'simple-array'
 ]);
-$qb = new QueryBuilder($collection);
+
+$collection = $client->getRepository()->findListByUuid('simple-array');
+
+$qb = QueryBuilder::create($collection);
 $qb
     ->addCriteria('title', [...], 'ARRAY')
     ->addCriteria('rate', '3', '>')
