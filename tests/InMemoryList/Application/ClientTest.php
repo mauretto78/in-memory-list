@@ -233,6 +233,8 @@ class ClientTest extends BaseTestCase
 
     /**
      * @test
+     * @expectedException \InMemoryList\Infrastructure\Domain\Model\Exceptions\NotValidKeyElementInListException
+     * @expectedExceptionMessage id is not a valid key. If your elements are Entities class, please check if you implement getId() method.
      */
     public function it_catch_NotValidKeyElementInListException_if_entity_class_does_not_have_getter_method()
     {
@@ -264,8 +266,6 @@ class ClientTest extends BaseTestCase
                 'uuid' => 'entity list',
                 'element-uuid' => 'id',
             ]);
-
-            $this->assertEquals($collection, 'id is not a valid key. If your elements are Entities class, please check if you implement getId() method.');
         }
     }
 
