@@ -11,7 +11,7 @@ use InMemoryList\Application\Client;
 
 include __DIR__.'/../app/bootstrap.php';
 
-$simpleArray = json_encode([
+$simpleArray = [
     [
         'userId' => 1,
         'id' => 1,
@@ -24,7 +24,7 @@ $simpleArray = json_encode([
         'title' => 'qui est esse',
         'body' => "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla",
     ],
-]);
+];
 
 $headers = [
     'expires' => 'Sat, 26 Jul 1997 05:00:00 GMT',
@@ -32,22 +32,27 @@ $headers = [
 ];
 
 $client = new Client('memcached', $config['memcached_parameters']);
+$client->getRepository()->flush();
 
-if($client->getRepository()->exists('simple-list')){
-    $client->create(json_decode($simpleArray), [
+
+if(!$client->getRepository()->existsListInIndex('simple-list-with-h')){
+    $client->create($simpleArray, [
         'uuid' => 'simple-list-with-h',
+        'element-uuid' => 'id',
         'ttl' => 300,
-        'headers' => $headers
+        'headers' => $headers,
     ]);
 }
+
+$collection = $client->getRepository()->findListByUuid('simple-list-with-h');
 
 // loop items
 echo '<h3>Loop items</h3>';
 foreach ($collection as $element) {
     echo '<p>';
-    echo '<strong>userId</strong>: '.$element->userId.'<br>';
-    echo '<strong>Id</strong>: '.$element->id.'<br>';
-    echo '<strong>title</strong>: '.$element->title.'<br>';
-    echo '<strong>body</strong>: '.$element->body.'<br>';
+    echo '<strong>userId</strong>: '.$element['userId'].'<br>';
+    echo '<strong>Id</strong>: '.$element['id'].'<br>';
+    echo '<strong>title</strong>: '.$element['title'].'<br>';
+    echo '<strong>body</strong>: '.$element['body'].'<br>';
     echo '</p>';
 }

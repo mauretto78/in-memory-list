@@ -34,7 +34,6 @@ $client = new Client();
 $collection = $client->create($array);
 
 foreach ($collection as $element){
-    $item = $client->item($element);
     // ...
 }
 
@@ -188,11 +187,10 @@ $collection = $client->create($simpleArray, [
 ]);
 
 // now to retrieve a single element, you can simply do:
-$item1 = $client->item($collection['1']);
+$itemWithId1 = $collection[1];
+
 ```
-
-Please note that the uuid **must be a string**. 
-
+ 
 ### chunk-size
 
 You can specify the number of elements of each chunk in which the original array will be splitted. The default value is `1000`.

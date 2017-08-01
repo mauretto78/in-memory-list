@@ -26,18 +26,24 @@ foreach ($range as $number) {
     ];
 }
 
-$apiArray = json_encode($array);
-
 $client = new Client('memcached', $config['memcached_parameters']);
-$collection = $client->getRepository()->findListByUuid('range-list') ?: $client->create(json_decode($apiArray), ['uuid' => 'range-list', 'element-uuid' => 'id']);
+
+if(!$client->getRepository()->existsListInIndex('range-list')){
+    $client->create($array, [
+        'uuid' => 'range-list',
+        'element-uuid' => 'id'
+    ]);
+}
+
+$collection = $client->getRepository()->findListByUuid('range-list');
 
 // loop items
 echo '<h3>Loop items</h3>';
 foreach ($collection as $element) {
     echo '<p>';
-    echo '<strong>id</strong>: '.$element->id.'<br>';
-    echo '<strong>name</strong>: '.$element->name.'<br>';
-    echo '<strong>email</strong>: '.$element->email.'<br>';
+    echo '<strong>id</strong>: '.$element['id'].'<br>';
+    echo '<strong>name</strong>: '.$element['name'].'<br>';
+    echo '<strong>email</strong>: '.$element['email'].'<br>';
     echo '</p>';
 }
 

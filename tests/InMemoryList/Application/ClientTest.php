@@ -48,8 +48,10 @@ class ClientTest extends BaseTestCase
 
     /**
      * @test
+     * @expectedException \Predis\Connection\ConnectionException
+     * @expectedExceptionMessage Connection refused [tcp://0.0.0.0:432423423]
      */
-    public function it_catch_ConnectionException_if_wrong_redis_credentials_are_provided()
+    public function it_throws_ConnectionException_if_wrong_redis_credentials_are_provided()
     {
         $wrongCredentials = [
             'host' => '0.0.0.0',
@@ -58,15 +60,15 @@ class ClientTest extends BaseTestCase
         ];
 
         $client = new Client('redis', $wrongCredentials);
-        $collection = $client->create($this->parsedArrayFromJson, [], 'fake list');
-
-        $this->assertEquals($collection, 'Connection refused [tcp://0.0.0.0:432423423]');
+        $collection = $client->create($this->parsedArrayFromJson, []);
     }
 
     /**
      * @test
+     * @expectedException \InMemoryList\Infrastructure\Persistance\Exceptions\ListAlreadyExistsException
+     * @expectedExceptionMessage List fake-list already exists in memory.
      */
-    public function it_catch_CollectionAlreadyExistsException_if_attempt_to_persist_duplicate_collection()
+    public function it_throws_CollectionAlreadyExistsException_if_attempt_to_persist_duplicate_collection()
     {
         foreach ($this->clients as $client) {
             $client->create($this->parsedArrayFromJson, [
@@ -75,15 +77,15 @@ class ClientTest extends BaseTestCase
             $collection2 = $client->create($this->parsedArrayFromJson, [
                 'uuid' => 'fake list',
             ]);
-
-            $this->assertEquals($collection2, 'List fake-list already exists in memory.');
         }
     }
 
     /**
      * @test
+     * @expectedException \InMemoryList\Application\Exceptions\MalformedParametersException
+     * @expectedExceptionMessage Malformed parameters array provided to Client create function.
      */
-    public function it_catch_MalformedParametersException_if_attempt_to_provide_a_wrong_parameters_array_when_create_list()
+    public function it_throws_MalformedParametersException_if_attempt_to_provide_a_wrong_parameters_array_when_create_list()
     {
         foreach ($this->clients as $client) {
             $collection = $client->create($this->parsedArrayFromJson, [
@@ -97,6 +99,8 @@ class ClientTest extends BaseTestCase
 
     /**
      * @test
+     * @expectedException \InMemoryList\Infrastructure\Persistance\Exceptions\ListElementDoesNotExistsException
+     * @expectedExceptionMessage Cannot retrieve the element 132131312 from the collection in memory.
      */
     public function it_throws_NotExistListElementException_if_attempt_to_find_a_not_existing_element_in_collection_from_redis()
     {
@@ -107,12 +111,7 @@ class ClientTest extends BaseTestCase
                 'element-uuid' => 'id',
             ]);
 
-            try {
-                $client->getRepository()->findElement('fake list', '132131312');
-            } catch (\Exception $exception) {
-                $this->assertInstanceOf(ListElementDoesNotExistsException::class, $exception);
-                $this->assertEquals($exception->getMessage(), 'Cannot retrieve the element 132131312 from the collection in memory.');
-            }
+            $client->getRepository()->findElement('fake list', '132131312');
         }
     }
 

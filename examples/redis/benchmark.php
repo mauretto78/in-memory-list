@@ -28,7 +28,7 @@ foreach ($range as $number) {
 
 $client = new Client('redis', $config['redis_parameters']);
 
-if($client->getRepository()->exists('simple-list')){
+if(!$client->getRepository()->existsListInIndex('range-list')){
     $client->create($array, [
         'uuid' => 'range-list',
         'element-uuid' => 'id']);
@@ -40,9 +40,9 @@ $collection = $client->getRepository()->findListByUuid('range-list');
 echo '<h3>Loop items</h3>';
 foreach ($collection as $element) {
     echo '<p>';
-    echo '<strong>id</strong>: '.$element->id.'<br>';
-    echo '<strong>name</strong>: '.$element->name.'<br>';
-    echo '<strong>email</strong>: '.$element->email.'<br>';
+    echo '<strong>id</strong>: '.$element['id'].'<br>';
+    echo '<strong>name</strong>: '.$element['name'].'<br>';
+    echo '<strong>email</strong>: '.$element['email'].'<br>';
     echo '</p>';
 }
 

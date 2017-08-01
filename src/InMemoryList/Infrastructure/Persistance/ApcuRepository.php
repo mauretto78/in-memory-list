@@ -151,10 +151,10 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
 
         for ($i = 2; $i <= $numberOfChunks; ++$i) {
-            $collection = array_merge($collection, apcu_fetch($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
+            $collection = (array) array_merge($collection, apcu_fetch($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
         }
 
-        return array_map('unserialize', $collection);
+        return (array) array_map('unserialize', $collection);
     }
 
     /**

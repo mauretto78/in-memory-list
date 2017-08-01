@@ -100,24 +100,20 @@ class Client
      */
     public function create(array $elements, array $parameters = [])
     {
-        try {
-            $this->validateParameters($parameters);
-            $factory = new ListCollectionFactory();
-            $list = $factory->create(
-                $elements,
-                (isset($parameters['headers'])) ? $parameters['headers'] : [],
-                (isset($parameters['uuid'])) ? $parameters['uuid'] : null,
-                (isset($parameters['element-uuid'])) ? $parameters['element-uuid'] : null
-            );
+        $this->validateParameters($parameters);
+        $factory = new ListCollectionFactory();
+        $list = $factory->create(
+            $elements,
+            (isset($parameters['headers'])) ? $parameters['headers'] : [],
+            (isset($parameters['uuid'])) ? $parameters['uuid'] : null,
+            (isset($parameters['element-uuid'])) ? $parameters['element-uuid'] : null
+        );
 
-            return $this->repository->create(
-                $list,
-                (isset($parameters['ttl'])) ? $parameters['ttl'] : null,
-                (isset($parameters['chunk-size'])) ? $parameters['chunk-size'] : null
-            );
-        } catch (\Exception $exception) {
-            return $exception->getMessage();
-        }
+        return $this->repository->create(
+            $list,
+            (isset($parameters['ttl'])) ? $parameters['ttl'] : null,
+            (isset($parameters['chunk-size'])) ? $parameters['chunk-size'] : null
+        );
     }
 
     /**
