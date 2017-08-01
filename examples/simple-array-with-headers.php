@@ -32,17 +32,22 @@ $headers = [
 ];
 
 $client = new Client('memcached', $config['memcached_parameters']);
-$collection = $client->getRepository()->findListByUuid('simple-list-with-h') ?: $client->create(json_decode($simpleArray), ['uuid' => 'simple-list-with-h', 'ttl' => 300, 'headers' => $headers]);
+
+if($client->getRepository()->exists('simple-list')){
+    $client->create(json_decode($simpleArray), [
+        'uuid' => 'simple-list-with-h',
+        'ttl' => 300,
+        'headers' => $headers
+    ]);
+}
 
 // loop items
 echo '<h3>Loop items</h3>';
 foreach ($collection as $element) {
-    $item = $client->item($element);
-
     echo '<p>';
-    echo '<strong>userId</strong>: '.$item->userId.'<br>';
-    echo '<strong>Id</strong>: '.$item->id.'<br>';
-    echo '<strong>title</strong>: '.$item->title.'<br>';
-    echo '<strong>body</strong>: '.$item->body.'<br>';
+    echo '<strong>userId</strong>: '.$element->userId.'<br>';
+    echo '<strong>Id</strong>: '.$element->id.'<br>';
+    echo '<strong>title</strong>: '.$element->title.'<br>';
+    echo '<strong>body</strong>: '.$element->body.'<br>';
     echo '</p>';
 }

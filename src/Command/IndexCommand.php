@@ -58,7 +58,7 @@ class IndexCommand extends BaseCommand
 
             $counter = 0;
             foreach ($index as $item) {
-                $item = unserialize($item);
+                $item = $item;
                 $listUuid = $item['uuid'];
 
                 $headers = (is_array($item['headers']) and count($item['headers'])) ? $this->implodeArrayToAString($item['headers']) : 'empty';

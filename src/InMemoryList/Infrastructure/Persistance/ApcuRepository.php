@@ -1,11 +1,11 @@
 <?php
 /**
- * This file is part of the InMemoryList package.
+ * This file is part of the Simple EventStore Manager package.
  *
  * (c) Mauro Cassani<https://github.com/mauretto78>
  *
- *  For the full copyright and license information, please view the LICENSE
- *  file that was distributed with this source code.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace InMemoryList\Infrastructure\Persistance;
@@ -82,8 +82,6 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
             (int) $chunkSize,
             $ttl
         );
-
-        return $this->findListByUuid($list->getUuid());
     }
 
     /**
@@ -108,7 +106,7 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
                 apcu_store($chunkNumber, $chunk);
 
                 // update list index
-                $prevIndex = unserialize($this->getIndex($listUuid));
+                $prevIndex = $this->getIndex($listUuid);
                 $this->addOrUpdateListToIndex(
                     $listUuid,
                     ($prevIndex['size'] - 1),
@@ -156,7 +154,7 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
             $collection = array_merge($collection, apcu_fetch($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
         }
 
-        return $collection;
+        return array_map('unserialize', $collection);
     }
 
     /**
@@ -186,14 +184,13 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
     {
         $indexKey = ListRepositoryInterface::INDEX;
         $index = apcu_fetch($indexKey);
-
         $this->removeExpiredListsFromIndex($index);
 
         if ($listUuid) {
-            return (isset($index[(string) $listUuid])) ? $index[(string) $listUuid] : null;
+            return (isset($index[(string) $listUuid])) ? unserialize($index[(string) $listUuid]) : null;
         }
 
-        return $index;
+        return ($index) ? array_map('unserialize', $index) : [];
     }
 
     /**
@@ -278,7 +275,7 @@ class ApcuRepository extends AbstractRepository implements ListRepositoryInterfa
         );
 
         // update list index
-        $prevIndex = unserialize($this->getIndex($listUuid));
+        $prevIndex = $this->getIndex($listUuid);
         $this->addOrUpdateListToIndex(
             $listUuid,
             ($prevIndex['size'] + 1),

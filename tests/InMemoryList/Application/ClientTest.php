@@ -174,8 +174,8 @@ class ClientTest extends BaseTestCase
             $client->getRepository()->deleteElement('fake-list', '7');
             $client->getRepository()->deleteElement('fake-list', '8');
             $client->getRepository()->deleteElement('fake-list', '9');
-            $element1 = unserialize($client->getRepository()->findElement('fake-list', '1'));
-            $element2 = unserialize($client->getRepository()->findElement('fake-list', '2'));
+            $element1 = $client->getRepository()->findElement('fake-list', '1');
+            $element2 = $client->getRepository()->findElement('fake-list', '2');
 
             $this->assertInstanceOf(ListRepositoryInterface::class, $client->getRepository());
             $this->assertCount(7, $client->getRepository()->findListByUuid('fake-list'));
@@ -218,7 +218,7 @@ class ClientTest extends BaseTestCase
 
             $client->getRepository()->updateElement('fake-list', '2', $a);
 
-            $element2 = unserialize($client->getRepository()->findElement('fake-list', '2'));
+            $element2 = $client->getRepository()->findElement('fake-list', '2');
 
             $this->assertEquals('Mauro Cassani', $element2->name);
             $this->assertEquals('mauretto78', $element2->username);
@@ -309,8 +309,8 @@ class ClientTest extends BaseTestCase
                 'element-uuid' => 'id',
             ]);
 
-            $element1 = unserialize($client->getRepository()->findElement('entity-list', '23'));
-            $element2 = unserialize($client->getRepository()->findElement('entity-list', '24'));
+            $element1 = $client->getRepository()->findElement('entity-list', '23');
+            $element2 = $client->getRepository()->findElement('entity-list', '24');
 
             $this->assertInstanceOf(ListRepositoryInterface::class, $client->getRepository());
             $this->assertCount(3, $client->getRepository()->findListByUuid('entity-list'));

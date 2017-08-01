@@ -1,11 +1,11 @@
 <?php
 /**
- * This file is part of the InMemoryList package.
+ * This file is part of the Simple EventStore Manager package.
  *
  * (c) Mauro Cassani<https://github.com/mauretto78>
  *
- *  For the full copyright and license information, please view the LICENSE
- *  file that was distributed with this source code.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace InMemoryList\Infrastructure\Persistance;
@@ -97,8 +97,6 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
             (int) $chunkSize,
             $ttl
         );
-
-        return $this->findListByUuid($list->getUuid());
     }
 
     /**
@@ -122,7 +120,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
                 $this->memcached->replace($chunkNumber, $chunk);
 
                 // update list index
-                $prevIndex = unserialize($this->getIndex($listUuid));
+                $prevIndex = $this->getIndex($listUuid);
                 $this->addOrUpdateListToIndex(
                     $listUuid,
                     ($prevIndex['size'] - 1),
@@ -173,7 +171,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
             $collection = array_merge($collection, $this->memcached->get($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
         }
 
-        return $collection;
+        return array_map('unserialize', $collection);
     }
 
     /**
@@ -203,14 +201,13 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
     {
         $indexKey = ListRepositoryInterface::INDEX;
         $index = $this->memcached->get($indexKey);
-
-        if ($listUuid) {
-            return (isset($index[(string) $listUuid])) ? $index[(string) $listUuid] : null;
-        }
-
         $this->removeExpiredListsFromIndex($index);
 
-        return $index;
+        if ($listUuid) {
+            return (isset($index[(string) $listUuid])) ? unserialize($index[(string) $listUuid]) : null;
+        }
+
+        return ($index) ? array_map('unserialize', $index) : [];
     }
 
     /**
@@ -287,7 +284,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
         );
 
         // update list index
-        $prevIndex = unserialize($this->getIndex($listUuid));
+        $prevIndex = $this->getIndex($listUuid);
         $this->addOrUpdateListToIndex(
             $listUuid,
             ($prevIndex['size'] + 1),

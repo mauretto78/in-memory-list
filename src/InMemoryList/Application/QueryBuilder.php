@@ -33,6 +33,11 @@ class QueryBuilder
     private $orderBy;
 
     /**
+     * @var array
+     */
+    private $collection;
+
+    /**
      * IMListElementCollectionQueryBuilder constructor.
      *
      * @param $list
@@ -40,6 +45,15 @@ class QueryBuilder
     public function __construct($list)
     {
         $this->setCollection($list);
+    }
+
+    /**
+     * @param $list
+     * @return static
+     */
+    public static function create($list)
+    {
+        return new static($list);
     }
 
     /**
@@ -139,60 +153,7 @@ class QueryBuilder
      */
     public function getResults()
     {
-        $results = $this->collection;
-        $singleQueryResults = [];
-        $counter = 0;
-
-        if (count($this->criteria)) {
-            foreach ($this->criteria as $criterion) {
-                $singleQueryResults[] = $this->filter(
-                    function ($element) use ($criterion) {
-                        $value = $this->getListElementValueFromKey(unserialize($element), $criterion['key']);
-
-                        switch ($criterion['operator']) {
-                            case '>':
-                                return $value > $criterion['value'];
-                                break;
-
-                            case '<':
-                                return $value < $criterion['value'];
-                                break;
-
-                            case '<=':
-                                return $value <= $criterion['value'];
-                                break;
-
-                            case '>=':
-                                return $value >= $criterion['value'];
-                                break;
-
-                            case '!=':
-                                return $value !== $criterion['value'];
-                                break;
-
-                            case 'ARRAY':
-                                return in_array($value, (array) $criterion['value']);
-                                break;
-
-                            case 'ARRAY_INVERSED':
-                                return in_array($criterion['value'], (array) $value);
-                                break;
-
-                            case 'CONTAINS':
-                                return stripos($value, $criterion['value']) !== false;
-                                break;
-
-                            default:
-                                return $value === $criterion['value'];
-                                break;
-                        }
-                    }
-                );
-
-                $results = $this->returnSingleQueryResult($counter, $singleQueryResults);
-                ++$counter;
-            }
-        }
+        $results = $this->filter();
 
         if (count($this->orderBy)) {
             usort($results, [$this, 'compareStrings']);
@@ -207,6 +168,70 @@ class QueryBuilder
         }
 
         return $results;
+    }
+
+    /**
+     * @return array
+     */
+    private function filter()
+    {
+        if (count($this->criteria) == 0) {
+            return $this->collection;
+        }
+
+        $results = $this->collection;
+        $singleQueryResults = [];
+        $counter = 0;
+
+        foreach ($this->criteria as $criterion) {
+            $singleQueryResults[] = array_filter(
+                $this->collection, function($element) use ($criterion) {
+                return $this->isMatchingCriteria($element, $criterion);
+            });
+
+            $results = $this->returnSingleQueryResult($counter, $singleQueryResults);
+            ++$counter;
+        }
+
+        return $results;
+    }
+
+    /**
+     * @param $element
+     * @return bool
+     */
+    private function isMatchingCriteria($element, $criterion)
+    {
+        $value = $this->getListElementValueFromKey($element, $criterion['key']);
+
+        switch ($criterion['operator']) {
+            case '>':
+                return $value > $criterion['value'];
+
+            case '<':
+                return $value < $criterion['value'];
+
+            case '<=':
+                return $value <= $criterion['value'];
+
+            case '>=':
+                return $value >= $criterion['value'];
+
+            case '!=':
+                return $value !== $criterion['value'];
+
+            case 'ARRAY':
+                return in_array($value, (array) $criterion['value']);
+
+            case 'ARRAY_INVERSED':
+                return in_array($criterion['value'], (array)$value);
+
+            case 'CONTAINS':
+                return stripos($value, $criterion['value']) !== false;
+
+            default:
+                return $value === $criterion['value'];
+        }
     }
 
     /**
@@ -234,7 +259,7 @@ class QueryBuilder
      */
     private function getListElementValueFromKey($element, $key)
     {
-        if ((is_object($element) && !isset($element->{$key})) || (is_array($element) && !isset($element[$key]))) {
+        if ((is_object($element) && !isset($element->{$key})) || (is_array($element) && !array_key_exists($key, $element))) {
             throw new NotValidKeyElementInListException($key.' is not a valid key.');
         }
 
@@ -249,31 +274,13 @@ class QueryBuilder
      */
     private function compareStrings($first, $second)
     {
-        $valueA = $this->getListElementValueFromKey(unserialize($first), $this->orderBy['key']);
-        $valueB = $this->getListElementValueFromKey(unserialize($second), $this->orderBy['key']);
+        $valueA = $this->getListElementValueFromKey($first, $this->orderBy['key']);
+        $valueB = $this->getListElementValueFromKey($second, $this->orderBy['key']);
 
         if ($valueA === $valueB) {
             return 0;
         }
 
         return ($valueA < $valueB) ? -1 : 1;
-    }
-
-    /**
-     * @param callable $function
-     *
-     * @return array|ø
-     */
-    private function filter(callable $function)
-    {
-        return array_filter(
-            array_map(
-                function ($data) {
-                    return $data;
-                },
-                $this->collection
-            ),
-            $function
-        );
     }
 }

@@ -64,7 +64,7 @@ abstract class AbstractRepository
     public function getChunkSize($listUuid)
     {
         if ($this->existsListInIndex($listUuid)) {
-            $index = unserialize($this->getIndex($listUuid));
+            $index = $this->getIndex($listUuid);
 
             return $index['chunk-size'];
         }
@@ -80,7 +80,7 @@ abstract class AbstractRepository
     public function getCounter($listUuid)
     {
         if ($this->existsListInIndex($listUuid)) {
-            $index = unserialize($this->getIndex($listUuid));
+            $index = $this->getIndex($listUuid);
 
             return $index['size'];
         }
@@ -106,7 +106,7 @@ abstract class AbstractRepository
     public function getNumberOfChunks($listUuid)
     {
         if ($this->existsListInIndex($listUuid)) {
-            $index = unserialize($this->getIndex($listUuid));
+            $index = $this->getIndex($listUuid);
 
             return $index['chunks'];
         }
@@ -126,7 +126,7 @@ abstract class AbstractRepository
 
         if ($index = $this->getIndex()) {
             foreach ($index as $key => $item) {
-                $unserializedItem = unserialize($item);
+                $unserializedItem = $item;
                 $createdOn = $unserializedItem['created_on']->format('Y-m-d');
                 $from = $from ? $from->format('Y-m-d') : null;
                 $to = $to ? $to->format('Y-m-d') : null;
@@ -149,7 +149,7 @@ abstract class AbstractRepository
      */
     public function getTtl($listUuid)
     {
-        $index = unserialize($this->getIndex($listUuid));
+        $index = $this->getIndex($listUuid);
         if ($index['ttl'] && $index['ttl'] > 0) {
             $now = new \DateTime('NOW');
             $expire_date = $index['created_on']->add(new \DateInterval('PT'.$index['ttl'].'S'));
@@ -183,7 +183,7 @@ abstract class AbstractRepository
      */
     protected function updateListElementBody($listElement, $data)
     {
-        $listElement = unserialize($listElement);
+        $listElement = $listElement;
 
         if (is_string($listElement)) {
             return $data;

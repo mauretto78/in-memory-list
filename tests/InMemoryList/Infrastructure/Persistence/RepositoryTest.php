@@ -43,8 +43,8 @@ class RepositoryTest extends BaseTestCase
         $redis_parameters = $this->redis_parameters;
 
         $this->repos = [
-            new ApcuRepository(),
-            new MemcachedRepository($memcached),
+            //new ApcuRepository(),
+            //new MemcachedRepository($memcached),
             new RedisRepository(new Client($redis_parameters)),
         ];
     }
@@ -112,7 +112,7 @@ class RepositoryTest extends BaseTestCase
             $repo->create($collection, 3600);
             $repo->deleteElement($collectionUuid, (string) $fakeElement5->getUuid());
 
-            $element1 = unserialize($repo->findElement((string) $collection->getUuid(), (string) $fakeUUid1->getUuid()));
+            $element1 = $repo->findElement((string) $collection->getUuid(), (string) $fakeUUid1->getUuid());
 
             $this->assertCount(4, $repo->findListByUuid($collectionUuid));
             $this->assertArrayHasKey('id', $element1);
@@ -265,11 +265,11 @@ class RepositoryTest extends BaseTestCase
             $listInTheIndex = $repo->getIndex()[$listUuid1];
 
             $this->assertCount(10, $list);
-            $this->assertInstanceOf(stdClass::class, unserialize($element));
+            $this->assertInstanceOf(stdClass::class, $element);
             $this->assertEquals($repo->getHeaders($listUuid1), $headers);
             $this->assertArrayHasKey('expires', $repo->getHeaders($listUuid1));
             $this->assertArrayHasKey('hash', $repo->getHeaders($listUuid1));
-            $this->assertEquals(10, unserialize($listInTheIndex)['size']);
+            $this->assertEquals(10, $listInTheIndex['size']);
             $this->assertArrayHasKey($listUuid1, $repo->getIndex());
 
             $repo->updateTtl((string) $listUuid, -1);

@@ -26,20 +26,23 @@ foreach ($range as $number) {
     ];
 }
 
-$apiArray = json_encode($array);
-
 $client = new Client('redis', $config['redis_parameters']);
-$collection = $client->getRepository()->findListByUuid('range-list') ?: $client->create(json_decode($apiArray), ['uuid' => 'range-list', 'element-uuid' => 'id']);
+
+if($client->getRepository()->exists('simple-list')){
+    $client->create($array, [
+        'uuid' => 'range-list',
+        'element-uuid' => 'id']);
+}
+
+$collection = $client->getRepository()->findListByUuid('range-list');
 
 // loop items
 echo '<h3>Loop items</h3>';
 foreach ($collection as $element) {
-    $item = $client->item($element);
-
     echo '<p>';
-    echo '<strong>id</strong>: '.$item->id.'<br>';
-    echo '<strong>name</strong>: '.$item->name.'<br>';
-    echo '<strong>email</strong>: '.$item->email.'<br>';
+    echo '<strong>id</strong>: '.$element->id.'<br>';
+    echo '<strong>name</strong>: '.$element->name.'<br>';
+    echo '<strong>email</strong>: '.$element->email.'<br>';
     echo '</p>';
 }
 

@@ -16,19 +16,27 @@ $apiUrl = 'https://jsonplaceholder.typicode.com/comments';
 $apiArray = json_decode(file_get_contents($apiUrl));
 
 $client = new Client('redis', $config['redis_parameters']);
+
+if($client->getRepository()->exists('simple-list')){
+    $client->create(json_decode($apiArray), [
+        'uuid' => 'range-list',
+        'element-uuid' => 'id']);
+}
+
+$collection = $client->getRepository()->findListByUuid('range-list');
+
+
 $collection = $client->getRepository()->findListByUuid('comments-list') ?: $client->create($apiArray, ['uuid' => 'comments-list', 'element-uuid' => 'id']);
 
 // loop items
 echo '<h3>Loop items</h3>';
 foreach ($collection as $element) {
-    $item = $client->item($element);
-
     echo '<p>';
-    echo '<strong>postId</strong>: '.$item->postId.'<br>';
-    echo '<strong>id</strong>: '.$item->id.'<br>';
-    echo '<strong>name</strong>: '.$item->name.'<br>';
-    echo '<strong>email</strong>: '.$item->email.'<br>';
-    echo '<strong>body</strong>: '.$item->body.'<br>';
+    echo '<strong>postId</strong>: '.$element->postId.'<br>';
+    echo '<strong>id</strong>: '.$element->id.'<br>';
+    echo '<strong>name</strong>: '.$element->name.'<br>';
+    echo '<strong>email</strong>: '.$element->email.'<br>';
+    echo '<strong>body</strong>: '.$element->body.'<br>';
     echo '</p>';
 }
 

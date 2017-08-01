@@ -42,7 +42,7 @@ class QueryBuilderTest extends BaseTestCase
      */
     public function it_throws_EmptyCollectionException_if_an_empty_collection_is_provided()
     {
-        new QueryBuilder([]);
+        QueryBuilder::create([]);
     }
 
     /**
@@ -58,7 +58,7 @@ class QueryBuilderTest extends BaseTestCase
             'element-uuid' => 'id',
         ]);
 
-        $queryBuilder = new QueryBuilder($this->client->getRepository()->findListByUuid('user-list'));
+        $queryBuilder = QueryBuilder::create($this->client->getRepository()->findListByUuid('user-list'));
         $queryBuilder->addCriteria('name', 'Ervin Howell', 'wrong operator');
         $this->assertCount(1, $queryBuilder->getResults());
 
@@ -77,7 +77,7 @@ class QueryBuilderTest extends BaseTestCase
             'uuid' => 'user list',
         ]);
 
-        $queryBuilder = new QueryBuilder($this->client->getRepository()->findListByUuid('user-list'));
+        $queryBuilder = QueryBuilder::create($this->client->getRepository()->findListByUuid('user-list'));
         $queryBuilder->addCriteria('not-existing-key', 'Ervin Howell');
         $this->assertCount(1, $queryBuilder->getResults());
 
@@ -96,7 +96,7 @@ class QueryBuilderTest extends BaseTestCase
             'uuid' => 'user list',
         ]);
 
-        $queryBuilder = new QueryBuilder($this->client->getRepository()->findListByUuid('user-list'));
+        $queryBuilder = QueryBuilder::create($this->client->getRepository()->findListByUuid('user-list'));
         $queryBuilder
             ->addCriteria('name', 'Ervin Howell')
             ->orderBy('name', 'not wrong sorting operator');
@@ -118,7 +118,7 @@ class QueryBuilderTest extends BaseTestCase
             'element-uuid' => 'id',
         ]);
 
-        $queryBuilder = new QueryBuilder($this->client->getRepository()->findListByUuid('user-list'));
+        $queryBuilder = QueryBuilder::create($this->client->getRepository()->findListByUuid('user-list'));
         $queryBuilder->limit(123, 'string');
 
         $this->client->getRepository()->flush();
@@ -137,7 +137,7 @@ class QueryBuilderTest extends BaseTestCase
             'element-uuid' => 'id',
         ]);
 
-        $queryBuilder = new QueryBuilder($this->client->getRepository()->findListByUuid('user-list'));
+        $queryBuilder = QueryBuilder::create($this->client->getRepository()->findListByUuid('user-list'));
         $queryBuilder->limit('string', 13);
 
         $this->client->getRepository()->flush();
@@ -156,7 +156,7 @@ class QueryBuilderTest extends BaseTestCase
             'element-uuid' => 'id',
         ]);
 
-        $queryBuilder = new QueryBuilder($this->client->getRepository()->findListByUuid('user-list'));
+        $queryBuilder = QueryBuilder::create($this->client->getRepository()->findListByUuid('user-list'));
         $queryBuilder->limit(432, 13);
 
         $this->client->getRepository()->flush();
@@ -168,79 +168,88 @@ class QueryBuilderTest extends BaseTestCase
     public function it_should_query_sorting_and_retrieve_data_from_in_memory_collection()
     {
         $this->client->getRepository()->flush();
-        $userCollection = $this->client->create($this->parsedUserArray, [
+        $this->client->create($this->parsedUserArray, [
             'uuid' => 'user list',
             'element-uuid' => 'id',
-        ]);
+       ]);
+
+        $userCollection = $this->client->getRepository()->findListByUuid('user-list');
 
         // perform a simple query
-        $queryBuilder = new QueryBuilder($userCollection);
+        $queryBuilder = QueryBuilder::create($userCollection);
         $queryBuilder->addCriteria('name', 'Ervin Howell');
         $this->assertCount(1, $queryBuilder->getResults());
 
         // perform a > query
-        $queryBuilder2 = new QueryBuilder($userCollection);
+        $queryBuilder2 = QueryBuilder::create($userCollection);
         $queryBuilder2->addCriteria('id', '3', '>');
         $this->assertCount(7, $queryBuilder2->getResults());
 
         // perform a < query
-        $queryBuilder3 = new QueryBuilder($userCollection);
+        $queryBuilder3 = QueryBuilder::create($userCollection);
         $queryBuilder3->addCriteria('id', '3', '<');
         $this->assertCount(2, $queryBuilder3->getResults());
 
         // perform a <= query
-        $queryBuilder4 = new QueryBuilder($userCollection);
+        $queryBuilder4 = QueryBuilder::create($userCollection);
         $queryBuilder4->addCriteria('id', '3', '<=');
         $this->assertCount(3, $queryBuilder4->getResults());
 
         // perform a >= query
-        $queryBuilder5 = new QueryBuilder($userCollection);
+        $queryBuilder5 = QueryBuilder::create($userCollection);
         $queryBuilder5->addCriteria('id', '3', '>=');
         $this->assertCount(8, $queryBuilder5->getResults());
 
         // perform a != query
-        $queryBuilder6 = new QueryBuilder($userCollection);
+        $queryBuilder6 = QueryBuilder::create($userCollection);
         $queryBuilder6->addCriteria('name', 'Ervin Howell', '!=');
         $this->assertCount(9, $queryBuilder6->getResults());
 
         // perform a CONTAINS query
-        $queryBuilder7 = new QueryBuilder($userCollection);
+        $queryBuilder7 = QueryBuilder::create($userCollection);
         $queryBuilder7->addCriteria('name', 'clement', 'CONTAINS');
         $this->assertCount(2, $queryBuilder7->getResults());
 
         // perform a ARRAY query
-        $queryBuilder8 = new QueryBuilder($userCollection);
+        $queryBuilder8 = QueryBuilder::create($userCollection);
         $queryBuilder8->addCriteria('name', ['Leanne Graham', 'Ervin Howell', 'Clementine Bauch'], 'ARRAY');
         $this->assertCount(3, $queryBuilder8->getResults());
 
         // perform a ARRAY_INVERSED query
-        $queryBuilder9 = new QueryBuilder($userCollection);
+        $queryBuilder9 = QueryBuilder::create($userCollection);
         $queryBuilder9->addCriteria('tags', 'pinapple', 'ARRAY_INVERSED');
         $this->assertCount(9, $queryBuilder9->getResults());
 
         // perform a concatenated query
-        $queryBuilder10 = new QueryBuilder($userCollection);
+        $queryBuilder10 = QueryBuilder::create($userCollection);
         $queryBuilder10
             ->addCriteria('name', 'Clement', 'CONTAINS')
             ->addCriteria('id', '6', '>=')
         ;
+
         $this->assertCount(1, $queryBuilder10->getResults());
 
         // perform a concatenated query with order by and check that first element of array is the expected one
-        $queryBuilder11 = new QueryBuilder($userCollection);
+        $queryBuilder11 = QueryBuilder::create($userCollection);
         $queryBuilder11->orderBy('id', 'DESC');
         $results = $queryBuilder11->getResults();
-        $firstResult = $this->client->item($results[0]);
+        $firstResult = $results[0];
         $this->assertEquals($firstResult->id, '10');
 
         // perform a concatenated query with order by and check that first element of array is the expected one
-        $postCollection = $this->client->create($this->parsedPostsArray, [], 'post-list', 'id');
-        $queryBuilder12 = new QueryBuilder($postCollection);
+        $this->client->create($this->parsedPostsArray, [
+            'uuid' => 'post-list',
+            'element-uuid' => 'id',
+        ]);
+
+        $postCollection = $this->client->getRepository()->findListByUuid('post-list');
+
+        $queryBuilder12 = QueryBuilder::create($postCollection);
         $queryBuilder12->orderBy('userId');
         $results = $queryBuilder12->getResults();
 
         // perform a concatenated query with limit
-        $queryBuilder13 = new QueryBuilder($userCollection);
+        $queryBuilder13 = QueryBuilder::create($userCollection);
         $queryBuilder13->limit(0, 5);
         $this->assertCount(5, $queryBuilder13->getResults());
 

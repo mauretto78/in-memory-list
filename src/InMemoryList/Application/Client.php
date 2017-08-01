@@ -143,16 +143,6 @@ class Client
     }
 
     /**
-     * @param $string
-     *
-     * @return mixed
-     */
-    public function item($string)
-    {
-        return unserialize($string);
-    }
-
-    /**
      * @param $listUuid
      * @param $elementUuid
      * @param array $data

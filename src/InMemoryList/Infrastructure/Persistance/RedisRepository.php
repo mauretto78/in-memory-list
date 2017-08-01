@@ -1,11 +1,11 @@
 <?php
 /**
- * This file is part of the InMemoryList package.
+ * This file is part of the Simple EventStore Manager package.
  *
  * (c) Mauro Cassani<https://github.com/mauretto78>
  *
- *  For the full copyright and license information, please view the LICENSE
- *  file that was distributed with this source code.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace InMemoryList\Infrastructure\Persistance;
@@ -107,8 +107,6 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
             (int) $chunkSize,
             $ttl
         );
-
-        return $this->findListByUuid($list->getUuid());
     }
 
     /**
@@ -131,7 +129,7 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
                 $this->client->hdel($chunkNumber, $elementUuid);
 
                 // update list index
-                $prevIndex = unserialize($this->getIndex($listUuid));
+                $prevIndex = $this->getIndex($listUuid);
                 $this->addOrUpdateListToIndex(
                     $listUuid,
                     ($prevIndex['size'] - 1),
@@ -205,7 +203,7 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
             $collection = array_merge($collection, $this->client->hgetall($listUuid.self::SEPARATOR.self::CHUNK.'-'.$i));
         }
 
-        return $collection;
+        return array_map('unserialize', $collection);
     }
 
     /**
@@ -229,19 +227,19 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
     /**
      * @param null $listUuid
      *
-     * @return array|string
+     * @return array
      */
     public function getIndex($listUuid = null)
     {
         $indexKey = ListRepositoryInterface::INDEX;
-
-        $this->removeExpiredListsFromIndex($this->client->hgetall($indexKey));
+        $index = $this->client->hgetall($indexKey);
+        $this->removeExpiredListsFromIndex($index);
 
         if ($listUuid) {
-            return $this->client->hget($indexKey, $listUuid);
+            return (isset($index[(string) $listUuid])) ? unserialize($this->client->hget($indexKey, $listUuid)) : null;
         }
 
-        return $this->client->hgetall($indexKey);
+        return array_map('unserialize', $this->client->hgetall($indexKey));
     }
 
     /**
@@ -271,6 +269,7 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
 
         $number = $this->getNumberOfChunks($listUuid);
         $chunkSize = $this->getChunkSize($listUuid);
+
         $chunkNumber = $listUuid.self::SEPARATOR.self::CHUNK.'-'.$number;
 
         if (($chunkSize - count($this->client->hgetall($chunkNumber))) === 0) {
@@ -285,7 +284,7 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
         );
 
         // update list index
-        $prevIndex = unserialize($this->getIndex($listUuid));
+        $prevIndex = $this->getIndex($listUuid);
         $this->addOrUpdateListToIndex(
             $listUuid,
             ($prevIndex['size'] + 1),

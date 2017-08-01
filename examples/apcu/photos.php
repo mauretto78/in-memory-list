@@ -19,14 +19,12 @@ $collection = $client->getRepository()->findListByUuid('photos-list') ?: $client
 // loop items
 echo '<h3>Loop items</h3>';
 foreach ($collection as $element) {
-    $item = $client->item($element);
-
     echo '<p>';
-    echo '<strong>albumId</strong>: '.$item->albumId.'<br>';
-    echo '<strong>id</strong>: '.$item->id.'<br>';
-    echo '<strong>title</strong>: '.$item->title.'<br>';
-    echo '<strong>url</strong>: '.$item->url.'<br>';
-    echo '<strong>thumbnailUrl</strong>: '.$item->thumbnailUrl.'<br>';
+    echo '<strong>albumId</strong>: '.$element->albumId.'<br>';
+    echo '<strong>id</strong>: '.$element->id.'<br>';
+    echo '<strong>title</strong>: '.$element->title.'<br>';
+    echo '<strong>url</strong>: '.$element->url.'<br>';
+    echo '<strong>thumbnailUrl</strong>: '.$element->thumbnailUrl.'<br>';
     echo '</p>';
 }
 
