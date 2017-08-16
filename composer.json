@@ -31,7 +31,8 @@
         "symfony/console": "^3.2",
         "symfony/yaml": "^3.3",
         "doctrine/annotations": "1.2.*",
-        "doctrine/instantiator": "1.0.*"
+        "doctrine/instantiator": "1.0.*",
+        "mauretto78/array-query": "^1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "~5.7",

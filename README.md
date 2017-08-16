@@ -362,72 +362,22 @@ $collection = $client->create($listArray, [
 
 ## Sorting and Quering
 
-You can perform queries on your list. You can concatenate criteria:
+You can perform queries on your list. This library uses [Array Query](https://github.com/mauretto78/array-query), please refer to it for the official documentation.
 
 ```php
-use InMemoryList\Application\Client;
-use InMemoryList\Application\QueryBuilder;
+use ArrayQuery\QueryBuilder;
 
-$array = [
-    ...
-]
+// ..
 
-$client = new Client();
-$collection = $client->create($array, [
-    'uuid' => 'simple-array'
-]);
-$qb = QueryBuilder::create($collection);
+$list = $client->getRepository()->findListByUuid('simple-array');
+
+$qb = QueryBuilder::create($list);
 $qb
-    ->addCriteria('title', '...', 'CONTAINS')
-    ->addCriteria('rate', '3', '>')
-    ->orderBy('title');
-    
+    ->addCriterion('id', '3', '>')
+    ->sortedBy('id', 'DESC');
+  
 // get results    
 foreach ($qb->getResults() as $element){
-    // ...
-}
-```
-
-You can use the following operators to perform your queries:
-
-* `=` (default operator)
-* `>`
-* `<`
-* `<=`
-* `>=`
-* `!=`
-* `ARRAY`
-* `ARRAY_INVERSED`
-* `CONTAINS` (case insensitive)
-
-## Limit and Offset
-
-You can specify limit/offset on your query results:
-
-```php
-use InMemoryList\Application\Client;
-use InMemoryList\Application\QueryBuilder;
-
-$array = [
-    ...
-]
-
-$client = new Client();
-$client->create($array, [
-    'uuid' => 'simple-array'
-]);
-
-$collection = $client->getRepository()->findListByUuid('simple-array');
-
-$qb = QueryBuilder::create($collection);
-$qb
-    ->addCriteria('title', [...], 'ARRAY')
-    ->addCriteria('rate', '3', '>')
-    ->orderBy('title')
-    ->limit(0, 10);
-    
-foreach ($qb->getResults() as $element){
-    $item = $client->item($element);
     // ...
 }
 ```
