@@ -35,8 +35,8 @@ class StatisticsCommand extends BaseCommand
     {
         $this
             ->setName('iml:cache:statistics')
-            ->setDescription('Get all data stored in cache.')
-            ->setHelp('This command displays in a table all data stored in cache.')
+            ->setDescription('Get the cache statistics.')
+            ->setHelp('This command displays the cache statistics.')
         ;
     }
 
