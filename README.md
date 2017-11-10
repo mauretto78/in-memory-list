@@ -1,5 +1,6 @@
 # In-memory List
 
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mauretto78/in-memory-list/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/mauretto78/in-memory-list/?branch=master)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/5bf086af-e45e-48f6-98dd-b7d5ea074130/mini.png)](https://insight.sensiolabs.com/projects/5bf086af-e45e-48f6-98dd-b7d5ea074130)
 [![Build Status](https://travis-ci.org/mauretto78/in-memory-list.svg?branch=master)](https://travis-ci.org/mauretto78/in-memory-list)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/84d8322496cb4a11bdc0ca01a4271b52)](https://www.codacy.com/app/mauretto78/in-memory-list?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mauretto78/in-memory-list&amp;utm_campaign=Badge_Grade)
