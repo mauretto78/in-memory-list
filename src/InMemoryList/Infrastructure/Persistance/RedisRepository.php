@@ -62,51 +62,76 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
 
         // persist in memory array in chunks
         $arrayChunks = array_chunk($items, $chunkSize, true);
-        foreach ($arrayChunks as $chunkNumber => $item) {
-            foreach ($item as $key => $element) {
-                $listChunkUuid = $list->getUuid().self::SEPARATOR.self::CHUNK.'-'.($chunkNumber + 1);
-                $elementUuid = $element->getUuid();
-                $body = $element->getBody();
 
-                $this->client->hset(
-                    (string) $listChunkUuid,
-                    (string) $elementUuid,
-                    (string) $body
-                );
+        $options = [
+            'cas' => true,
+            'watch' => $this->getArrayChunksKeys($listUuid, count($arrayChunks)),
+            'retry' => 3,
+        ];
 
-                // set ttl
-                if ($ttl) {
-                    $this->client->expire(
+        // persist all in a transaction
+        $this->client->transaction($options, function ($tx) use ($arrayChunks, $list, $ttl, $listUuid, $items, $chunkSize) {
+            foreach ($arrayChunks as $chunkNumber => $item) {
+                foreach ($item as $key => $element) {
+                    $listChunkUuid = $listUuid.self::SEPARATOR.self::CHUNK.'-'.($chunkNumber + 1);
+                    $elementUuid = $element->getUuid();
+                    $body = $element->getBody();
+
+                    $tx->hset(
                         (string) $listChunkUuid,
-                        $ttl
+                        (string) $elementUuid,
+                        (string) $body
                     );
+
+                    // set ttl
+                    if ($ttl) {
+                        $tx->expire(
+                            (string) $listChunkUuid,
+                            $ttl
+                        );
+                    }
                 }
             }
-        }
 
-        // set headers
-        if ($list->getHeaders()) {
-            foreach ($list->getHeaders() as $key => $header) {
-                $this->client->hset(
-                    $listUuid.self::SEPARATOR.self::HEADERS,
-                    $key,
-                    $header
-                );
+            // set headers
+            if ($list->getHeaders()) {
+                foreach ($list->getHeaders() as $key => $header) {
+                    $this->client->hset(
+                        $listUuid.self::SEPARATOR.self::HEADERS,
+                        $key,
+                        $header
+                    );
+                }
+
+                if ($ttl) {
+                    $this->client->expire($listUuid.self::SEPARATOR.self::HEADERS, $ttl);
+                }
             }
 
-            if ($ttl) {
-                $this->client->expire($listUuid.self::SEPARATOR.self::HEADERS, $ttl);
-            }
+            // add list to index
+            $this->addOrUpdateListToIndex(
+                $listUuid,
+                (int) count($items),
+                (int) count($arrayChunks),
+                (int) $chunkSize,
+                $ttl
+            );
+        });
+    }
+
+    /**
+     * @param $listUuid
+     * @param $numberOfChunks
+     * @return array
+     */
+    private function getArrayChunksKeys($listUuid, $numberOfChunks)
+    {
+        $arrayChunksKeys = [];
+        for($i=0;$i<$numberOfChunks;$i++){
+            $arrayChunksKeys[] = $listUuid.self::SEPARATOR.self::CHUNK.'-'.($i + 1);
         }
 
-        // add list to index
-        $this->addOrUpdateListToIndex(
-            $listUuid,
-            (int) count($items),
-            (int) count($arrayChunks),
-            (int) $chunkSize,
-            $ttl
-        );
+        return $arrayChunksKeys;
     }
 
     /**
@@ -320,36 +345,45 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
     {
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
 
-        for ($i = 1; $i <= $numberOfChunks; ++$i) {
-            $chunkNumber = $listUuid.self::SEPARATOR.self::CHUNK.'-'.$i;
-            $chunk = $this->client->hgetall($chunkNumber);
+        $options = [
+            'cas' => true,
+            'watch' => $this->getArrayChunksKeys($listUuid, $numberOfChunks),
+            'retry' => 3,
+        ];
 
-            if (array_key_exists($elementUuid, $chunk)) {
-                $listElement = $this->findElement(
-                    (string) $listUuid,
-                    (string) $elementUuid
-                );
+        // persist in a transaction
+        $this->client->transaction($options, function ($tx) use ($numberOfChunks, $listUuid, $elementUuid, $data) {
+            for ($i = 1; $i <= $numberOfChunks; ++$i) {
+                $chunkNumber = $listUuid.self::SEPARATOR.self::CHUNK.'-'.$i;
+                $chunk = $this->client->hgetall($chunkNumber);
 
-                $updatedElementBody = $this->updateListElementBody($listElement, $data);
-                if (!ListElementConsistencyChecker::isConsistent($updatedElementBody, $this->findListByUuid($listUuid))) {
-                    throw new ListElementNotConsistentException('Element '.(string) $elementUuid.' is not consistent with list data.');
+                if (array_key_exists($elementUuid, $chunk)) {
+                    $listElement = $this->findElement(
+                        (string) $listUuid,
+                        (string) $elementUuid
+                    );
+
+                    $updatedElementBody = $this->updateListElementBody($listElement, $data);
+                    if (!ListElementConsistencyChecker::isConsistent($updatedElementBody, $this->findListByUuid($listUuid))) {
+                        throw new ListElementNotConsistentException('Element '.(string) $elementUuid.' is not consistent with list data.');
+                    }
+
+                    $updatedElement = new ListElement(
+                        new ListElementUuid($elementUuid),
+                        $updatedElementBody
+                    );
+                    $body = $updatedElement->getBody();
+
+                    $tx->hset(
+                        $chunkNumber,
+                        $elementUuid,
+                        $body
+                    );
+
+                    break;
                 }
-
-                $updatedElement = new ListElement(
-                    new ListElementUuid($elementUuid),
-                    $updatedElementBody
-                );
-                $body = $updatedElement->getBody();
-
-                $this->client->hset(
-                    $chunkNumber,
-                    $elementUuid,
-                    $body
-                );
-
-                break;
             }
-        }
+        });
     }
 
     /**
