@@ -145,33 +145,42 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
         $chunkSize = $this->getChunkSize($listUuid);
 
-        for ($i = 1; $i <= $numberOfChunks; ++$i) {
-            $chunkNumber = $listUuid.self::SEPARATOR.self::CHUNK.'-'.$i;
-            $chunk = $this->client->hgetall($chunkNumber);
+        $options = [
+            'cas' => true,
+            'watch' => $this->getArrayChunksKeys($listUuid, $numberOfChunks),
+            'retry' => 3,
+        ];
 
-            if (array_key_exists($elementUuid, $chunk)) {
-                // delete elements from chunk
-                $this->client->hdel($chunkNumber, $elementUuid);
+        // delete in a transaction
+        $this->client->transaction($options, function ($tx) use ($listUuid, $numberOfChunks, $chunkSize, $elementUuid) {
+            for ($i = 1; $i <= $numberOfChunks; ++$i) {
+                $chunkNumber = $listUuid.self::SEPARATOR.self::CHUNK.'-'.$i;
+                $chunk = $this->client->hgetall($chunkNumber);
 
-                // update list index
-                $prevIndex = $this->getIndex($listUuid);
-                $this->addOrUpdateListToIndex(
-                    $listUuid,
-                    ($prevIndex['size'] - 1),
-                    $numberOfChunks,
-                    $chunkSize,
-                    $prevIndex['ttl']
-                );
+                if (array_key_exists($elementUuid, $chunk)) {
+                    // delete elements from chunk
+                    $tx->hdel($chunkNumber, $elementUuid);
 
-                // delete headers if counter = 0
-                $headersKey = $listUuid.self::SEPARATOR.self::HEADERS;
-                if ($this->getCounter($listUuid) === 0) {
-                    $this->client->del($headersKey);
+                    // update list index
+                    $prevIndex = $this->getIndex($listUuid);
+                    $this->addOrUpdateListToIndex(
+                        $listUuid,
+                        ($prevIndex['size'] - 1),
+                        $numberOfChunks,
+                        $chunkSize,
+                        $prevIndex['ttl']
+                    );
+
+                    // delete headers if counter = 0
+                    $headersKey = $listUuid.self::SEPARATOR.self::HEADERS;
+                    if ($this->getCounter($listUuid) === 0) {
+                        $tx->del($headersKey);
+                    }
+
+                    break;
                 }
-
-                break;
             }
-        }
+        });
     }
 
     /**
@@ -292,31 +301,40 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
             throw new ListElementNotConsistentException('Element '.(string) $listElement->getUuid().' is not consistent with list data.');
         }
 
-        $number = $this->getNumberOfChunks($listUuid);
+        $numberOfChunks = $this->getNumberOfChunks($listUuid);
         $chunkSize = $this->getChunkSize($listUuid);
 
-        $chunkNumber = $listUuid.self::SEPARATOR.self::CHUNK.'-'.$number;
+        $chunkNumber = $listUuid.self::SEPARATOR.self::CHUNK.'-'.$numberOfChunks;
 
-        if (($chunkSize - count($this->client->hgetall($chunkNumber))) === 0) {
-            ++$number;
-            $chunkNumber = $listUuid.self::SEPARATOR.self::CHUNK.'-'.$number;
-        }
+        $options = [
+            'cas' => true,
+            'watch' => $this->getArrayChunksKeys($listUuid, $numberOfChunks),
+            'retry' => 3,
+        ];
 
-        $this->client->hset(
-            (string) $chunkNumber,
-            (string) $elementUuid,
-            (string) $body
-        );
+        // persist in a transaction
+        $this->client->transaction($options, function ($tx) use ($chunkNumber, $numberOfChunks, $chunkSize, $listUuid, $elementUuid, $body) {
+            if (($chunkSize - count($tx->hgetall($chunkNumber))) === 0) {
+                ++$numberOfChunks;
+                $chunkNumber = $listUuid.self::SEPARATOR.self::CHUNK.'-'.$numberOfChunks;
+            }
 
-        // update list index
-        $prevIndex = $this->getIndex($listUuid);
-        $this->addOrUpdateListToIndex(
-            $listUuid,
-            ($prevIndex['size'] + 1),
-            $number,
-            $chunkSize,
-            $this->getTtl($listUuid)
-        );
+            $tx->hset(
+                (string) $chunkNumber,
+                (string) $elementUuid,
+                (string) $body
+            );
+
+            // update list index
+            $prevIndex = $this->getIndex($listUuid);
+            $this->addOrUpdateListToIndex(
+                $listUuid,
+                ($prevIndex['size'] + 1),
+                $numberOfChunks,
+                $chunkSize,
+                $this->getTtl($listUuid)
+            );
+        });
     }
 
     /**
@@ -402,25 +420,35 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
 
         // update ttl of all chunks
         $numberOfChunks = $this->getNumberOfChunks($listUuid);
-        for ($i = 1; $i <= $numberOfChunks; ++$i) {
-            $this->client->expire(
-                (string) $listUuid.self::SEPARATOR.self::CHUNK.'-'.$i,
-                (int) $ttl
+
+        $options = [
+            'cas' => true,
+            'watch' => $this->getArrayChunksKeys($listUuid, $numberOfChunks),
+            'retry' => 3,
+        ];
+
+        // persist in a transaction
+        $this->client->transaction($options, function ($tx) use ($numberOfChunks, $listUuid, $ttl) {
+            for ($i = 1; $i <= $numberOfChunks; ++$i) {
+                $tx->expire(
+                    (string) $listUuid.self::SEPARATOR.self::CHUNK.'-'.$i,
+                    (int) $ttl
+                );
+            }
+
+            // update ttl of headers array (if present)
+            if ($this->getHeaders($listUuid)) {
+                $tx->expire($listUuid.self::SEPARATOR.self::HEADERS, $ttl);
+            }
+
+            // update index
+            $this->addOrUpdateListToIndex(
+                $listUuid,
+                $this->getCounter($listUuid),
+                $this->getNumberOfChunks($listUuid),
+                $this->getChunkSize($listUuid),
+                $ttl
             );
-        }
-
-        // update ttl of headers array (if present)
-        if ($this->getHeaders($listUuid)) {
-            $this->client->expire($listUuid.self::SEPARATOR.self::HEADERS, $ttl);
-        }
-
-        // update index
-        $this->addOrUpdateListToIndex(
-            $listUuid,
-            $this->getCounter($listUuid),
-            $this->getNumberOfChunks($listUuid),
-            $this->getChunkSize($listUuid),
-            $ttl
-        );
+        });
     }
 }
