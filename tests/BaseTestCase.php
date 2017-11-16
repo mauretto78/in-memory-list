@@ -25,6 +25,11 @@ class BaseTestCase extends TestCase
     protected $memcached_parameters;
 
     /**
+     * @var
+     */
+    protected $pdo_parameters;
+
+    /**
      * setup configuration.
      */
     public function setUp()
@@ -32,5 +37,6 @@ class BaseTestCase extends TestCase
         $config = require __DIR__.'/../app/bootstrap.php';
         $this->memcached_parameters = $config['memcached_parameters'];
         $this->redis_parameters = $config['redis_parameters'];
+        $this->pdo_parameters = $config['pdo_parameters'];
     }
 }
