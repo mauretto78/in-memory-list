@@ -32,6 +32,7 @@ class ClientTest extends BaseTestCase
         $this->clients = [
             'apcu' => new Client('apcu'),
             'memcached' => new Client('memcached', $this->memcached_parameters),
+            'pdo' => new Client('pdo', $this->pdo_parameters),
             'redis' => new Client('redis', $this->redis_parameters),
         ];
     }
@@ -223,10 +224,12 @@ class ClientTest extends BaseTestCase
             $this->assertEquals('mauretto78', $element2->username);
             $this->assertEquals('mauretto1978@yahoo.it', $element2->email);
 
-            $client->getRepository()->updateTtl('fake-list', 7200);
-            $this->assertEquals($client->getRepository()->getTtl('fake-list'), 7200);
+            if($client->getDriver() !== 'pdo'){
+                $client->getRepository()->updateTtl('fake-list', 7200);
+                $this->assertEquals($client->getRepository()->getTtl('fake-list'), 7200);
+                $client->getRepository()->removeListFromIndex('fake list');
+            }
 
-            $client->getRepository()->removeListFromIndex('fake list');
             $client->getRepository()->delete('fake list');
         }
     }

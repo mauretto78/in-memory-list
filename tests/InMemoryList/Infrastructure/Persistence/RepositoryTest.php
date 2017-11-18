@@ -16,6 +16,7 @@ use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Infrastructure\Persistance\ApcuRepository;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListDoesNotExistsException;
 use InMemoryList\Infrastructure\Persistance\MemcachedRepository;
+use InMemoryList\Infrastructure\Persistance\PdoRepository;
 use InMemoryList\Infrastructure\Persistance\RedisRepository;
 use InMemoryList\Tests\BaseTestCase;
 use Predis\Client;
@@ -32,7 +33,6 @@ class RepositoryTest extends BaseTestCase
         parent::setUp();
 
         // memcached
-        // if $this->memcached_parameters is a monodimensional array convert to multidimensional
         $memcached = new Memcached();
         if (!isset($this->memcached_parameters[0])) {
             $this->memcached_parameters = [$this->memcached_parameters];
@@ -42,11 +42,27 @@ class RepositoryTest extends BaseTestCase
         // redis
         $redis_parameters = $this->redis_parameters;
 
+        // pdo
+        $pdo_parameters = $this->pdo_parameters;
+        $port = (isset($pdo_parameters['port'])) ? $pdo_parameters['port'] : '3306';
+        $charset = (isset($pdo_parameters['charset'])) ? $pdo_parameters['charset'] : 'utf8';
+        $dsn = $pdo_parameters['driver'].':host='.$pdo_parameters['host'].':'.$port.';dbname='.$pdo_parameters['database'].';charset='.$charset;
+        $pdo = new \PDO($dsn, $pdo_parameters['username'], $pdo_parameters['password']);
+
         $this->repos = [
-            //new ApcuRepository(),
-            //new MemcachedRepository($memcached),
+            new ApcuRepository(),
+            new MemcachedRepository($memcached),
+            new PdoRepository($pdo),
             new RedisRepository(new Client($redis_parameters)),
         ];
+    }
+
+    public function tearDown()
+    {
+        /** @var ListRepositoryInterface $repo */
+        foreach ($this->repos as $repo) {
+            $repo->flush();
+        }
     }
 
     /**
@@ -133,8 +149,11 @@ class RepositoryTest extends BaseTestCase
             $repo->deleteElement($collectionUuid, (string) $fakeElement6->getUuid());
 
             $this->assertEquals(0, $repo->getCounter($collectionUuid));
-            $this->assertEquals(0, $repo->getNumberOfChunks($collectionUuid));
-            $this->assertEquals(0, $repo->getChunkSize($collectionUuid));
+
+            if(!$repo instanceof PdoRepository){
+                $this->assertEquals(0, $repo->getNumberOfChunks($collectionUuid));
+                $this->assertEquals(0, $repo->getChunkSize($collectionUuid));
+            }
         }
     }
 
@@ -225,11 +244,13 @@ class RepositoryTest extends BaseTestCase
 
             $repo->create($collection, 3600);
 
-            try {
-                $repo->updateTtl('not existing hash', 7200);
-            } catch (\Exception $exception) {
-                $this->assertInstanceOf(ListDoesNotExistsException::class, $exception);
-                $this->assertEquals($exception->getMessage(), 'List not existing hash does not exists in memory.');
+            if(!$repo instanceof PdoRepository){
+                try {
+                    $repo->updateTtl('not existing hash', 7200);
+                } catch (\Exception $exception) {
+                    $this->assertInstanceOf(ListDoesNotExistsException::class, $exception);
+                    $this->assertEquals($exception->getMessage(), 'List not existing hash does not exists in memory.');
+                }
             }
         }
     }
@@ -272,13 +293,13 @@ class RepositoryTest extends BaseTestCase
             $this->assertEquals(10, $listInTheIndex['size']);
             $this->assertArrayHasKey($listUuid1, $repo->getIndex());
 
-            $repo->updateTtl((string) $listUuid, -1);
-
-            $this->assertEquals(-1, $repo->getTtl((string) $listUuid));
+            if(!$repo instanceof PdoRepository){
+                $repo->updateTtl((string) $listUuid, -1);
+                $this->assertEquals(-1, $repo->getTtl((string) $listUuid));
+                $this->assertGreaterThan(0, $repo->getStatistics());
+            }
 
             $repo->delete((string) $listUuid);
-
-            $this->assertGreaterThan(0, $repo->getStatistics());
         }
     }
 

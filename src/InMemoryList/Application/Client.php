@@ -51,6 +51,7 @@ class Client
         $allowedDrivers = [
             'apcu',
             'memcached',
+            'pdo',
             'redis',
         ];
 

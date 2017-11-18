@@ -17,6 +17,7 @@ This package uses:
  
 * [Apcu](http://php.net/manual/en/book.apcu.php)
 * [Memcached](https://memcached.org/)
+* [Pdo](http://php.net/manual/en/book.pdo.php)
 * [Redis](https://redis.io/)
 
 ## Basic Usage
@@ -46,6 +47,7 @@ Avaliable drivers:
 
 * `apcu` 
 * `memcached` 
+* `pdo` 
 * `redis` (default driver)
  
 ```php
@@ -75,6 +77,23 @@ $memcached_parameters = [
 $client = new Client('memcached', $memcached_parameters);
 // ..
 ```  
+
+```php
+use InMemoryList\Application\Client;
+
+// Pdo
+$pdo_parameters = [
+    'driver' => 'mysql',
+    'host' => '127.0.0.1',
+    'username' => 'root',
+    'password' => '',
+    'database' => 'locker'
+    'port' => '3306'
+];
+
+$client = new Client('pdo', $pdo_parameters);
+// ..
+```   
  
 ```php
 use InMemoryList\Application\Client;
@@ -104,8 +123,10 @@ When use `create` method to a generate a list, you can provide to it a parameter
 * `uuid` - uuid of list
 * `element-uuid` - uuid for the list elements
 * `headers` - headers array for the list
-* `chunk-size` - the chunks size in which the array will be splitted (integer)
-* `ttl` - time to live of the list (in seconds)
+* `chunk-size` - the chunks size in which the array will be splitted (integer) **
+* `ttl` - time to live of the list (in seconds) **
+
+** = NOT AVALIABLE WITH PDO DRIVER
 
 ### uuid
 
@@ -207,6 +228,8 @@ $collection = $client->create($array, [
 // ..
 ```
 
+PLEASE NOTE THAT `chunk-size` IS NOT AVALIABLE WITH PDO DRIVER
+
 ### ttl
 
 You can specify a ttl (in seconds) for your lists:
@@ -223,6 +246,8 @@ $collection = $client->create($array, [
 
 // ..
 ```
+
+PLEASE NOTE THAT `ttl` IS NOT AVALIABLE WITH PDO DRIVER
 
 ## Delete an element
 
@@ -284,6 +309,8 @@ $client->getRepository()->updateTtl(
 // get Ttl of the list
 $client->getRepository()->getTtl('your-list-uuid'); // 3600
 ```
+
+PLEASE NOTE THAT `ttl` IS NOT AVALIABLE WITH PDO DRIVER
 
 ## Validation (Data consistency)
 
@@ -484,7 +511,6 @@ docker exec -it inmemorylist_app_1 bash
 ```
 vendor/bin/phpunit
 ```
-
 
 ## Built With
 

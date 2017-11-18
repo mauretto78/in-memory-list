@@ -6,6 +6,7 @@ services:
     links:
       - redis:redis
       - memcached:memcached
+      - mysql:mysql
     volumes:
       - /var/www/html
     ports:
@@ -18,3 +19,10 @@ services:
   memcached:
     image: memcached
     restart: always
+
+  mysql:
+    image: mysql:latest
+    restart: always
+    command: "mysql -u root -p -e CREATE DATABASE locker"
+    volumes:
+      - /var/lib/mysql

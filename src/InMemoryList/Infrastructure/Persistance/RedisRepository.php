@@ -28,7 +28,7 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
     private $client;
 
     /**
-     * IMListRedisRepository constructor.
+     * RedisRepository constructor.
      *
      * @param Client $client
      */
@@ -382,6 +382,7 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
                     );
 
                     $updatedElementBody = $this->updateListElementBody($listElement, $data);
+
                     if (!ListElementConsistencyChecker::isConsistent($updatedElementBody, $this->findListByUuid($listUuid))) {
                         throw new ListElementNotConsistentException('Element '.(string) $elementUuid.' is not consistent with list data.');
                     }

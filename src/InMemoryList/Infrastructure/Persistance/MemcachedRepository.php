@@ -27,7 +27,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
     private $memcached;
 
     /**
-     * ListMemcachedRepository constructor.
+     * MemcachedRepository constructor.
      *
      * @param \Memcached $memcached
      */

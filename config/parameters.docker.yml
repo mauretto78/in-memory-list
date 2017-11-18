@@ -8,3 +8,12 @@ redis_parameters:
 memcached_parameters:
   host: 'memcached'
   port: '11211'
+
+pdo_parameters:
+  driver: 'mysql'
+  host: 'mysql'
+  username: 'root'
+  password: ~
+  database: 'locker'
+  port: '3306'
+  options: ~
