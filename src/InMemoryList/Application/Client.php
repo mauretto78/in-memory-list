@@ -35,10 +35,10 @@ class Client
      * @param string $driver
      * @param array  $parameters
      */
-    public function __construct($driver = 'redis', array $parameters = [])
+    public function __construct($driver = 'redis', array $parameters = [], $createSchema = false)
     {
         $this->setDriver($driver);
-        $this->setRepository($driver, $parameters);
+        $this->setRepository($driver, $parameters, $createSchema = false);
     }
 
     /**
@@ -74,13 +74,13 @@ class Client
      * @param $driver
      * @param array $config
      */
-    private function setRepository($driver, array $config = [])
+    private function setRepository($driver, array $config = [], $createSchema = false)
     {
         $repository = 'InMemoryList\Infrastructure\Persistance\\'.ucfirst($driver).'Repository';
         $driver = 'InMemoryList\Infrastructure\Drivers\\'.ucfirst($driver).'Driver';
         $instance = (new $driver($config))->getInstance();
 
-        $this->repository = new $repository($instance);
+        $this->repository = new $repository($instance, $createSchema);
     }
 
     /**

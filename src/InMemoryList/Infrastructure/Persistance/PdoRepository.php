@@ -50,11 +50,12 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
     private function createListCollectionSchema()
     {
         $query = "CREATE TABLE IF NOT EXISTS `".self::LIST_COLLECTION_TABLE_NAME."` (
+          `id` int NOT NULL AUTO_INCREMENT,
           `uuid` varchar(255) UNIQUE NOT NULL,
           `headers` text DEFAULT NULL,
           `created_at` TIMESTAMP NOT NULL,
           `updated_at` TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
-          PRIMARY KEY (`uuid`)
+          PRIMARY KEY (`id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
         $this->pdo->exec($query);
@@ -63,12 +64,13 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
     private function createListElementSchema()
     {
         $query = "CREATE TABLE IF NOT EXISTS `".self::LIST_ELEMENT_TABLE_NAME."` (
+          `id` int NOT NULL AUTO_INCREMENT,
           `uuid` varchar(255) UNIQUE NOT NULL,
           `list` varchar(255) NOT NULL,
           `body` text DEFAULT NULL,
           `created_at` TIMESTAMP NOT NULL,
           `updated_at` TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
-          PRIMARY KEY (`uuid`),
+          PRIMARY KEY (`id`),
           CONSTRAINT `list_foreign_key` FOREIGN KEY (`list`) REFERENCES `".self::LIST_COLLECTION_TABLE_NAME."`(`uuid`) ON UPDATE CASCADE ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 

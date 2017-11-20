@@ -32,7 +32,7 @@ class ClientTest extends BaseTestCase
         $this->clients = [
             'apcu' => new Client('apcu'),
             'memcached' => new Client('memcached', $this->memcached_parameters),
-            'pdo' => new Client('pdo', $this->pdo_parameters),
+            'pdo' => new Client('pdo', $this->pdo_parameters, true),
             'redis' => new Client('redis', $this->redis_parameters),
         ];
     }
