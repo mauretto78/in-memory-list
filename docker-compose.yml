@@ -21,7 +21,7 @@ services:
     restart: always
 
   mysql:
-    image: mysql:latest
+    image: mysql
     restart: always
     command: "mysql -u root -p -e CREATE DATABASE locker"
     volumes:
