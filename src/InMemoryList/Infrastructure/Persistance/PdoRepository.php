@@ -23,8 +23,8 @@ use Predis\Client;
 
 class PdoRepository extends AbstractRepository implements ListRepositoryInterface
 {
-    const LIST_COLLECTION_TABLE_NAME = 'list-collection';
-    const LIST_ELEMENT_TABLE_NAME = 'list-element';
+    const LIST_COLLECTION_TABLE_NAME = 'list_collection';
+    const LIST_ELEMENT_TABLE_NAME = 'list_element';
 
     /**
      * @var \PDO
@@ -33,24 +33,28 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
 
     /**
      * PdoRepository constructor.
-     *
+     * 
      * @param \PDO $pdo
+     * @param bool $createSchema
      */
-    public function __construct(\PDO $pdo)
+    public function __construct(\PDO $pdo, $createSchema = false)
     {
         $this->pdo = $pdo;
-        $this->createListCollectionSchema();
-        $this->createListElementSchema();
+
+        if($createSchema){
+            $this->createListCollectionSchema();
+            $this->createListElementSchema();
+        }
     }
 
     private function createListCollectionSchema()
     {
         $query = "CREATE TABLE IF NOT EXISTS `".self::LIST_COLLECTION_TABLE_NAME."` (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `uuid` varchar(255) NOT NULL,
+          `uuid` varchar(255) UNIQUE NOT NULL,
           `headers` text DEFAULT NULL,
-          `created_at` datetime(6),
-          PRIMARY KEY (`id`)
+          `created_at` TIMESTAMP NOT NULL,
+          `updated_at` TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+          PRIMARY KEY (`uuid`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
         $this->pdo->exec($query);
@@ -59,11 +63,13 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
     private function createListElementSchema()
     {
         $query = "CREATE TABLE IF NOT EXISTS `".self::LIST_ELEMENT_TABLE_NAME."` (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `uuid` varchar(255) NOT NULL,
+          `uuid` varchar(255) UNIQUE NOT NULL,
           `list` varchar(255) NOT NULL,
           `body` text DEFAULT NULL,
-          PRIMARY KEY (`id`)
+          `created_at` TIMESTAMP NOT NULL,
+          `updated_at` TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+          PRIMARY KEY (`uuid`),
+          CONSTRAINT `list_foreign_key` FOREIGN KEY (`list`) REFERENCES `".self::LIST_COLLECTION_TABLE_NAME."`(`uuid`) ON UPDATE CASCADE ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
         $this->pdo->exec($query);
@@ -420,7 +426,7 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
      */
     public function getCounter($listUuid)
     {
-        $sql = 'SELECT `id` FROM `'.self::LIST_ELEMENT_TABLE_NAME.'` WHERE `list` = :list';
+        $sql = 'SELECT `uuid` FROM `'.self::LIST_ELEMENT_TABLE_NAME.'` WHERE `list` = :list';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam(':list', $listUuid);
         $stmt->execute();

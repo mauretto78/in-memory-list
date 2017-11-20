@@ -52,7 +52,7 @@ class RepositoryTest extends BaseTestCase
         $this->repos = [
             new ApcuRepository(),
             new MemcachedRepository($memcached),
-            new PdoRepository($pdo),
+            new PdoRepository($pdo, true),
             new RedisRepository(new Client($redis_parameters)),
         ];
     }
