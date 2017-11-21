@@ -108,22 +108,28 @@ class PdoDriver implements DriverInterface
             $servers = $servers[0];
         }
 
-        if (count($servers) === 0) {
-            $servers = [
-                'host' => '127.0.0.1',
-                'port' => 3306,
-                'username' => 'root',
-                'password' => null,
-                'driver' => 'mysql',
-                'charset' => 'utf8',
-                'database' => 'in-memory-list',
-            ];
-        }
+        $default = [
+            'host' => '127.0.0.1',
+            'port' => 3306,
+            'username' => 'root',
+            'password' => null,
+            'driver' => 'mysql',
+            'charset' => 'utf8',
+            'database' => 'in-memory-list',
+        ];
 
-        $port = (isset($servers['port'])) ? $servers['port'] : '3306';
-        $charset = (isset($servers['charset'])) ? $servers['charset'] : 'utf8';
+        $servers = array_merge($default, $servers);
+        $port = $servers['port'] ?? '3306';
+        $charset = $servers['charset'] ?? 'utf8';
 
-        $dsn = $servers['driver'].':host='.$servers['host'].':'.$port.';dbname='.$servers['database'].';charset='.$charset;
+        $dsn = sprintf(
+            '%s:host=%s:%s;dbname=%s;charset=%s',
+            $servers['driver'],
+            $servers['host'],
+            $port,
+            $servers['database'],
+            $charset
+            );
 
         $this->instance = new \PDO($dsn, $servers['username'], $servers['password']);
 
