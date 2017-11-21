@@ -95,7 +95,6 @@ class PdoDriver implements DriverInterface
      */
     public function clear()
     {
-        
     }
 
     /**

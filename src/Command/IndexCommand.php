@@ -54,7 +54,7 @@ class IndexCommand extends BaseCommand
         if ($index && count($index)) {
             ksort($index);
             $table = new Table($output);
-            $table->setHeaders(['#', 'List', 'Created on', 'Chunks', 'Chunk size', 'Headers', 'Ttl','Expires on', 'Items']);
+            $table->setHeaders(['#', 'List', 'Created on', 'Chunks', 'Chunk size', 'Headers', 'Ttl', 'Expires on', 'Items']);
 
             $counter = 0;
             foreach ($index as $item) {

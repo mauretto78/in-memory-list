@@ -122,12 +122,13 @@ class RedisRepository extends AbstractRepository implements ListRepositoryInterf
     /**
      * @param $listUuid
      * @param $numberOfChunks
+     *
      * @return array
      */
     private function getArrayChunksKeys($listUuid, $numberOfChunks)
     {
         $arrayChunksKeys = [];
-        for($i=0;$i<$numberOfChunks;$i++){
+        for ($i = 0; $i < $numberOfChunks; ++$i) {
             $arrayChunksKeys[] = $listUuid.self::SEPARATOR.self::CHUNK.'-'.($i + 1);
         }
 

@@ -10,6 +10,8 @@ $config = require __DIR__ . '/../app/bootstrap.php';
 $app = new \Symfony\Component\Console\Application('In Memory List', 'v1.2');
 
 // add commands here
+$app->add(new \InMemoryList\Command\CreateSchemaCommand($config['pdo_parameters']));
+$app->add(new \InMemoryList\Command\DestroySchemaCommand($config['pdo_parameters']));
 $app->add(new \InMemoryList\Command\FlushCommand('memcached', $config['memcached_parameters']));
 $app->add(new \InMemoryList\Command\IndexCommand('memcached', $config['memcached_parameters']));
 $app->add(new \InMemoryList\Command\StatisticsCommand('memcached', $config['memcached_parameters']));

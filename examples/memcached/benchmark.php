@@ -28,10 +28,10 @@ foreach ($range as $number) {
 
 $client = new Client('memcached', $config['memcached_parameters']);
 
-if(!$client->getRepository()->existsListInIndex('range-list')){
+if (!$client->getRepository()->existsListInIndex('range-list')) {
     $client->create($array, [
         'uuid' => 'range-list',
-        'element-uuid' => 'id'
+        'element-uuid' => 'id',
     ]);
 }
 

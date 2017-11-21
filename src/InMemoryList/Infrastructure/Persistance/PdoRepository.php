@@ -16,10 +16,8 @@ use InMemoryList\Domain\Model\Contracts\ListRepositoryInterface;
 use InMemoryList\Domain\Model\Exceptions\ListElementNotConsistentException;
 use InMemoryList\Domain\Model\ListCollection;
 use InMemoryList\Domain\Model\ListElement;
-use InMemoryList\Domain\Model\ListElementUuid;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListAlreadyExistsException;
 use InMemoryList\Infrastructure\Persistance\Exceptions\ListDoesNotExistsException;
-use Predis\Client;
 
 class PdoRepository extends AbstractRepository implements ListRepositoryInterface
 {
@@ -33,48 +31,12 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
 
     /**
      * PdoRepository constructor.
-     * 
+     *
      * @param \PDO $pdo
-     * @param bool $createSchema
      */
-    public function __construct(\PDO $pdo, $createSchema = false)
+    public function __construct(\PDO $pdo)
     {
         $this->pdo = $pdo;
-
-        if($createSchema){
-            $this->createListCollectionSchema();
-            $this->createListElementSchema();
-        }
-    }
-
-    private function createListCollectionSchema()
-    {
-        $query = "CREATE TABLE IF NOT EXISTS `".self::LIST_COLLECTION_TABLE_NAME."` (
-          `id` int NOT NULL AUTO_INCREMENT,
-          `uuid` varchar(255) UNIQUE NOT NULL,
-          `headers` text DEFAULT NULL,
-          `created_at` TIMESTAMP NOT NULL,
-          `updated_at` TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
-          PRIMARY KEY (`id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-
-        $this->pdo->exec($query);
-    }
-
-    private function createListElementSchema()
-    {
-        $query = "CREATE TABLE IF NOT EXISTS `".self::LIST_ELEMENT_TABLE_NAME."` (
-          `id` int NOT NULL AUTO_INCREMENT,
-          `uuid` varchar(255) UNIQUE NOT NULL,
-          `list` varchar(255) NOT NULL,
-          `body` text DEFAULT NULL,
-          `created_at` TIMESTAMP NOT NULL,
-          `updated_at` TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
-          PRIMARY KEY (`id`),
-          CONSTRAINT `list_foreign_key` FOREIGN KEY (`list`) REFERENCES `".self::LIST_COLLECTION_TABLE_NAME."`(`uuid`) ON UPDATE CASCADE ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-
-        $this->pdo->exec($query);
     }
 
     /**
@@ -101,7 +63,7 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
         $data = [
             'uuid' => $list->getUuid(),
             'headers' => $list->getHeaders(),
-            'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s.u')
+            'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s.u'),
         ];
 
         $st[] = [
@@ -109,9 +71,8 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
             'data' => $data,
         ];
 
-        foreach ($list->getElements() as $uuid => $element){
+        foreach ($list->getElements() as $uuid => $element) {
             /** @var ListElement $element */
-
             $sql = 'INSERT INTO `'.self::LIST_ELEMENT_TABLE_NAME.'` (
                     `uuid`,
                     `list`,
@@ -143,21 +104,20 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
     private function executeQueriesInATransaction(array $statements)
     {
         try {
-            $this->pdo->setAttribute(\PDO::ATTR_ERRMODE,\PDO::ERRMODE_EXCEPTION);
+            $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
             // beginTransaction
             $this->pdo->beginTransaction();
 
-            foreach ($statements as $statement){
-                if(isset($statement['sql'])){
-
+            foreach ($statements as $statement) {
+                if (isset($statement['sql'])) {
                     $sql = $statement['sql'];
                     $data = isset($statement['data']) ? $statement['data'] : [];
 
                     $stmt = $this->pdo->prepare($sql);
                     if (!empty($data)) {
-                        foreach ($data as $key => &$value){
-                            if(is_array($value)){
+                        foreach ($data as $key => &$value) {
+                            if (is_array($value)) {
                                 $value = serialize($value);
                             }
 
@@ -170,7 +130,7 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
 
             // commit
             $this->pdo->commit();
-        } catch(\PDOException $e){
+        } catch (\PDOException $e) {
             $this->pdo->rollBack();
             throw $e;
         }
@@ -222,11 +182,11 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
             \PDO::FETCH_ASSOC
         );
 
-        if(count($list) === 0){
+        if (count($list) === 0) {
             return [];
         }
 
-        foreach ($list as $item){
+        foreach ($list as $item) {
             $items[$item['uuid']] = unserialize($item['body']);
         }
 
@@ -263,7 +223,7 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
         $stmt->bindParam(':uuid', $listUuid);
         $stmt->execute();
 
-        if($list = $stmt->fetchAll(\PDO::FETCH_ASSOC)){
+        if ($list = $stmt->fetchAll(\PDO::FETCH_ASSOC)) {
             $headers = $list[0]['headers'];
 
             if (SerializeChecker::isSerialized($headers)) {
@@ -294,19 +254,19 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
                 JOIN `'.$lc.'` 
                 ON `'.$lt.'`.`list` = `'.$lc.'`.`uuid`';
 
-        if($listUuid){
+        if ($listUuid) {
             $sql .= 'WHERE `'.$lc.'`.`uuid` = :list';
         }
 
         $stmt = $this->pdo->prepare($sql);
-        if($listUuid){
+        if ($listUuid) {
             $stmt->bindParam(':list', $listUuid);
         }
         $stmt->execute();
 
         $list = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        foreach ($list as $item){
+        foreach ($list as $item) {
             $index[$item['uuid']] = [
                 'uuid' => $item['uuid'],
                 'created_on' => \DateTime::createFromFormat('Y-m-d H:i:s.u', $item['created_at']),
@@ -314,7 +274,7 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
                 'chunks' => 0,
                 'chunk-size' => 0,
                 'headers' => $this->getHeaders($item['uuid']),
-                'ttl' => 0
+                'ttl' => 0,
             ];
 
             return $index;
@@ -395,7 +355,7 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
             throw new ListElementNotConsistentException('Element '.(string) $elementUuid.' is not consistent with list data.');
         }
 
-        if(is_array($updatedElementBody) || is_object($updatedElementBody)){
+        if (is_array($updatedElementBody) || is_object($updatedElementBody)) {
             $updatedElementBody = serialize($updatedElementBody);
         }
 
@@ -434,5 +394,49 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
         $stmt->execute();
 
         return $stmt->rowCount();
+    }
+
+    /**
+     * creates database schema.
+     */
+    public function createSchema()
+    {
+        $query = 'CREATE TABLE IF NOT EXISTS `'.self::LIST_COLLECTION_TABLE_NAME.'` (
+          `id` int NOT NULL AUTO_INCREMENT,
+          `uuid` varchar(255) UNIQUE NOT NULL,
+          `headers` text DEFAULT NULL,
+          `created_at` TIMESTAMP NOT NULL,
+          `updated_at` TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+          PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;';
+
+        $this->pdo->exec($query);
+
+        $query2 = 'CREATE TABLE IF NOT EXISTS `'.self::LIST_ELEMENT_TABLE_NAME.'` (
+          `id` int NOT NULL AUTO_INCREMENT,
+          `uuid` varchar(255) NOT NULL,
+          `list` varchar(255) NOT NULL,
+          `body` text DEFAULT NULL,
+          `created_at` TIMESTAMP NOT NULL,
+          `updated_at` TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+          PRIMARY KEY (`id`),
+          CONSTRAINT `list_foreign_key` FOREIGN KEY (`list`) REFERENCES `'.self::LIST_COLLECTION_TABLE_NAME.'`(`uuid`) ON UPDATE CASCADE ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;';
+
+        $this->pdo->exec($query2);
+    }
+
+    /**
+     * destroys database schema.
+     */
+    public function destroySchema()
+    {
+        $query = 'DROP TABLE IF EXISTS `'.self::LIST_COLLECTION_TABLE_NAME.'`';
+
+        $this->pdo->exec($query);
+
+        $query2 = 'DROP TABLE IF EXISTS `'.self::LIST_ELEMENT_TABLE_NAME.'`';
+
+        $this->pdo->exec($query2);
     }
 }

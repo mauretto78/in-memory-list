@@ -28,10 +28,10 @@ foreach ($range as $number) {
 
 $client = new Client('apcu');
 
-if(!$client->getRepository()->existsListInIndex('range-list')){
+if (!$client->getRepository()->existsListInIndex('range-list')) {
     $client->create($array, [
         'uuid' => 'range-list',
-        'element-uuid' => 'id']);
+        'element-uuid' => 'id', ]);
 }
 
 $collection = $client->getRepository()->findListByUuid('range-list');
@@ -39,7 +39,6 @@ $collection = $client->getRepository()->findListByUuid('range-list');
 // loop items
 echo '<h3>Loop items</h3>';
 foreach ($collection as $element) {
-
     echo '<p>';
     echo '<strong>id</strong>: '.$element['id'].'<br>';
     echo '<strong>name</strong>: '.$element['name'].'<br>';

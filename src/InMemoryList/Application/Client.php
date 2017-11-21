@@ -74,13 +74,13 @@ class Client
      * @param $driver
      * @param array $config
      */
-    private function setRepository($driver, array $config = [], $createSchema = false)
+    private function setRepository($driver, array $config = [])
     {
         $repository = 'InMemoryList\Infrastructure\Persistance\\'.ucfirst($driver).'Repository';
         $driver = 'InMemoryList\Infrastructure\Drivers\\'.ucfirst($driver).'Driver';
         $instance = (new $driver($config))->getInstance();
 
-        $this->repository = new $repository($instance, $createSchema);
+        $this->repository = new $repository($instance);
     }
 
     /**

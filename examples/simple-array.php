@@ -29,11 +29,11 @@ $simpleArray = [
 $client = new Client('memcached', $config['memcached_parameters']);
 $client->getRepository()->flush();
 
-if(!$client->getRepository()->existsListInIndex('simple-list')){
+if (!$client->getRepository()->existsListInIndex('simple-list')) {
     $client->create($simpleArray, [
         'uuid' => 'simple-list',
         'element-uuid' => 'id',
-        'ttl' => 1000
+        'ttl' => 1000,
         ]
     );
 }

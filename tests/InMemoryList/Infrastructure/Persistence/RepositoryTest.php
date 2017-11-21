@@ -150,7 +150,7 @@ class RepositoryTest extends BaseTestCase
 
             $this->assertEquals(0, $repo->getCounter($collectionUuid));
 
-            if(!$repo instanceof PdoRepository){
+            if (!$repo instanceof PdoRepository) {
                 $this->assertEquals(0, $repo->getNumberOfChunks($collectionUuid));
                 $this->assertEquals(0, $repo->getChunkSize($collectionUuid));
             }
@@ -244,7 +244,7 @@ class RepositoryTest extends BaseTestCase
 
             $repo->create($collection, 3600);
 
-            if(!$repo instanceof PdoRepository){
+            if (!$repo instanceof PdoRepository) {
                 try {
                     $repo->updateTtl('not existing hash', 7200);
                 } catch (\Exception $exception) {
@@ -293,7 +293,7 @@ class RepositoryTest extends BaseTestCase
             $this->assertEquals(10, $listInTheIndex['size']);
             $this->assertArrayHasKey($listUuid1, $repo->getIndex());
 
-            if(!$repo instanceof PdoRepository){
+            if (!$repo instanceof PdoRepository) {
                 $repo->updateTtl((string) $listUuid, -1);
                 $this->assertEquals(-1, $repo->getTtl((string) $listUuid));
                 $this->assertGreaterThan(0, $repo->getStatistics());

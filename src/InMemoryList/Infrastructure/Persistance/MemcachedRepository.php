@@ -150,7 +150,7 @@ class MemcachedRepository extends AbstractRepository implements ListRepositoryIn
     {
         $listFirstChunk = $this->memcached->get($listUuid.self::SEPARATOR.self::CHUNK.'-1');
 
-        if(false === $listFirstChunk){
+        if (false === $listFirstChunk) {
             return false;
         }
 

@@ -416,6 +416,8 @@ If you have an application which uses [Symfony Console](https://github.com/symfo
 
 * `iml:cache:flush` to flush the cache
 * `iml:cache:index [<from>] [<to>]` to get full index of items stored in cache
+* `iml:cache:schema:create`   Create database schema (only for PDO driver)
+* `iml:cache:schema:destroy`  Destroys database schema (only for PDO driver)
 * `iml:cache:statistics` to get cache statistics
 
 You can register the commands in your app, consider this example:
@@ -442,6 +444,8 @@ $console = $app['console'];
 
 // add commands here
 ...
+$console->add(new \InMemoryList\Command\CreateSchemaCommand(...));
+$console->add(new \InMemoryList\Command\DestroySchemaCommand(...));
 $console->add(new \InMemoryList\Command\FlushCommand(...));
 $console->add(new \InMemoryList\Command\IndexCommand(...));
 $console->add(new \InMemoryList\Command\StatisticsCommand(...));
@@ -482,6 +486,15 @@ redis_parameters:
 memcached_parameters:
   host: 'localhost'
   port: '11211'
+
+pdo_parameters:
+  driver: 'mysql'
+  host: '127.0.0.1'
+  username: 'root'
+  password: ~
+  database: 'in-memory-list'
+  port: '3306'
+  options: ~  
 ```
 
 ### 2. Run the project with Docker

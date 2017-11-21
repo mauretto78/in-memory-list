@@ -34,8 +34,7 @@ $headers = [
 $client = new Client('memcached', $config['memcached_parameters']);
 $client->getRepository()->flush();
 
-
-if(!$client->getRepository()->existsListInIndex('simple-list-with-h')){
+if (!$client->getRepository()->existsListInIndex('simple-list-with-h')) {
     $client->create($simpleArray, [
         'uuid' => 'simple-list-with-h',
         'element-uuid' => 'id',
