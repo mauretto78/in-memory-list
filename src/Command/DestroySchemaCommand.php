@@ -40,9 +40,14 @@ class DestroySchemaCommand extends BaseCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        if($this->driver !== 'pdo'){
+            throw new \Exception('This command is avaliable only with PDO driver');
+        }
+
         $cache = $this->createClient($this->driver, $this->parameters);
 
         try {
+            $cache->getRepository()->flush();
             $cache->getRepository()->destroySchema();
 
             $output->writeln('<fg=red>['.$this->driver.'] Schema was successful destroyed.</>');
