@@ -58,7 +58,10 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
                     :uuid,
                     :headers,
                     :created_at
-            )';
+            ) ON DUPLICATE KEY UPDATE 
+                `headers` = :headers,
+                `created_at` = :created_at
+            ';
 
         $data = [
             'uuid' => $list->getUuid(),
@@ -81,7 +84,10 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
                     :uuid,
                     :list,
                     :body
-            )';
+            ) ON DUPLICATE KEY UPDATE 
+                `list` = :list,
+                `body` = :body
+            ';
 
             $data = [
                 'uuid' => $uuid,
