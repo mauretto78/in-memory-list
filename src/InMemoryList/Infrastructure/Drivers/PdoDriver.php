@@ -119,16 +119,13 @@ class PdoDriver implements DriverInterface
         ];
 
         $servers = array_merge($default, $servers);
-        $port = $servers['port'] ?? '3306';
-        $charset = $servers['charset'] ?? 'utf8';
-
         $dsn = sprintf(
             '%s:host=%s:%s;dbname=%s;charset=%s',
             $servers['driver'],
             $servers['host'],
-            $port,
+            $servers['port'] ?? '3306',
             $servers['database'],
-            $charset
+            $servers['charset'] ?? 'utf8'
             );
 
         $this->instance = new \PDO($dsn, $servers['username'], $servers['password']);
