@@ -120,7 +120,7 @@ class PdoDriver implements DriverInterface
 
         $servers = array_merge($default, $servers);
         $dsn = sprintf(
-            '%s:host=%s:%s;dbname=%s;charset=%s',
+            '%s:host=%s;port=%s;dbname=%s;charset=%s',
             $servers['driver'],
             $servers['host'],
             $servers['port'] ?? '3306',
