@@ -50,7 +50,7 @@ class RepositoryTest extends BaseTestCase
         $pdo = new \PDO($dsn, $pdo_parameters['username'], $pdo_parameters['password']);
 
         $this->repos = [
-            new ApcuRepository(),
+//            new ApcuRepository(),
             new MemcachedRepository($memcached),
             new PdoRepository($pdo, true),
             new RedisRepository(new Client($redis_parameters)),
@@ -273,16 +273,25 @@ class RepositoryTest extends BaseTestCase
 
             $listUuid = new ListCollectionUuid();
             $collection = new ListCollection($listUuid);
+
+            $listUuid2 = new ListCollectionUuid();
+            $collection2 = new ListCollection($listUuid2);
+
             foreach ($parsedArrayFromJson as $element) {
                 $collection->addElement(new ListElement($fakeUuid1 = new ListElementUuid(), $element));
+                $collection2->addElement(new ListElement($fakeUuid2 = new ListElementUuid(), $element));
             }
             $collection->setHeaders($headers);
+            $collection2->setHeaders($headers);
 
             $repo->create($collection, 3600);
+            $repo->create($collection2, 3600);
 
             $listUuid1 = (string) $collection->getUuid();
+            $listUuid2 = (string) $collection2->getUuid();
             $list = $repo->findListByUuid($listUuid1);
             $element = $repo->findElement($listUuid1, $fakeUuid1->getUuid());
+
             $listInTheIndex = $repo->getIndex()[$listUuid1];
 
             $this->assertCount(10, $list);
@@ -291,7 +300,10 @@ class RepositoryTest extends BaseTestCase
             $this->assertArrayHasKey('expires', $repo->getHeaders($listUuid1));
             $this->assertArrayHasKey('hash', $repo->getHeaders($listUuid1));
             $this->assertEquals(10, $listInTheIndex['size']);
+
             $this->assertArrayHasKey($listUuid1, $repo->getIndex());
+            $this->assertArrayHasKey($listUuid2, $repo->getIndex());
+            $this->assertCount(2, $repo->getIndex());
 
             if (!$repo instanceof PdoRepository) {
                 $repo->updateTtl((string) $listUuid, -1);

@@ -257,7 +257,7 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
                 `'.$lc.'`.`headers`,
                 `'.$lc.'`.`created_at`
                 FROM `'.$lt.'` 
-                JOIN `'.$lc.'` 
+                INNER JOIN `'.$lc.'` 
                 ON `'.$lt.'`.`list` = `'.$lc.'`.`uuid`';
 
         if ($listUuid) {
@@ -272,21 +272,21 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
 
         $list = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
+        $index = [];
+
         foreach ($list as $item) {
             $index[$item['uuid']] = [
                 'uuid' => $item['uuid'],
                 'created_on' => \DateTime::createFromFormat('Y-m-d H:i:s.u', $item['created_at']),
-                'size' => $stmt->rowCount(),
+                'size' => $this->getCounter($item['uuid']),
                 'chunks' => 0,
                 'chunk-size' => 0,
                 'headers' => $this->getHeaders($item['uuid']),
                 'ttl' => 0,
             ];
-
-            return $index;
         }
 
-        return null;
+        return $index;
     }
 
     /**
@@ -321,7 +321,10 @@ class PdoRepository extends AbstractRepository implements ListRepositoryInterfac
                     :uuid,
                     :list,
                     :body
-            )';
+            ) ON DUPLICATE KEY UPDATE 
+                `list` = :list,
+                `body` = :body
+            ';
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam(':uuid', $elementUuid);
