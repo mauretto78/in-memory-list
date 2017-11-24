@@ -50,7 +50,7 @@ class RepositoryTest extends BaseTestCase
         $pdo = new \PDO($dsn, $pdo_parameters['username'], $pdo_parameters['password']);
 
         $this->repos = [
-//            new ApcuRepository(),
+            new ApcuRepository(),
             new MemcachedRepository($memcached),
             new PdoRepository($pdo, true),
             new RedisRepository(new Client($redis_parameters)),
