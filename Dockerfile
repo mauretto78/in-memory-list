@@ -16,7 +16,7 @@ RUN apt-get update
 RUN apt-get install -y curl nano git zip
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# MySQL
+# Pdo
 RUN docker-php-ext-install pdo pdo_mysql
 
 # Memcached

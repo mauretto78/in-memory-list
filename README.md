@@ -87,7 +87,7 @@ $pdo_parameters = [
     'host' => '127.0.0.1',
     'username' => 'root',
     'password' => '',
-    'database' => 'locker'
+    'database' => 'in-memory-list'
     'port' => '3306'
 ];
 
@@ -519,9 +519,11 @@ docker-compose up -d
 docker exec -it inmemorylist_app_1 bash
 ```
 
-**STEP4: Run the tests in the container**
+**STEP4: Create the schema and run the tests in the container**
 
 ```
+php bin/console iml:cache:schema:create
+
 vendor/bin/phpunit
 ```
 

@@ -10,10 +10,10 @@ memcached_parameters:
   port: '11211'
 
 pdo_parameters:
-  driver: 'mysql'
-  host: 'mysql'
-  username: 'root'
-  password: ~
-  database: 'locker'
+  driver: mysql
+  host: mysql
+  username: docker
+  password: docker
+  database: 'in_memory_list'
   port: '3306'
   options: ~

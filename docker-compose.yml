@@ -4,9 +4,9 @@ services:
   app:
     build: .
     links:
-      - redis:redis
-      - memcached:memcached
-      - mysql:mysql
+      - redis
+      - memcached
+      - mysql
     volumes:
       - /var/www/html
     ports:
@@ -21,8 +21,10 @@ services:
     restart: always
 
   mysql:
-    image: mysql
+    image: mariadb:latest
     restart: always
-    command: "mysql -u root -p -e CREATE DATABASE locker"
-    volumes:
-      - /var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_DATABASE: in_memory_list
+      MYSQL_USER: docker
+      MYSQL_PASSWORD: docker
